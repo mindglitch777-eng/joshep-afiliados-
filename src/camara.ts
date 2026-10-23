@@ -1,12 +1,13 @@
 import {interpolate} from 'remotion';
+import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
-import {cortesDeRitmo, cambiosDelPlan} from './ritmo';
 import {EASE_ZOOM} from './theme';
 
 const W = 1080, H = 1920;
 const CARA_FIJA: MuestraCara = {t: 0, x: 0.5, y: 0.35, w: 0.37, h: 0.26};
-const ZOOM_ENFASIS = 1.18, PUSH = 0.06;
+const ZOOM_ENFASIS = 1.18;
 const SUBE = 21, BAJA = 13, ANTICIPO = 4; // frames
+export const PUNCH = 9; // frames de cada cambio de plano
 
 // face_track: interpola entre muestras, suaviza con EMA (alpha 0.15) y mantiene la última posición válida.
 export const pistaCara = (plan: Plan, fps: number, frames: number): MuestraCara[] => {
@@ -32,36 +33,48 @@ export const pistaCara = (plan: Plan, fps: number, frames: number): MuestraCara[
   return out;
 };
 
-// Escala: push-in continuo 1.00→1.06 por plano + énfasis 1.18 con bezier.
-const escalaEn = (plan: Plan, fps: number, frame: number) => {
-  const t = frame / fps;
-  const cortes = [...cambiosDelPlan(plan), ...cortesDeRitmo(plan), ...(plan.transiciones ?? [])].sort((a, b) => a - b);
-  const ini = cortes.filter((c) => c <= t).pop() ?? 0;
-  const fin = cortes.find((c) => c > t) ?? plan.duracion;
-  const push = 1 + PUSH * ((t - ini) / Math.max(fin - ini, 0.1));
-  let k = 0;
-  for (const p of plan.piezas) {
-    if (p.tipo !== 'enfasis') continue;
-    const a = Math.round(p.desde * fps) - ANTICIPO, b = Math.round(p.hasta * fps);
-    if (frame < a || frame > b + BAJA) continue;
-    k = frame <= b
-      ? interpolate(frame, [a, a + SUBE], [0, 1], {easing: EASE_ZOOM, extrapolateRight: 'clamp'})
-      : interpolate(frame, [b, b + BAJA], [1, 0], {easing: EASE_ZOOM, extrapolateLeft: 'clamp'});
-  }
-  return push + (ZOOM_ENFASIS - push) * k;
+// Encuadre de un plano en su progreso p (0-1): push-in 1.00→1.10 o abierto con reencuadre lateral ±3%.
+const encuadre = (pl: Plano, p: number) => {
+  const e = EASE_ZOOM(Math.min(Math.max(p, 0), 1));
+  return pl.tipo === 'push' ? {s: 1 + 0.1 * e, dx: 0} : {s: 1.06, dx: pl.dir * (-0.03 + 0.06 * e) * W};
 };
 
-export type Camara = {s: number; tx: number; ty: number; cara: {x: number; y: number; w: number; h: number}};
+export type Camara = {s: number; tx: number; ty: number; enPunch: boolean; cara: {x: number; y: number; w: number; h: number}};
 
-// Centra la cara en (50%, 38%) con translate, limitado para que nunca se vean bordes.
-export const camaraEn = (plan: Plan, pista: MuestraCara[], fps: number, frame: number): Camara => {
-  const s = escalaEn(plan, fps, frame);
-  const c = pista[Math.min(frame, pista.length - 1)] ?? CARA_FIJA;
+// frame puede ser fraccionario (muestras del motion blur): nada se redondea.
+export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number, frame: number): Camara => {
+  const t = frame / fps;
+  const i = Math.max(0, planos.findIndex((p) => t >= p.ini && t < p.fin));
+  const pl = planos[i] ?? {ini: 0, fin: plan.duracion, tipo: 'push', dir: 1};
+  const prog = (x: Plano, tt: number) => (tt - x.ini) / Math.max(x.fin - x.ini, 0.1);
+  let {s, dx} = encuadre(pl, prog(pl, t));
+  // punch: 9 frames de transición con bezier desde el final del plano anterior + golpe de escala de 3%
+  const local = frame - pl.ini * fps;
+  const enPunch = i > 0 && local < PUNCH;
+  if (enPunch) {
+    const a = encuadre(planos[i - 1], 1), k = EASE_ZOOM(local / PUNCH);
+    s = a.s + (s - a.s) * k;
+    dx = a.dx + (dx - a.dx) * k;
+    s *= 1 + 0.03 * Math.sin(Math.PI * k);
+  }
+  // énfasis: zoom 1.18 que arranca 4 frames antes de la palabra
+  for (const p of plan.piezas) {
+    if (p.tipo !== 'enfasis') continue;
+    const a = p.desde * fps - ANTICIPO, b = p.hasta * fps;
+    if (frame < a || frame > b + BAJA) continue;
+    const k = frame <= b
+      ? interpolate(frame, [a, a + SUBE], [0, 1], {easing: EASE_ZOOM, extrapolateRight: 'clamp'})
+      : interpolate(frame, [b, b + BAJA], [1, 0], {easing: EASE_ZOOM, extrapolateLeft: 'clamp'});
+    s = s + (ZOOM_ENFASIS - s) * k;
+    dx *= 1 - k;
+  }
+  // cara a (50%, 38%) con translate, limitado para que nunca se vean bordes
+  const fi = Math.min(Math.max(Math.floor(frame), 0), pista.length - 1);
+  const c = pista[fi] ?? CARA_FIJA;
   const px = c.x * W, py = c.y * H;
   const lim = (v: number, m: number) => Math.max(-m, Math.min(m, v));
-  const tx = lim(W * 0.5 - (W / 2 + s * (px - W / 2)), ((s - 1) * W) / 2);
+  const tx = lim(W * 0.5 - (W / 2 + s * (px - W / 2)) + dx, ((s - 1) * W) / 2);
   const ty = lim(H * 0.38 - (H / 2 + s * (py - H / 2)), ((s - 1) * H) / 2);
-  // caja de la cara en pantalla (px), para ubicar tarjetas y etiquetas
   const cx = W / 2 + s * (px - W / 2) + tx, cy = H / 2 + s * (py - H / 2) + ty;
-  return {s, tx, ty, cara: {x: cx, y: cy, w: c.w * W * s, h: c.h * H * s}};
+  return {s, tx, ty, enPunch, cara: {x: cx, y: cy, w: c.w * W * s, h: c.h * H * s}};
 };
