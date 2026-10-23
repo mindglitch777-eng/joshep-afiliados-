@@ -1,6 +1,6 @@
 import {Composition} from 'remotion';
 import {Clip} from './Clip';
-import {FPS, Plan} from './plan';
+import {Plan} from './plan';
 import ejemplo from '../plans/ejemplo.json';
 
 export const Root: React.FC = () => (
@@ -9,9 +9,12 @@ export const Root: React.FC = () => (
     component={Clip}
     width={1080}
     height={1920}
-    fps={FPS}
-    durationInFrames={300}
+    fps={30}
+    durationInFrames={600}
     defaultProps={ejemplo as Plan}
-    calculateMetadata={({props}) => ({durationInFrames: Math.round(props.duracion * FPS)})}
+    calculateMetadata={({props}) => {
+      const fps = props.fps ?? 30;
+      return {fps, durationInFrames: Math.round(props.duracion * fps)};
+    }}
   />
 );

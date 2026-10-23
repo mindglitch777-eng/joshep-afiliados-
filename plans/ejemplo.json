@@ -1,10 +1,14 @@
 {
+ "fps": 30,
  "video": null,
  "duracion": 20,
  "musica": {
-  "archivo": "music/bg-loop.mp3",
-  "volumen": 0.08
+  "archivo": "music/bg-loop.mp3"
  },
+ "transiciones": [
+  6,
+  11
+ ],
  "piezas": [
   {
    "tipo": "gancho",
@@ -17,7 +21,7 @@
    "desde": 6,
    "hasta": 8.5,
    "mal": "Hablar sin parar de vos",
-   "bien": "Hacer preguntas que la hagan sentir"
+   "bien": "Preguntas que la hagan sentir"
   },
   {
    "tipo": "pasos",
@@ -25,173 +29,258 @@
    "hasta": 11,
    "titulo": "3 claves",
    "pasos": [
-    "Mirala a los ojos",
-    "Bajá el ritmo al hablar",
-    "Sonreí sin pedir aprobación"
+    "Sostené la mirada",
+    "Hablá más lento",
+    "Sonreí sin pedir nada"
+   ],
+   "tiempos": [
+    8.6,
+    9.56,
+    10.45
    ]
   },
   {
    "tipo": "enfasis",
    "desde": 14.5,
    "hasta": 15.5,
-   "palabra": "Confianza",
-   "zoom": {
-    "x": 0.5,
-    "y": 0.3,
-    "escala": 1.7
-   }
+   "palabra": "Confianza"
   }
  ],
  "subtitulos": [
   {
-   "texto": "la",
+   "texto": "La",
    "desde": 2,
-   "hasta": 2.5
+   "hasta": 2.27
   },
   {
    "texto": "mayoría",
-   "desde": 2.5,
-   "hasta": 3
+   "desde": 2.3,
+   "hasta": 2.91
   },
   {
    "texto": "arruina",
-   "desde": 3,
-   "hasta": 3.5
+   "desde": 2.96,
+   "hasta": 3.58
   },
   {
    "texto": "la",
-   "desde": 3.5,
-   "hasta": 4
+   "desde": 3.63,
+   "hasta": 3.9
   },
   {
    "texto": "primera",
-   "desde": 4,
-   "hasta": 4.5
+   "desde": 3.93,
+   "hasta": 4.54
   },
   {
-   "texto": "cita",
-   "desde": 4.5,
-   "hasta": 5
+   "texto": "cita,",
+   "desde": 4.59,
+   "hasta": 5.07
   },
   {
    "texto": "por",
-   "desde": 5,
-   "hasta": 5.5
+   "desde": 5.11,
+   "hasta": 5.45
   },
   {
-   "texto": "esto",
-   "desde": 5.5,
-   "hasta": 6
+   "texto": "esto.",
+   "desde": 5.48,
+   "hasta": 5.96
   },
   {
-   "texto": "cuando",
-   "desde": 11,
-   "hasta": 11.32
+   "texto": "Hablan",
+   "desde": 6.1,
+   "hasta": 6.52
   },
   {
-   "texto": "ella",
-   "desde": 11.32,
-   "hasta": 11.64
+   "texto": "sin",
+   "desde": 6.56,
+   "hasta": 6.82
   },
   {
-   "texto": "te",
-   "desde": 11.64,
-   "hasta": 11.95
+   "texto": "parar",
+   "desde": 6.85,
+   "hasta": 7.22
   },
   {
-   "texto": "mira",
-   "desde": 11.95,
-   "hasta": 12.27
+   "texto": "de",
+   "desde": 7.25,
+   "hasta": 7.46
   },
   {
-   "texto": "a",
-   "desde": 12.27,
-   "hasta": 12.59
+   "texto": "ellos",
+   "desde": 7.48,
+   "hasta": 7.85
   },
   {
-   "texto": "los",
-   "desde": 12.59,
-   "hasta": 12.91
+   "texto": "mismos.",
+   "desde": 7.88,
+   "hasta": 8.36
   },
   {
-   "texto": "ojos",
-   "desde": 12.91,
-   "hasta": 13.23
+   "texto": "Uno,",
+   "desde": 8.6,
+   "hasta": 8.79
   },
   {
-   "texto": "no",
-   "desde": 13.23,
-   "hasta": 13.55
-  },
-  {
-   "texto": "apartes",
-   "desde": 13.55,
-   "hasta": 13.86
+   "texto": "sostené",
+   "desde": 8.81,
+   "hasta": 9.09
   },
   {
    "texto": "la",
-   "desde": 13.86,
-   "hasta": 14.18
+   "desde": 9.11,
+   "hasta": 9.24
   },
   {
-   "texto": "mirada",
-   "desde": 14.18,
-   "hasta": 14.5
+   "texto": "mirada.",
+   "desde": 9.25,
+   "hasta": 9.54
   },
   {
-   "texto": "eso",
-   "desde": 15.5,
-   "hasta": 15.91
+   "texto": "Dos,",
+   "desde": 9.56,
+   "hasta": 9.75
+  },
+  {
+   "texto": "hablá",
+   "desde": 9.77,
+   "hasta": 9.99
+  },
+  {
+   "texto": "más",
+   "desde": 10.01,
+   "hasta": 10.16
+  },
+  {
+   "texto": "lento.",
+   "desde": 10.18,
+   "hasta": 10.43
+  },
+  {
+   "texto": "Tres,",
+   "desde": 10.45,
+   "hasta": 10.67
+  },
+  {
+   "texto": "sonreí.",
+   "desde": 10.69,
+   "hasta": 10.98
+  },
+  {
+   "texto": "Cuando",
+   "desde": 11.1,
+   "hasta": 11.47
+  },
+  {
+   "texto": "ella",
+   "desde": 11.51,
+   "hasta": 11.79
+  },
+  {
+   "texto": "te",
+   "desde": 11.81,
+   "hasta": 12
+  },
+  {
+   "texto": "mira",
+   "desde": 12.01,
+   "hasta": 12.29
+  },
+  {
+   "texto": "a",
+   "desde": 12.32,
+   "hasta": 12.46
+  },
+  {
+   "texto": "los",
+   "desde": 12.47,
+   "hasta": 12.7
+  },
+  {
+   "texto": "ojos,",
+   "desde": 12.72,
+   "hasta": 13.05
+  },
+  {
+   "texto": "no",
+   "desde": 13.08,
+   "hasta": 13.27
+  },
+  {
+   "texto": "apartes",
+   "desde": 13.28,
+   "hasta": 13.7
+  },
+  {
+   "texto": "la",
+   "desde": 13.74,
+   "hasta": 13.93
+  },
+  {
+   "texto": "mirada.",
+   "desde": 13.94,
+   "hasta": 14.36
+  },
+  {
+   "texto": "Eso",
+   "desde": 14.5,
+   "hasta": 14.7
   },
   {
    "texto": "es",
-   "desde": 15.91,
-   "hasta": 16.32
+   "desde": 14.71,
+   "hasta": 14.87
   },
   {
-   "texto": "lo",
-   "desde": 16.32,
-   "hasta": 16.73
+   "texto": "confianza.",
+   "desde": 14.89,
+   "hasta": 15.36
   },
   {
-   "texto": "que",
-   "desde": 16.73,
-   "hasta": 17.14
+   "texto": "Y",
+   "desde": 15.6,
+   "hasta": 15.8
   },
   {
-   "texto": "se",
-   "desde": 17.14,
-   "hasta": 17.55
-  },
-  {
-   "texto": "llama",
-   "desde": 17.55,
-   "hasta": 17.95
+   "texto": "la",
+   "desde": 15.82,
+   "hasta": 16.09
   },
   {
    "texto": "confianza",
-   "desde": 17.95,
-   "hasta": 18.36
+   "desde": 16.12,
+   "hasta": 16.87
   },
   {
    "texto": "real",
-   "desde": 18.36,
-   "hasta": 18.77
+   "desde": 16.93,
+   "hasta": 17.34
   },
   {
-   "texto": "y",
-   "desde": 18.77,
-   "hasta": 19.18
+   "texto": "no",
+   "desde": 17.38,
+   "hasta": 17.65
   },
   {
    "texto": "se",
-   "desde": 19.18,
-   "hasta": 19.59
+   "desde": 17.67,
+   "hasta": 17.95
   },
   {
-   "texto": "entrena",
-   "desde": 19.59,
-   "hasta": 20
+   "texto": "finge:",
+   "desde": 17.97,
+   "hasta": 18.52
+  },
+  {
+   "texto": "se",
+   "desde": 18.56,
+   "hasta": 18.84
+  },
+  {
+   "texto": "entrena.",
+   "desde": 18.86,
+   "hasta": 19.54
   }
  ]
 }
