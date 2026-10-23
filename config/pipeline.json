@@ -8,5 +8,6 @@
   "clip_max_s": 40,
   "top_momentos": 5,
   "whisper_modelo": "small",
-  "musica": "music/bg-loop.mp3"
+  "musica": "music/bg-loop.mp3",
+  "yt_dlp_permitidos": []
 }

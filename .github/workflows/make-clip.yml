@@ -1,0 +1,110 @@
+name: make-clip
+run-name: "Clip ${{ inputs.nombre }}"
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: "Link del video (Drive compartido 'cualquiera con el enlace' o link directo). No queda guardado."
+        required: true
+      nombre:
+        description: "Nombre del clip (sin espacios, ej: confianza1)"
+        required: true
+      clip_start:
+        description: "Inicio en segundos (opcional: si lo dejás vacío elige el mejor momento)"
+        required: false
+      clip_end:
+        description: "Fin en segundos (opcional)"
+        required: false
+      publicar_muestra:
+        description: "Subir muestra chica + informe a la rama (para revisar desde el celular)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency: clip-${{ inputs.nombre }}
+env:
+  WHISPER_VER: v1.7.5
+jobs:
+  clip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Enmascarar link y preparar
+        id: prep
+        run: |
+          URL=$(jq -r '.inputs.video_url' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$URL"
+          echo "inicio=$(date +%s)" >> "$GITHUB_OUTPUT"
+          RANGO="$(jq -r '.inputs.clip_start // ""' "$GITHUB_EVENT_PATH")-$(jq -r '.inputs.clip_end // ""' "$GITHUB_EVENT_PATH")"
+          echo "hash=$(printf '%s|%s' "$URL" "$RANGO" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip, cache-dependency-path: pipeline/requirements.txt}
+      - name: Dependencias
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg jq >/dev/null
+          pip install -q -r pipeline/requirements.txt
+          npm ci --no-audit --no-fund
+      - name: Caché del análisis de este clip
+        id: cache-clip
+        uses: actions/cache/restore@v4
+        with:
+          path: work
+          key: clip-${{ inputs.nombre }}-${{ steps.prep.outputs.hash }}
+      - name: Caché de whisper.cpp + modelo
+        if: steps.cache-clip.outputs.cache-hit != 'true'
+        id: cache-whisper
+        uses: actions/cache@v4
+        with:
+          path: whisper.cpp
+          key: whisper-${{ env.WHISPER_VER }}-small-${{ runner.os }}
+      - name: Compilar whisper.cpp
+        if: steps.cache-clip.outputs.cache-hit != 'true' && steps.cache-whisper.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --depth 1 --branch "$WHISPER_VER" https://github.com/ggml-org/whisper.cpp
+          cmake -S whisper.cpp -B whisper.cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DWHISPER_BUILD_TESTS=OFF >/dev/null
+          cmake --build whisper.cpp/build -j "$(nproc)" --target whisper-cli >/dev/null
+          bash whisper.cpp/models/download-ggml-model.sh small >/dev/null
+      - name: Descargar video
+        if: steps.cache-clip.outputs.cache-hit != 'true'
+        run: |
+          export VIDEO_URL=$(jq -r '.inputs.video_url' "$GITHUB_EVENT_PATH")
+          bash pipeline/descargar.sh
+      - name: Transcribir (whisper.cpp small, español)
+        if: steps.cache-clip.outputs.cache-hit != 'true'
+        run: |
+          S=$(jq -r '.inputs.clip_start // ""' "$GITHUB_EVENT_PATH"); E=$(jq -r '.inputs.clip_end // ""' "$GITHUB_EVENT_PATH")
+          OFF=0; RANGO=()
+          if [ -n "$S" ] && [ -n "$E" ]; then OFF=$(python -c "print(max(0,$S-2))"); RANGO=(-ss "$OFF" -to "$(python -c "print($E+2)")"); fi
+          ffmpeg -y -loglevel error "${RANGO[@]}" -i work/fuente.mp4 -ar 16000 -ac 1 -c:a pcm_s16le work/audio_tx.wav
+          ffmpeg -y -loglevel error -i work/fuente.mp4 -ar 16000 -ac 1 -c:a pcm_s16le work/audio.wav
+          whisper.cpp/build/bin/whisper-cli -m whisper.cpp/models/ggml-small.bin -l es -t "$(nproc)" -ml 1 -sow -ojf -np \
+            --prompt "$(jq -r .vocabulario_whisper config/keywords.json)" -f work/audio_tx.wav -of work/whisper
+          python pipeline/palabras.py work/whisper.json "$OFF"
+      - name: Analizar, cortar silencios, voz y cara
+        if: steps.cache-clip.outputs.cache-hit != 'true'
+        run: |
+          python pipeline/analizar.py "$(jq -r '.inputs.clip_start // ""' "$GITHUB_EVENT_PATH")" "$(jq -r '.inputs.clip_end // ""' "$GITHUB_EVENT_PATH")"
+          python pipeline/cortar.py work/fuente.mp4
+          python pipeline/cara.py
+          rm -f work/fuente.mp4 work/audio_tx.wav work/audio.wav
+      - name: Guardar caché del análisis
+        if: steps.cache-clip.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: work
+          key: clip-${{ inputs.nombre }}-${{ steps.prep.outputs.hash }}
+      - name: Plan, render, master y QA
+        run: bash pipeline/render.sh "${{ inputs.nombre }}" "${{ steps.prep.outputs.inicio }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clip-${{ inputs.nombre }}
+          path: salida/
+          retention-days: 3
+      - name: Entregar (Supabase privado / muestra en la rama)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: bash pipeline/publicar.sh "${{ inputs.nombre }}" "${{ inputs.publicar_muestra }}"

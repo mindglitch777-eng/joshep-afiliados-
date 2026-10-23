@@ -7,3 +7,6 @@ public/raw/
 *.mov
 *.mkv
 /raw/
+work/
+salida/
+__pycache__/
