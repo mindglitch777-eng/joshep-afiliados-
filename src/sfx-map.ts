@@ -1,26 +1,18 @@
 import medidas from '../public/sfx/sfx.json';
+import cfg from '../config/sfx.json';
 
 // Mapa evento visual → sonidos. Todos sintetizados (CC0), ver public/sfx/README.md.
 export type Sfx = Exclude<keyof typeof medidas, 'bg-loop'>;
-export const SFX_MAP = {
-  gancho: ['boom'], // + riser que entra al primer corte
-  plano: ['whoosh-a', 'whoosh-b'], // alterna variantes
-  clave: ['ding'], // motivo de marca
-  tarjetaMal: ['golpe'],
-  tachado: ['swipe'],
-  tarjetaBien: ['exito'],
-  lista: ['swipe'],
-  item: ['tick', 'pop'],
-  enfasis: ['stamp', 'subhit'],
-  icono: ['burbuja'],
-} satisfies Record<string, Sfx[]>;
+// Editable en config/sfx.json (gancho suma además un riser que entra al primer corte).
+export const SFX_MAP = cfg.mapa as Record<keyof typeof cfg.mapa, Sfx[]>;
 
 // Niveles respecto de la voz (RMS de voz de referencia ≈ -20 dBFS antes del master).
-const VOZ_RMS = -20;
-const IMPACTOS: Sfx[] = ['boom', 'subhit', 'stamp'];
+const N = cfg.niveles_db;
+const VOZ_RMS = N.voz_rms_referencia;
+const IMPACTOS = cfg.impactos as Sfx[];
 const db = (x: number) => Math.pow(10, x / 20);
-export const volumenSfx = (s: Sfx) => db(VOZ_RMS + (IMPACTOS.includes(s) ? -8 : -14) - medidas[s].rms);
+export const volumenSfx = (s: Sfx) => db(VOZ_RMS + (IMPACTOS.includes(s) ? N.impactos : N.sfx_normal) - medidas[s].rms);
 export const durSfx = (s: Sfx) => medidas[s].dur;
 // Música 24 dB bajo la voz; sin voz sube 6 dB (ducking).
-export const MUSICA = {conVoz: db(VOZ_RMS - 24 - medidas['bg-loop'].rms), sinVoz: db(VOZ_RMS - 18 - medidas['bg-loop'].rms)};
+export const MUSICA = {conVoz: db(VOZ_RMS + N.musica - medidas['bg-loop'].rms), sinVoz: db(VOZ_RMS + N.musica + N.ducking_sin_voz - medidas['bg-loop'].rms)};
 export const PRIORIDAD: Partial<Record<Sfx, number>> = {boom: 3, stamp: 3, subhit: 3, ding: 2, exito: 2, golpe: 2};

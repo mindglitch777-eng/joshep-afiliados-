@@ -1,6 +1,10 @@
 import {Easing, spring} from 'remotion';
+import brand from '../config/brand.json';
 
-export const C = {amarillo: '#FFD60A', rojo: '#FF453A', verde: '#30D158', blanco: '#FFFFFF', negro: '#0B0B0F', vidrio: 'rgba(14,14,18,0.88)'};
+export const BRAND = brand;
+
+const K = brand.colores;
+export const C = {amarillo: K.acento, rojo: K.negativo, verde: K.positivo, blanco: K.texto, negro: K.oscuro, vidrio: 'rgba(14,14,18,0.88)'};
 export const FUENTE = 'Montserrat, sans-serif';
 
 // Zonas seguras TikTok (aprox.) en px sobre 1080x1920.

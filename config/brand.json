@@ -1,0 +1,10 @@
+{
+  "fps": 60,
+  "colores": {"acento": "#FFD60A", "negativo": "#FF3B4E", "positivo": "#2DE38B", "texto": "#FFFFFF", "oscuro": "#0B0B0F"},
+  "subtitulos": {"tam": 92, "clave": 1.25, "y": 1230, "porLinea": 3, "lineas": 2},
+  "gancho": {"tam": 100},
+  "tarjetas": {"ancho": 920, "texto": 58},
+  "lista": {"texto": 52, "titulo": 68},
+  "enfasis": {"tam": 104, "zoom": 1.18},
+  "limites_caracteres": {"gancho": 45, "tarjeta": 24, "item": 22, "enfasis": 12, "titulo": 14}
+}

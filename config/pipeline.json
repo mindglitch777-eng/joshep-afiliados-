@@ -1,0 +1,12 @@
+{
+  "remove_silences": true,
+  "silencio_min_s": 0.4,
+  "aire_s": 0.12,
+  "crossfade_ms": 20,
+  "encuadre": "cara",
+  "clip_min_s": 20,
+  "clip_max_s": 40,
+  "top_momentos": 5,
+  "whisper_modelo": "small",
+  "musica": "music/bg-loop.mp3"
+}

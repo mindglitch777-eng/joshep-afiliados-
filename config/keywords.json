@@ -1,0 +1,12 @@
+{
+  "vocabulario_whisper": "Joseph Seducción. Atracción, seducción, mujeres, cita, primera cita, confianza, valor, frame, rapport, tensión sexual, química, coqueteo, inseguridad, autoestima, ex, ghosting, WhatsApp, Instagram, chamuyo, levante, boliche, piba, mina, flaca.",
+  "impacto": ["nunca", "error", "secreto", "clave", "confianza", "atracción", "tensión", "valor", "respeto", "miedo", "deseo", "poder", "inseguridad", "química", "aprobación", "reglas"],
+  "positivas": ["confianza", "atracción", "seguro", "segura", "valor", "respeto", "deseo", "química", "funciona", "entrena", "liderar", "calma", "interés"],
+  "negativas": ["error", "nunca", "arruina", "inseguro", "necesitado", "desesperado", "aburrido", "rechazo", "miedo", "friendzone", "mendigar", "suplicar", "pierde", "falla", "mal"],
+  "iconos": {"mirada": "ojo", "ojos": "ojo", "mira": "ojo", "amor": "corazon", "corazón": "corazon", "cita": "corazon", "atracción": "fuego", "tensión": "fuego", "deseo": "fuego", "confianza": "rayo", "poder": "rayo", "sonrisa": "sonrisa", "sonreí": "sonrisa", "tiempo": "reloj", "mensaje": "chat", "whatsapp": "chat", "chat": "chat", "hablar": "chat", "secreto": "candado", "éxito": "trofeo", "ganar": "trofeo", "valor": "estrella"},
+  "enfasis_max_por_clip": 2,
+  "gancho_senales": ["nunca", "error", "por qué", "porque", "si vos", "si sos", "la mayoría", "el problema", "el secreto", "esto", "dejá de", "no hagas", "cuidado", "nadie", "todos"],
+  "relleno": ["eh", "em", "este", "o sea", "bueno", "digamos", "tipo", "viste", "nada", "ponele", "como que"],
+  "ordinales": {"primero": 1, "primera": 1, "uno": 1, "segundo": 2, "segunda": 2, "dos": 2, "tercero": 3, "tercera": 3, "tres": 3, "cuarto": 4},
+  "no_terminar_en": ["a", "la", "el", "los", "las", "de", "del", "en", "y", "e", "o", "que", "con", "por", "para", "un", "una", "se", "te", "tu", "mi", "al", "lo", "le", "les", "su", "sus", "no", "es", "si", "me", "nos", "pero", "como", "cuando", "muy", "más"]
+}

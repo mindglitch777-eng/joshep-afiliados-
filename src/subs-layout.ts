@@ -1,9 +1,11 @@
 import anchos from './anchos.json';
+import brand from '../config/brand.json';
 import {Palabra} from './plan';
 
 // Layout de subtítulos calculado con los anchos reales de Montserrat 900 (kerning apagado):
 // las posiciones son fijas por frase, así que el resaltado nunca cambia el ancho de nada.
-export const SUB = {fs: 92, clave: 1.25, ls: 0.015, gap: 0.32, lh: 1.2, maxW: 856, porLinea: 3, lineas: 2, centroX: 64 + 856 / 2, centroY: 1230};
+const B = brand.subtitulos;
+export const SUB = {fs: B.tam, clave: B.clave, ls: 0.015, gap: 0.32, lh: 1.2, maxW: 856, porLinea: B.porLinea, lineas: B.lineas, centroX: 64 + 856 / 2, centroY: B.y};
 const A = anchos as Record<string, number>;
 
 export const textoSub = (w: Palabra) => w.texto.replace(/[.,;:!?…]+$/, '').toUpperCase();

@@ -1,11 +1,12 @@
 import {interpolate} from 'remotion';
+import brand from '../config/brand.json';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
 import {EASE_ZOOM} from './theme';
 
 const W = 1080, H = 1920;
 const CARA_FIJA: MuestraCara = {t: 0, x: 0.5, y: 0.35, w: 0.37, h: 0.26};
-const ZOOM_ENFASIS = 1.18;
+const ZOOM_ENFASIS = brand.enfasis.zoom;
 const SUBE = 21, BAJA = 13, ANTICIPO = 4; // frames
 export const PUNCH = 9; // frames de cada cambio de plano
 

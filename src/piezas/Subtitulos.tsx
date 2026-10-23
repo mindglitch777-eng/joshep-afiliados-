@@ -4,7 +4,7 @@ import {Palabra} from '../plan';
 import {armarFrases, Caja, Frase, SUB, textoSub} from '../subs-layout';
 import {C, FUENTE} from '../theme';
 
-const COLOR = {neg: '#FF3B4E', pos: '#2DE38B'};
+const COLOR = {neg: C.rojo, pos: C.verde};
 const PAD = {x: 16, y: 6};
 
 // estilo de texto compartido con el test de espaciado
