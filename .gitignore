@@ -1,0 +1,9 @@
+node_modules/
+out/
+.env
+.env.*
+# videos crudos de Joseph: nunca al repo
+public/raw/
+*.mov
+*.mkv
+/raw/

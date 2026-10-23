@@ -1,0 +1,20 @@
+{
+  "name": "joseph-afiliacion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Clip out/clip.mp4",
+    "sfx": "bash scripts/gen-sfx.sh"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.538",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "typescript": "^7.0.2"
+  }
+}
