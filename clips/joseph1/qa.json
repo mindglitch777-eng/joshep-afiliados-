@@ -1,0 +1,308 @@
+{
+ "duracion": 36.957,
+ "eventos": 36,
+ "sonidos": 36,
+ "huecos_mayores_1_5s": [],
+ "textos_fuera_zona_segura": [],
+ "avisos": [],
+ "linea_de_tiempo": [
+  {
+   "t": 0,
+   "tipo": "gancho",
+   "detalle": "Porque la seguridad aparece en pequeñas",
+   "sonido": [
+    "boom"
+   ]
+  },
+  {
+   "t": 0.15,
+   "tipo": "jump cut",
+   "detalle": "micro-zoom",
+   "sonido": []
+  },
+  {
+   "t": 1.08,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 2,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 3.25,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 4.5,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 5.92,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 6.81,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 7.7,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 8.95,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 10.2,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 11.63,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 12.51,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 13.4,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 14.65,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 15.9,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 17.32,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 18.21,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 19.1,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 20.35,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 21.6,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 23.02,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 23.91,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 24.8,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 25.19,
+   "tipo": "palabra clave",
+   "detalle": "segura",
+   "sonido": [
+    "ding"
+   ]
+  },
+  {
+   "t": 26.24,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 27.3,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 28.72,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 29.61,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 30.5,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 31.37,
+   "tipo": "palabra clave",
+   "detalle": "inseguro,",
+   "sonido": [
+    "ding"
+   ]
+  },
+  {
+   "t": 32.18,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 33,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 33.23,
+   "tipo": "ícono",
+   "detalle": "chat",
+   "sonido": [
+    "burbuja"
+   ]
+  },
+  {
+   "t": 34.65,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 35.8,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  }
+ ],
+ "audio": {
+  "lufs_integrado": -14.0,
+  "lra": 1.5,
+  "true_peak_dbtp": -1.5,
+  "ok": true
+ },
+ "cara": {
+  "cobertura": 0.995,
+  "muestras": 222,
+  "avisos": []
+ },
+ "minutos_corrida": 12.7
+}
