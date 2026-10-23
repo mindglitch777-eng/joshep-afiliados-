@@ -1,19 +1,24 @@
 // Tipos del plan.json: lo único que cambia de un clip a otro.
+type Base = {desde: number; hasta: number};
 export type Pieza =
-  | {tipo: 'gancho'; desde: number; hasta: number; texto: string}
-  | {tipo: 'comparacion'; desde: number; hasta: number; mal: string; bien: string}
-  | {tipo: 'pasos'; desde: number; hasta: number; titulo?: string; pasos: string[]}
-  | {tipo: 'enfasis'; desde: number; hasta: number; palabra: string; zoom?: {x: number; y: number; escala?: number}};
+  | (Base & {tipo: 'gancho'; texto: string})
+  | (Base & {tipo: 'comparacion'; mal: string; bien: string})
+  | (Base & {tipo: 'pasos'; titulo?: string; pasos: string[]; tiempos?: number[]})
+  | (Base & {tipo: 'enfasis'; palabra: string});
 
 export type Palabra = {texto: string; desde: number; hasta: number};
+// Muestra de seguimiento de cara (normalizado 0-1 sobre el video).
+export type MuestraCara = {t: number; x: number; y: number; w: number; h: number};
 
 export type Plan = {
+  fps?: number; // 30 por defecto
   video?: string | null; // ruta dentro de public/ (ej. "raw/clip01.mp4"), gitignored
   duracion: number; // segundos
-  musica?: {archivo: string; volumen: number} | null;
+  musica?: {archivo: string} | null; // nivel y ducking en src/audio.ts
+  transiciones?: number[]; // segundos de cambio de sección (whip + whoosh)
+  cara?: MuestraCara[]; // face_track; si falta se usa una cara fija centrada
   piezas: Pieza[];
   subtitulos: Palabra[];
 };
 
-export const FPS = 30;
-export const f = (s: number) => Math.round(s * FPS);
+export const f = (s: number, fps: number) => Math.round(s * fps);
