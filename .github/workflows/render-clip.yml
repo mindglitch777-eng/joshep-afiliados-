@@ -1,0 +1,51 @@
+name: render-clip
+run-name: "Re-render ${{ inputs.nombre }}"
+# Re-renderiza un clip ya analizado (usa la caché de make-clip) aplicando clips/<nombre>/plan.override.json.
+on:
+  workflow_dispatch:
+    inputs:
+      nombre:
+        description: "Nombre del clip (el mismo que usaste en make-clip)"
+        required: true
+      publicar_muestra:
+        description: "Subir muestra chica + informe a la rama"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency: clip-${{ inputs.nombre }}
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - id: prep
+        run: echo "inicio=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Dependencias
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg jq >/dev/null
+          npm ci --no-audit --no-fund
+      - name: Recuperar análisis de make-clip
+        uses: actions/cache/restore@v4
+        with:
+          path: work
+          key: clip-${{ inputs.nombre }}-sin-hash
+          restore-keys: clip-${{ inputs.nombre }}-
+          fail-on-cache-miss: true
+      - name: Plan, render, master y QA
+        run: bash pipeline/render.sh "${{ inputs.nombre }}" "${{ steps.prep.outputs.inicio }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clip-${{ inputs.nombre }}-rerender
+          path: salida/
+          retention-days: 3
+      - name: Entregar (Supabase privado / muestra en la rama)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: bash pipeline/publicar.sh "${{ inputs.nombre }}" "${{ inputs.publicar_muestra }}"
