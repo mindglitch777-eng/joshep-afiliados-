@@ -1566,8 +1566,53 @@
   {
    "tipo": "gancho",
    "desde": 0,
-   "hasta": 2.4,
-   "texto": "Porque la seguridad aparece en pequeñas"
+   "hasta": 2.2,
+   "texto": "Volverte más ATRACTIVO no se trata de fingir"
+  },
+  {
+   "tipo": "pasos",
+   "desde": 6.82,
+   "hasta": 15.81,
+   "titulo": "3 señales",
+   "pasos": [
+    "Las micro expresiones",
+    "El tono de voz",
+    "El trato"
+   ],
+   "tiempos": [
+    7.02,
+    11.06,
+    14.01
+   ]
+  },
+  {
+   "tipo": "comparacion",
+   "desde": 18.22,
+   "hasta": 20.82,
+   "mal": "Fingir un personaje",
+   "bien": "Construir ese personaje"
+  },
+  {
+   "tipo": "enfasis",
+   "desde": 27.03,
+   "hasta": 28.03,
+   "palabra": "Segura"
+  },
+  {
+   "tipo": "pasos",
+   "desde": 32.1,
+   "hasta": 36.82,
+   "titulo": "3 retos",
+   "pasos": [
+    "Hablar en público",
+    "Hablar con mujeres",
+    "Sentirte incómodo"
+   ],
+   "tiempos": [
+    32.3,
+    33.23,
+    35.02
+   ]
   }
  ],
  "subtitulos": [
@@ -1584,7 +1629,10 @@
   {
    "texto": "seguridad",
    "desde": 0.467,
-   "hasta": 1.057
+   "hasta": 1.057,
+   "tono": "pos",
+   "clave": true,
+   "icono": "rayo"
   },
   {
    "texto": "aparece",
@@ -1657,7 +1705,7 @@
    "hasta": 5.577
   },
   {
-   "texto": "la",
+   "texto": "las",
    "desde": 5.577,
    "hasta": 5.687
   },
@@ -1714,7 +1762,8 @@
   {
    "texto": "cara",
    "desde": 8.897,
-   "hasta": 9.257
+   "hasta": 9.257,
+   "icono": "sonrisa"
   },
   {
    "texto": "cuando",
@@ -1734,12 +1783,16 @@
   {
    "texto": "mujer",
    "desde": 9.857,
-   "hasta": 10.167
+   "hasta": 10.167,
+   "icono": "corazon"
   },
   {
    "texto": "atractiva,",
    "desde": 10.167,
-   "hasta": 11.057
+   "hasta": 11.057,
+   "tono": "pos",
+   "clave": true,
+   "icono": "fuego"
   },
   {
    "texto": "al",
@@ -1759,7 +1812,8 @@
   {
    "texto": "voz",
    "desde": 11.967,
-   "hasta": 12.337
+   "hasta": 12.337,
+   "icono": "chat"
   },
   {
    "texto": "cuando",
@@ -1839,7 +1893,10 @@
   {
    "texto": "atractivo",
    "desde": 17.657,
-   "hasta": 18.217
+   "hasta": 18.217,
+   "tono": "pos",
+   "clave": true,
+   "icono": "fuego"
   },
   {
    "texto": "no",
@@ -1864,7 +1921,8 @@
   {
    "texto": "fingir",
    "desde": 18.897,
-   "hasta": 19.267
+   "hasta": 19.267,
+   "tono": "neg"
   },
   {
    "texto": "un",
@@ -1894,7 +1952,9 @@
   {
    "texto": "construir",
    "desde": 20.947,
-   "hasta": 21.707
+   "hasta": 21.707,
+   "tono": "pos",
+   "clave": true
   },
   {
    "texto": "ese",
@@ -2052,9 +2112,10 @@
    "hasta": 32.297
   },
   {
-   "texto": "volar",
+   "texto": "hablar",
    "desde": 32.297,
-   "hasta": 32.567
+   "hasta": 32.567,
+   "icono": "chat"
   },
   {
    "texto": "en",
@@ -2064,7 +2125,8 @@
   {
    "texto": "público,",
    "desde": 32.677,
-   "hasta": 33.227
+   "hasta": 33.227,
+   "icono": "estrella"
   },
   {
    "texto": "hablar",
@@ -2080,7 +2142,8 @@
   {
    "texto": "mujeres",
    "desde": 33.717,
-   "hasta": 34.107
+   "hasta": 34.107,
+   "icono": "corazon"
   },
   {
    "texto": "atractivas,",
@@ -2095,7 +2158,9 @@
   {
    "texto": "incómodo",
    "desde": 35.327,
-   "hasta": 35.887
+   "hasta": 35.887,
+   "tono": "neg",
+   "clave": true
   },
   {
    "texto": "en",

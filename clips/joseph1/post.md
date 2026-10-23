@@ -1,12 +1,12 @@
 # Post
 
 ## Títulos
-1. Porque la seguridad aparece en pequeñas 👀
-2. Lo que nadie te dice sobre segura
-3. Si querés generar segura, mirá esto hasta el final
+1. Volverte más atractivo no se trata de fingir 👀
+2. Lo que nadie te dice sobre seguridad
+3. Si querés generar seguridad, mirá esto hasta el final
 
 ## Hashtags
-#seduccion #atraccion #citas #confianza #psicologia #mujeres #consejos #parati #fyp #segura #inseguro
+#seduccion #atraccion #citas #confianza #psicologia #mujeres #consejos #parati #fyp #seguridad #atractiva #atractivo
 
 ## Aviso (pegar en la descripción)
 🔗 Link en mi perfil. *Soy afiliado: si comprás por mi link recibo una comisión, sin costo extra para vos.*

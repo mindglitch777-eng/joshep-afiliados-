@@ -30,10 +30,14 @@
 - Video 1080x1920 → modo **cara**, cara detectada en 100% de las muestras.
 
 ## Plan automático
-- gancho 0–2.4 s: {"texto": "Porque la seguridad aparece en pequeñas"}
-- 1 jump cuts, 2 palabras clave
+- gancho 0–2.2 s: {"texto": "Volverte más ATRACTIVO no se trata de fingir"}
+- pasos 6.82–15.81 s: {"titulo": "3 señales", "pasos": ["Las micro expresiones", "El tono de voz", "El trato"]}
+- comparacion 18.22–20.82 s: {"mal": "Fingir un personaje", "bien": "Construir ese personaje"}
+- enfasis 27.03–28.03 s: {"palabra": "Segura"}
+- pasos 32.1–36.82 s: {"titulo": "3 retos", "pasos": ["Hablar en público", "Hablar con mujeres", "Sentirte incómodo"]}
+- 1 jump cuts, 7 palabras clave
 
 ## QA
 - Audio: -14.0 LUFS, true peak -1.5 dBTP ✅
 - Tramos > 1.5 s sin evento: 0 · textos fuera de zona segura: 0
-- Minutos de Actions de esta corrida: **12.7**
+- Minutos de Actions de esta corrida: **31.7**

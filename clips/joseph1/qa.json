@@ -1,7 +1,7 @@
 {
  "duracion": 36.957,
- "eventos": 36,
- "sonidos": 36,
+ "eventos": 44,
+ "sonidos": 51,
  "huecos_mayores_1_5s": [],
  "textos_fuera_zona_segura": [],
  "avisos": [],
@@ -9,7 +9,7 @@
   {
    "t": 0,
    "tipo": "gancho",
-   "detalle": "Porque la seguridad aparece en pequeñas",
+   "detalle": "Volverte más ATRACTIVO no se trata de fingir",
    "sonido": [
     "boom"
    ]
@@ -53,7 +53,7 @@
    ]
   },
   {
-   "t": 5.92,
+   "t": 5.66,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -61,39 +61,40 @@
    ]
   },
   {
-   "t": 6.81,
-   "tipo": "plano",
-   "detalle": "abierto",
+   "t": 6.82,
+   "tipo": "lista",
+   "detalle": "3 señales",
    "sonido": [
-    "whoosh-b"
+    "swipe"
+   ]
+  },
+  {
+   "t": 7.02,
+   "tipo": "ítem",
+   "detalle": "Las micro expresiones",
+   "sonido": [
+    "tick",
+    "pop"
    ]
   },
   {
    "t": 7.7,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto",
    "sonido": [
-    "whoosh-a"
+    "whoosh-b"
    ]
   },
   {
    "t": 8.95,
    "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 10.2,
-   "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
     "whoosh-a"
    ]
   },
   {
-   "t": 11.63,
+   "t": 10.2,
    "tipo": "plano",
    "detalle": "abierto",
    "sonido": [
@@ -101,7 +102,16 @@
    ]
   },
   {
-   "t": 12.51,
+   "t": 11.06,
+   "tipo": "ítem",
+   "detalle": "El tono de voz",
+   "sonido": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 12.23,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -117,7 +127,16 @@
    ]
   },
   {
-   "t": 14.65,
+   "t": 14.01,
+   "tipo": "ítem",
+   "detalle": "El trato",
+   "sonido": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 14.95,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -133,7 +152,7 @@
    ]
   },
   {
-   "t": 17.32,
+   "t": 16.78,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -141,79 +160,47 @@
    ]
   },
   {
-   "t": 18.21,
-   "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 19.1,
-   "tipo": "plano",
-   "detalle": "push-in",
-   "sonido": [
-    "whoosh-a"
-   ]
-  },
-  {
-   "t": 20.35,
-   "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 21.6,
-   "tipo": "plano",
-   "detalle": "push-in",
-   "sonido": [
-    "whoosh-a"
-   ]
-  },
-  {
-   "t": 23.02,
-   "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 23.91,
-   "tipo": "plano",
-   "detalle": "push-in",
-   "sonido": [
-    "whoosh-a"
-   ]
-  },
-  {
-   "t": 24.8,
-   "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 25.19,
+   "t": 17.66,
    "tipo": "palabra clave",
-   "detalle": "segura",
+   "detalle": "atractivo",
    "sonido": [
     "ding"
    ]
   },
   {
-   "t": 26.24,
-   "tipo": "plano",
-   "detalle": "push-in",
+   "t": 17.66,
+   "tipo": "ícono",
+   "detalle": "fuego",
    "sonido": [
-    "whoosh-a"
+    "burbuja"
    ]
   },
   {
-   "t": 27.3,
+   "t": 18.22,
+   "tipo": "tarjeta ✗",
+   "detalle": "Fingir un personaje",
+   "sonido": [
+    "golpe"
+   ]
+  },
+  {
+   "t": 18.35,
+   "tipo": "tarjeta ✓",
+   "detalle": "Construir ese personaje",
+   "sonido": [
+    "exito"
+   ]
+  },
+  {
+   "t": 18.45,
+   "tipo": "tachado",
+   "detalle": "se dibuja",
+   "sonido": [
+    "swipe"
+   ]
+  },
+  {
+   "t": 19.1,
    "tipo": "plano",
    "detalle": "abierto",
    "sonido": [
@@ -221,7 +208,7 @@
    ]
   },
   {
-   "t": 28.72,
+   "t": 20.02,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -229,7 +216,15 @@
    ]
   },
   {
-   "t": 29.61,
+   "t": 20.95,
+   "tipo": "palabra clave",
+   "detalle": "construir",
+   "sonido": [
+    "ding"
+   ]
+  },
+  {
+   "t": 21.6,
    "tipo": "plano",
    "detalle": "abierto",
    "sonido": [
@@ -237,7 +232,64 @@
    ]
   },
   {
-   "t": 30.5,
+   "t": 23.02,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 23.91,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 24.8,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 25.88,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 26.96,
+   "tipo": "énfasis",
+   "detalle": "Segura",
+   "sonido": [
+    "stamp",
+    "subhit"
+   ]
+  },
+  {
+   "t": 27.78,
+   "tipo": "plano",
+   "detalle": "push-in",
+   "sonido": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 28.6,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 29.98,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
@@ -253,7 +305,7 @@
    ]
   },
   {
-   "t": 32.18,
+   "t": 31.8,
    "tipo": "plano",
    "detalle": "abierto",
    "sonido": [
@@ -261,41 +313,60 @@
    ]
   },
   {
-   "t": 33,
-   "tipo": "plano",
-   "detalle": "push-in",
+   "t": 32.1,
+   "tipo": "lista",
+   "detalle": "3 retos",
    "sonido": [
-    "whoosh-a"
+    "swipe"
+   ]
+  },
+  {
+   "t": 32.3,
+   "tipo": "ítem",
+   "detalle": "Hablar en público",
+   "sonido": [
+    "tick",
+    "pop"
    ]
   },
   {
    "t": 33.23,
-   "tipo": "ícono",
-   "detalle": "chat",
+   "tipo": "ítem",
+   "detalle": "Hablar con mujeres",
    "sonido": [
-    "burbuja"
+    "tick",
+    "pop"
    ]
   },
   {
-   "t": 34.65,
-   "tipo": "plano",
-   "detalle": "abierto",
-   "sonido": [
-    "whoosh-b"
-   ]
-  },
-  {
-   "t": 35.8,
+   "t": 34.3,
    "tipo": "plano",
    "detalle": "push-in",
    "sonido": [
     "whoosh-a"
+   ]
+  },
+  {
+   "t": 35.02,
+   "tipo": "ítem",
+   "detalle": "Sentirte incómodo",
+   "sonido": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 35.99,
+   "tipo": "plano",
+   "detalle": "abierto",
+   "sonido": [
+    "whoosh-b"
    ]
   }
  ],
  "audio": {
   "lufs_integrado": -14.0,
-  "lra": 1.5,
+  "lra": 1.6,
   "true_peak_dbtp": -1.5,
   "ok": true
  },
@@ -304,5 +375,5 @@
   "muestras": 222,
   "avisos": []
  },
- "minutos_corrida": 12.7
+ "minutos_corrida": 31.7
 }
