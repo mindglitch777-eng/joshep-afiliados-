@@ -5,10 +5,6 @@
  "musica": {
   "archivo": "music/bg-loop.mp3"
  },
- "transiciones": [
-  6,
-  11
- ],
  "piezas": [
   {
    "tipo": "gancho",
@@ -20,8 +16,8 @@
    "tipo": "comparacion",
    "desde": 6,
    "hasta": 8.5,
-   "mal": "Hablar sin parar de vos",
-   "bien": "Hacerla hablar de ella"
+   "mal": "Hablar solo de vos",
+   "bien": "Que ella hable más"
   },
   {
    "tipo": "pasos",
@@ -60,7 +56,9 @@
   {
    "texto": "arruina",
    "desde": 2.96,
-   "hasta": 3.58
+   "hasta": 3.58,
+   "clave": true,
+   "tono": "neg"
   },
   {
    "texto": "la",
@@ -75,7 +73,8 @@
   {
    "texto": "cita,",
    "desde": 4.59,
-   "hasta": 5.07
+   "hasta": 5.07,
+   "icono": "corazon"
   },
   {
    "texto": "por",
@@ -135,7 +134,8 @@
   {
    "texto": "mirada.",
    "desde": 9.25,
-   "hasta": 9.54
+   "hasta": 9.54,
+   "clave": true
   },
   {
    "texto": "Dos,",
@@ -185,7 +185,8 @@
   {
    "texto": "mira",
    "desde": 12.01,
-   "hasta": 12.29
+   "hasta": 12.29,
+   "icono": "ojo"
   },
   {
    "texto": "a",
@@ -210,7 +211,8 @@
   {
    "texto": "apartes",
    "desde": 13.28,
-   "hasta": 13.7
+   "hasta": 13.7,
+   "tono": "neg"
   },
   {
    "texto": "la",
@@ -220,7 +222,8 @@
   {
    "texto": "mirada.",
    "desde": 13.94,
-   "hasta": 14.36
+   "hasta": 14.36,
+   "clave": true
   },
   {
    "texto": "Eso",
@@ -250,7 +253,10 @@
   {
    "texto": "confianza",
    "desde": 16.12,
-   "hasta": 16.87
+   "hasta": 16.87,
+   "clave": true,
+   "tono": "pos",
+   "icono": "rayo"
   },
   {
    "texto": "real",
@@ -270,7 +276,8 @@
   {
    "texto": "finge:",
    "desde": 17.97,
-   "hasta": 18.52
+   "hasta": 18.52,
+   "tono": "neg"
   },
   {
    "texto": "se",
@@ -280,7 +287,10 @@
   {
    "texto": "entrena.",
    "desde": 18.86,
-   "hasta": 19.54
+   "hasta": 19.54,
+   "clave": true,
+   "tono": "pos",
+   "icono": "fuego"
   }
  ]
 }
