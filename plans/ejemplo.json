@@ -1,5 +1,5 @@
 {
- "fps": 30,
+ "fps": 60,
  "video": null,
  "duracion": 20,
  "musica": {
@@ -21,7 +21,7 @@
    "desde": 6,
    "hasta": 8.5,
    "mal": "Hablar sin parar de vos",
-   "bien": "Preguntas que la hagan sentir"
+   "bien": "Hacerla hablar de ella"
   },
   {
    "tipo": "pasos",
