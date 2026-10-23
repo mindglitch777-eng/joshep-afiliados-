@@ -38,7 +38,7 @@ const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number}> = ({fr, fram
     <div style={{position: 'absolute', inset: 0, opacity: entra * sale, transform: `translateY(${(1 - entra) * 12}px)`}}>
       {caja}
       {fr.cajas.map((c, i) => {
-        const activa = i === act && llego > 0.5; // negro recién cuando la caja llegó
+        const activa = i === act && llego > 0.97; // negro recién cuando la caja llegó: nunca letras cortadas
         // palabra clave: reserva el ancho a 1.25x y crece de 0.8 a 1 (transform) cuando se dice
         const crece = c.w.clave ? 0.8 + 0.2 * spring({frame: frame - (c.w.desde * fps - 2), fps, config: {damping: 14, stiffness: 170}, durationInFrames: 10}) : 1;
         const color = activa ? C.negro : c.w.tono ? COLOR[c.w.tono] : C.blanco;
