@@ -1,19 +1,21 @@
-import {AbsoluteFill, Audio, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {C, FUENTE, sombra} from '../theme';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {acento, C, textoPremium} from '../theme';
 
-// Pieza 1: gancho de apertura. Texto gigante que entra con golpe + impacto.
+// Pieza 1: gancho. Palabra por palabra (stagger 3 frames), máx. 880 px incluso en el pico.
+// Arranca 6 frames adelantado para que el frame 0 (miniatura) ya muestre texto.
 export const Gancho: React.FC<{texto: string}> = ({texto}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const s = spring({frame, fps, config: {damping: 9, stiffness: 180}});
-  const shake = frame < 8 ? Math.sin(frame * 3) * (8 - frame) * 2 : 0;
   return (
-    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', background: `rgba(0,0,0,${interpolate(frame, [0, 6], [0.55, 0.35], {extrapolateRight: 'clamp'})})`}}>
-      <Audio src={staticFile('sfx/impact.mp3')} volume={0.9} />
-      <div style={{fontFamily: FUENTE, fontSize: 118, lineHeight: 1.05, color: C.blanco, textAlign: 'center', padding: '0 70px', textTransform: 'uppercase', textShadow: sombra, transform: `scale(${interpolate(s, [0, 1], [2.2, 1])}) translateX(${shake}px)`, opacity: s}}>
-        {texto.split(' ').map((w, i) => (
-          <span key={i} style={{color: i % 3 === 1 ? C.amarillo : C.blanco}}>{w} </span>
-        ))}
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+      <div style={{width: 880, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', columnGap: 22, rowGap: 6, marginTop: -120}}>
+        {texto.split(' ').map((w, i) => {
+          const s = acento(frame + 6 - i * 3, fps);
+          const clave = w === w.toUpperCase() && /[A-ZÁÉÍÓÚÑ]{3,}/.test(w);
+          return (
+            <span key={i} style={{...textoPremium(8), fontSize: 100, textTransform: 'uppercase', color: clave ? C.amarillo : C.blanco, display: 'inline-block', opacity: interpolate(s, [0, 0.4], [0, 1], {extrapolateRight: 'clamp'}), transform: `translateY(${(1 - s) * 30}px) scale(${0.85 + 0.15 * s})`}}>{w}</span>
+          );
+        })}
       </div>
     </AbsoluteFill>
   );

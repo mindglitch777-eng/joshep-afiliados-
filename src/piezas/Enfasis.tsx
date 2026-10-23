@@ -1,16 +1,17 @@
-import {AbsoluteFill, Audio, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {C, FUENTE} from '../theme';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {acento, C, FUENTE, SEGURA} from '../theme';
 
-// Pieza 4: palabra clave gigante (el zoom a la cara lo hace Fondo.tsx).
-export const Enfasis: React.FC<{palabra: string}> = ({palabra}) => {
+// Pieza 4: etiqueta sobre la frente (sin tapar los ojos), máx. 900 px en el pico.
+export const Enfasis: React.FC<{palabra: string; caraArriba: number}> = ({palabra, caraArriba}) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const s = spring({frame, fps, config: {damping: 8, stiffness: 160}});
+  const s = acento(frame, useVideoConfig().fps);
+  const top = Math.max(SEGURA.arriba, caraArriba - 30);
   return (
-    <AbsoluteFill style={{justifyContent: 'flex-start', alignItems: 'center', paddingTop: 260}}>
-      <Audio src={staticFile('sfx/impact.mp3')} volume={0.6} />
-      <div style={{fontFamily: FUENTE, fontSize: 150, color: C.negro, background: C.amarillo, padding: '10px 40px', borderRadius: 20, textTransform: 'uppercase', transform: `scale(${interpolate(s, [0, 1], [0.3, 1])}) rotate(${interpolate(s, [0, 1], [-12, -3])}deg)`, boxShadow: '0 14px 0 #000'}}>
-        {palabra}
+    <AbsoluteFill>
+      <div style={{position: 'absolute', left: 0, right: 0, top, display: 'flex', justifyContent: 'center'}}>
+        <div style={{maxWidth: 900 / 1.04, boxSizing: 'border-box', fontFamily: FUENTE, fontWeight: 900, fontSize: 104, letterSpacing: '-0.01em', lineHeight: 1.05, color: C.negro, background: C.amarillo, padding: '14px 40px', borderRadius: 22, textTransform: 'uppercase', boxShadow: '0 16px 40px rgba(0,0,0,0.45)', opacity: Math.min(1, s * 2), transform: `scale(${0.6 + 0.4 * s}) rotate(-3deg)`}}>
+          {palabra}
+        </div>
       </div>
     </AbsoluteFill>
   );

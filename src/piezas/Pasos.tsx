@@ -1,29 +1,26 @@
-import {AbsoluteFill, Audio, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {C, FUENTE, sombra} from '../theme';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {ANCHO_UTIL, C, ENTRADA, SEGURA, textoPremium} from '../theme';
 
-const Paso: React.FC<{n: number; texto: string}> = ({n, texto}) => {
+// Pieza 3: lista dentro de una tarjeta de vidrio debajo de la cara; cada ítem aparece cuando se dice.
+export const Pasos: React.FC<{titulo?: string; pasos: string[]; inicios: number[]; caraAbajo: number}> = ({titulo, pasos, inicios, caraAbajo}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const s = spring({frame, fps, config: {damping: 12}});
+  const alto = 60 + (titulo ? 90 : 0) + pasos.length * 86;
+  const top = Math.min(caraAbajo + 40, 1920 - SEGURA.abajo - alto);
+  const caja = ENTRADA(frame, fps);
   return (
-    <div style={{display: 'flex', alignItems: 'center', gap: 28, transform: `translateX(${interpolate(s, [0, 1], [-900, 0])}px)`}}>
-      <Audio src={staticFile('sfx/tick.mp3')} volume={0.7} />
-      <div style={{minWidth: 100, height: 100, borderRadius: 50, background: C.amarillo, color: C.negro, fontFamily: FUENTE, fontSize: 60, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{n}</div>
-      <div style={{fontFamily: FUENTE, fontSize: 62, color: C.blanco, textShadow: sombra, lineHeight: 1.1}}>{texto}</div>
-    </div>
-  );
-};
-
-// Pieza 3: lista de pasos que aparecen de a uno, repartidos en la duración.
-export const Pasos: React.FC<{titulo?: string; pasos: string[]; dur: number}> = ({titulo, pasos, dur}) => {
-  const gap = Math.max(12, Math.floor((dur - 20) / pasos.length));
-  return (
-    <AbsoluteFill style={{background: 'rgba(0,0,0,.6)', padding: '0 70px', justifyContent: 'center'}}>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 46, marginTop: -200}}>
-        {titulo && <div style={{fontFamily: FUENTE, fontSize: 76, color: C.amarillo, textShadow: sombra, textTransform: 'uppercase'}}>{titulo}</div>}
-        {pasos.map((p, i) => (
-          <Sequence key={i} from={8 + i * gap} layout="none"><Paso n={i + 1} texto={p} /></Sequence>
-        ))}
+    <AbsoluteFill>
+      <div style={{position: 'absolute', left: SEGURA.izq, width: ANCHO_UTIL, top, boxSizing: 'border-box', padding: '30px 40px', background: C.vidrio, borderRadius: 32, border: '1.5px solid rgba(255,255,255,0.10)', boxShadow: '0 18px 40px rgba(0,0,0,0.45)', opacity: caja, transform: `translateY(${(1 - caja) * 20}px)`}}>
+        {titulo && <div style={{...textoPremium(0), textShadow: 'none', fontSize: 64, color: C.amarillo, textTransform: 'uppercase', marginBottom: 26}}>{titulo}</div>}
+        {pasos.map((p, i) => {
+          const s = ENTRADA(frame - inicios[i], fps);
+          return (
+            <div key={i} style={{display: 'flex', alignItems: 'baseline', height: 86, opacity: interpolate(s, [0, 1], [0, 1]), transform: `translateX(${(1 - s) * -40}px)`}}>
+              <div style={{width: 72, flexShrink: 0, ...textoPremium(0), textShadow: 'none', fontSize: 50, color: C.amarillo}}>{i + 1}.</div>
+              <div style={{...textoPremium(0), textShadow: 'none', fontWeight: 800, fontSize: 50, color: C.blanco, whiteSpace: 'nowrap'}}>{p}</div>
+            </div>
+          );
+        })}
       </div>
     </AbsoluteFill>
   );
