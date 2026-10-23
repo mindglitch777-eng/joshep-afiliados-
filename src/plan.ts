@@ -17,6 +17,9 @@ export type Plan = {
   duracion: number; // segundos
   musica?: {archivo: string} | null; // nivel y ducking en src/audio.ts
   cara?: MuestraCara[]; // face_track; si falta se usa una cara fija centrada
+  videoInfo?: {ancho: number; alto: number}; // tamaño del video fuente (para horizontales)
+  encuadre?: 'cara' | 'desenfocado'; // horizontal: recorte 9:16 siguiendo la cara o video entero sobre fondo desenfocado
+  cortes?: number[]; // jump cuts (segundos, ya en la línea de tiempo cortada): micro-zoom en cada uno
   piezas: Pieza[];
   subtitulos: Palabra[];
 };

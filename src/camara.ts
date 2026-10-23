@@ -40,7 +40,14 @@ const encuadre = (pl: Plano, p: number) => {
   return pl.tipo === 'push' ? {s: 1 + 0.1 * e, dx: 0} : {s: 1.06, dx: pl.dir * (-0.03 + 0.06 * e) * W};
 };
 
-export type Camara = {s: number; tx: number; ty: number; enPunch: boolean; cara: {x: number; y: number; w: number; h: number}};
+export type Camara = {s: number; tx: number; ty: number; enPunch: boolean; dispW: number; dispH: number; cara: {x: number; y: number; w: number; h: number}};
+
+// Tamaño en pantalla del video a escala 1: cover (llena 9:16) o contain (modo desenfocado).
+export const tamVideo = (plan: Plan) => {
+  const v = plan.videoInfo ?? {ancho: W, alto: H};
+  const k = plan.encuadre === 'desenfocado' && v.ancho > v.alto ? Math.min(W / v.ancho, H / v.alto) : Math.max(W / v.ancho, H / v.alto);
+  return {dispW: v.ancho * k, dispH: v.alto * k};
+};
 
 // frame puede ser fraccionario (muestras del motion blur): nada se redondea.
 export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number, frame: number): Camara => {
@@ -69,13 +76,19 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
     s = s + (ZOOM_ENFASIS - s) * k;
     dx *= 1 - k;
   }
+  // jump cuts: micro-zoom alternado de 4% en cada corte de silencio
+  const nCortes = (plan.cortes ?? []).filter((c) => c <= t).length;
+  if (nCortes % 2) s *= 1.04;
   // cara a (50%, 38%) con translate, limitado para que nunca se vean bordes
   const fi = Math.min(Math.max(Math.floor(frame), 0), pista.length - 1);
   const c = pista[fi] ?? CARA_FIJA;
-  const px = c.x * W, py = c.y * H;
-  const lim = (v: number, m: number) => Math.max(-m, Math.min(m, v));
-  const tx = lim(W * 0.5 - (W / 2 + s * (px - W / 2)) + dx, ((s - 1) * W) / 2);
-  const ty = lim(H * 0.38 - (H / 2 + s * (py - H / 2)), ((s - 1) * H) / 2);
+  const {dispW, dispH} = tamVideo(plan);
+  const px = (W - dispW) / 2 + c.x * dispW, py = (H - dispH) / 2 + c.y * dispH;
+  // límite: el video escalado siempre cubre el cuadro (en modo desenfocado no se recentra)
+  const lim = (v: number, m: number) => Math.max(-Math.max(m, 0), Math.min(Math.max(m, 0), v));
+  const seguir = plan.encuadre !== 'desenfocado' ? 1 : 0;
+  const tx = lim(seguir * (W * 0.5 - (W / 2 + s * (px - W / 2))) + dx, (s * dispW - W) / 2);
+  const ty = lim(seguir * (H * 0.38 - (H / 2 + s * (py - H / 2))), (s * dispH - H) / 2);
   const cx = W / 2 + s * (px - W / 2) + tx, cy = H / 2 + s * (py - H / 2) + ty;
-  return {s, tx, ty, enPunch, cara: {x: cx, y: cy, w: c.w * W * s, h: c.h * H * s}};
+  return {s, tx, ty, enPunch, dispW, dispH, cara: {x: cx, y: cy, w: c.w * dispW * s, h: c.h * dispH * s}};
 };

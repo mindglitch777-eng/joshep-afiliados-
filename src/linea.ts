@@ -46,11 +46,16 @@ export const linea = (plan: Plan, fps: number) => {
     }
   }
 
-  // cortes de plano: cada ~2.5–3.2 s, fuera de las ventanas de énfasis
+  // jump cuts de silencios: evento visual (micro-zoom); el corte de la voz es su sonido
+  const jumps = plan.cortes ?? [];
+  for (const j of jumps) ev.push({t: j, tipo: 'jump cut', desc: 'micro-zoom', sfx: []});
+
+  // cortes de plano: cada ~2.5–3.2 s, pegados a un jump cut cercano si hay, fuera de las ventanas de énfasis
   const enVentana = (t: number) => enfasis.some((e) => t > e.desde - 0.4 && t < e.hasta + 0.5);
   const cortes: number[] = [];
   for (let t = 2, k = 0; t < plan.duracion - 1; t += k++ % 2 ? 3.2 : 2.5) {
-    let c = t;
+    const cerca = jumps.filter((j) => Math.abs(j - t) <= 0.6).sort((a, b) => Math.abs(a - t) - Math.abs(b - t))[0];
+    let c = cerca ?? t;
     while (enVentana(c)) c += 0.1;
     if (c < plan.duracion - 1) cortes.push(c);
     t = c;

@@ -11,8 +11,15 @@ export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[]}
   return (
     <AbsoluteFill style={{background: '#111', overflow: 'hidden'}}>
       {/* corrección de color: contraste +8%, saturación +10% */}
+      {plan.video && plan.encuadre === 'desenfocado' && (
+        <AbsoluteFill style={{filter: 'blur(40px) brightness(0.55) saturate(1.2)', transform: 'scale(1.15)'}}>
+          <OffthreadVideo src={staticFile(plan.video)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+        </AbsoluteFill>
+      )}
       <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: 'contrast(1.08) saturate(1.1)'}}>
-        {plan.video ? <OffthreadVideo src={staticFile(plan.video)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} /> : <Placeholder />}
+        {plan.video ? (
+          <OffthreadVideo src={staticFile(plan.video)} muted style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH}} />
+        ) : <Placeholder />}
       </AbsoluteFill>
     </AbsoluteFill>
   );

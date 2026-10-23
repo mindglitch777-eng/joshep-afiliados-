@@ -13,7 +13,7 @@ const s2 = (x: number) => x.toFixed(2);
 const ts = [0, ...eventos.map((e) => e.t), plan.duracion].sort((a, b) => a - b);
 const tramos = ts.slice(1).map((t, i) => ({desde: ts[i], hasta: t, dur: t - ts[i]}));
 const peor = tramos.reduce((a, b) => (b.dur > a.dur ? b : a));
-const sinSonido = eventos.filter((e) => !sonidos.some((s) => Math.abs(s.t - Math.max(0, e.t)) < 1e-6 && e.sfx.includes(s.sfx)));
+const sinSonido = eventos.filter((e) => e.tipo !== 'jump cut' && !sonidos.some((s) => Math.abs(s.t - Math.max(0, e.t)) < 1e-6 && e.sfx.includes(s.sfx)));
 let maxSim = 0;
 for (const s of sonidos) maxSim = Math.max(maxSim, sonidos.filter((x) => x.t <= s.t && s.t < x.t + x.dur).length);
 
