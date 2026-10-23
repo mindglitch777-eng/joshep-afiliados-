@@ -1,0 +1,407 @@
+{
+ "eventos": [
+  {
+   "t": 0,
+   "tipo": "gancho",
+   "desc": "Dejá de hacer ESTO en tu primera cita",
+   "sfx": [
+    "boom"
+   ]
+  },
+  {
+   "t": 1,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 2,
+   "tipo": "plano",
+   "desc": "abierto",
+   "sfx": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 2.96,
+   "tipo": "palabra clave",
+   "desc": "arruina",
+   "sfx": [
+    "ding"
+   ]
+  },
+  {
+   "t": 3.73,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 4.5,
+   "tipo": "plano",
+   "desc": "abierto",
+   "sfx": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 4.59,
+   "tipo": "ícono",
+   "desc": "corazon",
+   "sfx": [
+    "burbuja"
+   ]
+  },
+  {
+   "t": 6,
+   "tipo": "tarjeta ✗",
+   "desc": "Hablar solo de vos",
+   "sfx": [
+    "golpe"
+   ]
+  },
+  {
+   "t": 6.133333333333334,
+   "tipo": "tarjeta ✓",
+   "desc": "Que ella hable más",
+   "sfx": [
+    "exito"
+   ]
+  },
+  {
+   "t": 6.233333333333333,
+   "tipo": "tachado",
+   "desc": "se dibuja",
+   "sfx": [
+    "swipe"
+   ]
+  },
+  {
+   "t": 7.7,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 8.5,
+   "tipo": "lista",
+   "desc": "3 claves",
+   "sfx": [
+    "swipe"
+   ]
+  },
+  {
+   "t": 8.6,
+   "tipo": "ítem",
+   "desc": "Sostené la mirada",
+   "sfx": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 9.56,
+   "tipo": "ítem",
+   "desc": "Hablá más lento",
+   "sfx": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 10.2,
+   "tipo": "plano",
+   "desc": "abierto",
+   "sfx": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 10.45,
+   "tipo": "ítem",
+   "desc": "Sonreí sin pedir nada",
+   "sfx": [
+    "tick",
+    "pop"
+   ]
+  },
+  {
+   "t": 11.23,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 12.01,
+   "tipo": "ícono",
+   "desc": "ojo",
+   "sfx": [
+    "burbuja"
+   ]
+  },
+  {
+   "t": 13.399999999999999,
+   "tipo": "plano",
+   "desc": "abierto",
+   "sfx": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 13.94,
+   "tipo": "palabra clave",
+   "desc": "mirada.",
+   "sfx": [
+    "ding"
+   ]
+  },
+  {
+   "t": 14.433333333333334,
+   "tipo": "énfasis",
+   "desc": "Confianza",
+   "sfx": [
+    "stamp",
+    "subhit"
+   ]
+  },
+  {
+   "t": 15.266666666666666,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 16.099999999999998,
+   "tipo": "plano",
+   "desc": "abierto",
+   "sfx": [
+    "whoosh-b"
+   ]
+  },
+  {
+   "t": 17.479999999999997,
+   "tipo": "plano",
+   "desc": "push-in",
+   "sfx": [
+    "whoosh-a"
+   ]
+  },
+  {
+   "t": 18.86,
+   "tipo": "palabra clave",
+   "desc": "entrena.",
+   "sfx": [
+    "ding"
+   ]
+  },
+  {
+   "t": 18.86,
+   "tipo": "ícono",
+   "desc": "fuego",
+   "sfx": [
+    "burbuja"
+   ]
+  }
+ ],
+ "sonidos": [
+  {
+   "t": 0,
+   "sfx": "boom",
+   "dur": 1.044898,
+   "vol": 0.17179083871575881
+  },
+  {
+   "t": 1,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 1.472,
+   "sfx": "riser",
+   "dur": 0.528,
+   "vol": 0.4677351412871981
+  },
+  {
+   "t": 2,
+   "sfx": "whoosh-b",
+   "dur": 0.408,
+   "vol": 0.162181009735893
+  },
+  {
+   "t": 2.96,
+   "sfx": "ding",
+   "dur": 0.626939,
+   "vol": 0.13182567385564067
+  },
+  {
+   "t": 3.73,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 4.5,
+   "sfx": "whoosh-b",
+   "dur": 0.408,
+   "vol": 0.162181009735893
+  },
+  {
+   "t": 4.59,
+   "sfx": "burbuja",
+   "dur": 0.156735,
+   "vol": 0.13182567385564067
+  },
+  {
+   "t": 6,
+   "sfx": "golpe",
+   "dur": 0.182857,
+   "vol": 0.1445439770745927
+  },
+  {
+   "t": 6.133333333333334,
+   "sfx": "exito",
+   "dur": 0.626939,
+   "vol": 0.153108746168203
+  },
+  {
+   "t": 6.233333333333333,
+   "sfx": "swipe",
+   "dur": 0.192,
+   "vol": 0.1428893958511103
+  },
+  {
+   "t": 7.7,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 8.5,
+   "sfx": "swipe",
+   "dur": 0.09999999999999964,
+   "vol": 0.1428893958511103,
+   "recortado": true
+  },
+  {
+   "t": 8.6,
+   "sfx": "tick",
+   "dur": 0.130612,
+   "vol": 0.19724227361148533
+  },
+  {
+   "t": 8.6,
+   "sfx": "pop",
+   "dur": 0.20898,
+   "vol": 0.1273503081016662
+  },
+  {
+   "t": 9.56,
+   "sfx": "tick",
+   "dur": 0.130612,
+   "vol": 0.19724227361148533
+  },
+  {
+   "t": 9.56,
+   "sfx": "pop",
+   "dur": 0.20898,
+   "vol": 0.1273503081016662
+  },
+  {
+   "t": 10.2,
+   "sfx": "whoosh-b",
+   "dur": 0.25,
+   "vol": 0.162181009735893,
+   "recortado": true
+  },
+  {
+   "t": 10.45,
+   "sfx": "tick",
+   "dur": 0.130612,
+   "vol": 0.19724227361148533
+  },
+  {
+   "t": 10.45,
+   "sfx": "pop",
+   "dur": 0.20898,
+   "vol": 0.1273503081016662
+  },
+  {
+   "t": 11.23,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 12.01,
+   "sfx": "burbuja",
+   "dur": 0.156735,
+   "vol": 0.13182567385564067
+  },
+  {
+   "t": 13.399999999999999,
+   "sfx": "whoosh-b",
+   "dur": 0.408,
+   "vol": 0.162181009735893
+  },
+  {
+   "t": 13.94,
+   "sfx": "ding",
+   "dur": 0.49333333333333407,
+   "vol": 0.13182567385564067,
+   "recortado": true
+  },
+  {
+   "t": 14.433333333333334,
+   "sfx": "stamp",
+   "dur": 0.339592,
+   "vol": 0.24266100950824154
+  },
+  {
+   "t": 14.433333333333334,
+   "sfx": "subhit",
+   "dur": 0.731429,
+   "vol": 0.16595869074375605
+  },
+  {
+   "t": 15.266666666666666,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 16.099999999999998,
+   "sfx": "whoosh-b",
+   "dur": 0.408,
+   "vol": 0.162181009735893
+  },
+  {
+   "t": 17.479999999999997,
+   "sfx": "whoosh-a",
+   "dur": 0.336,
+   "vol": 0.285101826750391
+  },
+  {
+   "t": 18.86,
+   "sfx": "ding",
+   "dur": 0.626939,
+   "vol": 0.13182567385564067
+  },
+  {
+   "t": 18.86,
+   "sfx": "burbuja",
+   "dur": 0.156735,
+   "vol": 0.13182567385564067
+  }
+ ]
+}

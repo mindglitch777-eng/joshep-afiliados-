@@ -1,5 +1,33 @@
 # Changelog
 
+## v3 — fluida y con identidad (`samples/muestra-mision1-v3.mp4` + `-hoja.png`)
+
+Se conserva de la v2: Montserrat, nada tocando bordes, tarjetas fuera de la cara, sin destello blanco, master a -14 LUFS.
+**Una sola línea de tiempo** (`src/linea.ts`) calcula planos, eventos y sonidos; el render y el reporte salen de ahí.
+
+| Punto | Antes (v2, medido) | Después (v3) |
+|---|---|---|
+| P1-A Cámara | casi estática, un solo zoom (~14,4 s) | 13 planos: push-in 1.00→1.10 y abierto 1.06 con reencuadre ±3%, alternados; cambio de plano = punch de 9 frames con `bezier(0.22,1,0.36,1)` + golpe de escala 3%; énfasis 1.18 |
+| P1-A Motion blur | no | `@remotion/motion-blur`, 4 muestras, solo durante los punch |
+| P1-A Ritmo | tramos sin cambio en 4 s, 7 s, 12–13 s, 16–19 s | **tramo máx. 1,47 s** (límite 1,5); 26 eventos visuales, todos con sonido. Sin `Math.round` en transforms |
+| P1-B Subtítulos | ~64 px, espaciado variable | 92 px (claves 115 px), gap 0.32em, +0.015em, line-height 1.2, ≤3 palabras por línea, ≤2 líneas, ≤856 px; posiciones calculadas con anchos reales de Montserrat (kerning apagado) |
+| P1-B Firma | palabra amarilla que escalaba | caja amarilla única #FFD60A (radio 18, padding 6×16) que **desliza** con spring en 6 frames; texto negro al llegar; claves crecen 0.8→1 dentro de su ancho reservado; negativas #FF3B4E, positivas #2DE38B |
+| P1-B Test | — | `scripts/test-subs.ts` (Chromium real): Δ ancho palabra **0,00 px**, Δ línea **0,00 px**, layout vs navegador **0,50 px**, 0 solapes |
+| P2-A Capas | — | contraste +8%, saturación +10%, viñeta suave, barra de progreso 4 px a y=40; stickers de 160 px al lado de la cara cada ≥3 s; 10 íconos SVG propios (CC0) |
+| P2-B Tarjetas | vidrio oscuro, 46 px | blancas 96%, texto negro 58 px, sombra 0 12px 40px .35, insignias ✗/✓, 920 px; lista igual (52 px, título 68 px); etiqueta amarilla sólida con stamp 1.15→1.0 |
+| P3 Sonidos | 3 eventos en 20 s | **31 sonidos** con `src/sfx-map.ts`; 13 SFX sintetizados (CC0); máx. 2 simultáneos (recorta el más viejo con fade); impactos -8 dB y resto -14 dB respecto de la voz, música -24 dB con ducking |
+| Master | -14,3 LUFS, pico -1,0 | **-14,8 LUFS, pico -1,2 dB** (objetivo TP -1,5 para margen del AAC) |
+
+Reportes: `samples/reporte-ritmo-v3.md` (+ `.json`) y `samples/test-espaciado-v3.md`.
+Comandos: `npx tsx scripts/ritmo.ts plans/X.json out.md` · `npx tsx scripts/test-subs.ts plans/X.json out.md`.
+
+**Lo que no se cumplió exacto:**
+- Subtítulos a 856 px de ancho máx. y no 880, para respetar la zona segura derecha de 160 px.
+- Algunos planos duran menos de 2 s: la regla de 1,5 s manda y agrega cortes donde no hay otro evento.
+- Antes de decirse, la palabra clave ocupa su ancho a 1.25x: el hueco alrededor se ve un poco más grande (es lo que garantiza que nada se mueva).
+- El render a 60 fps pasó de 6 a 14 min por el motion blur (el mp4 sigue en 4,8 MB).
+- La voz sigue sin probarse: no hay video real de Joseph, y los niveles se calcularon contra una voz de referencia de -20 dBFS RMS.
+
 ## v2 — Misión 1 premium (`samples/muestra-mision1-v2.mp4` + `-hoja.png`)
 
 **Movimiento:** 2 curvas fijas en `src/theme.ts`: ENTRADA = `spring({damping:200})`, ACENTO = `spring({damping:14, stiffness:170})` con rebote recortado a 4%. Salidas: 7 frames de fade + scale 0.97. Revisado: 0 `transition:` en `src/`.
