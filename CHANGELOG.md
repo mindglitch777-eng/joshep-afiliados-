@@ -1,5 +1,29 @@
 # Changelog
 
+## Misión 2 — primer clip real + uso sin Claude (`samples/joseph1.mp4`, `clips/joseph1/`)
+
+**Flujo:** Actions → `make-clip` (link + nombre) → descarga (link enmascarado) → whisper.cpp small en español con vocabulario del nicho → análisis con puntaje y motivos → corte de silencios + voz → seguimiento de cara → plan por reglas + `plan.override.json` → validador → render → master → QA → artifact de 3 días, Supabase privado (si hay secrets) y, opcional, muestra en la rama. `render-clip` re-renderiza desde la caché sin transcribir de nuevo.
+
+| Punto | Qué quedó |
+|---|---|
+| 1 Workflows | `make-clip.yml` y `render-clip.yml`; URL leída del evento y `::add-mask::` (nunca interpolada); caché de whisper.cpp+modelo y del análisis por clip |
+| 2 Encuadre | vertical: como está; horizontal: recorte 9:16 que sigue la cara (o `desenfocado`); MediaPipe a 6 muestras/s, mayor cara con continuidad, EMA; sin cara → centrado + aviso |
+| 3 Silencios | `silencedetect` > 0,4 s, 0,12 s de aire, fades de 10+10 ms (20 ms), timestamps/cara/plan remapeados, micro-zoom 4% en cada jump cut; `remove_silences` en `config/pipeline.json` |
+| 4 Voz | highpass 80 Hz, afftdn, compresor 3:1, -16 LUFS antes de mezclar; master final **-14,0 LUFS / -1,5 dBTP** |
+| 5 Informe | top con puntaje (gancho, impacto, pausas, energía, relleno, estructura), frases que lo dispararon, motivo de descarte de cada uno, palabras con confianza < 50% |
+| 6 Plan | gancho = frase más fuerte; comparación ("no se trata de X, se trata de Y", "en vez de", "no X sino Y"); listas (ordinales o "por ejemplo/como A, B, C"); énfasis e íconos por diccionario; override encima (las correcciones de palabras se aplican antes de detectar) |
+| 7 Subtítulos | nunca terminan línea en artículo/preposición/conjunción (lista en `config/keywords.json`); corte en pausa ≥ 0,25 s o puntuación; la palabra activa pasa a negro solo cuando la caja llegó |
+| 8 Config | `config/brand.json`, `keywords.json`, `sfx.json`, `pipeline.json` |
+| 9 Entregables | `video.mp4`, `informe.md`, `post.md`, `qa.json`, `hoja.png`, `plan.json` |
+| 10 Uso | `README-USO.md` |
+
+**Minutos de Actions** (repo público → gratis): make-clip **12,7 min** (whisper compilado de cero; con caché ≈ 11); render-clip **31,7 min**, de los cuales 22 fueron un `apt-get` lento → ahora se saltea si ffmpeg ya está (≈ 10 min esperados).
+
+**Lo que no se cumplió exacto:**
+- Desde la sesión de Claude no se pudo bajar el video ni el modelo (Drive y Hugging Face bloqueados por la red del entorno): todo corrió en Actions.
+- "La cara que habla" se aproxima con la cara más grande y continuidad (MediaPipe no da quién habla).
+- Los títulos de `post.md` salen de plantillas, no de un modelo de lenguaje (gratis y sin keys).
+
 ## v3 — fluida y con identidad (`samples/muestra-mision1-v3.mp4` + `-hoja.png`)
 
 Se conserva de la v2: Montserrat, nada tocando bordes, tarjetas fuera de la cara, sin destello blanco, master a -14 LUFS.
