@@ -1,5 +1,22 @@
 # Changelog
 
+## Misión 3A — flash, correcciones y style packs (`samples/joseph1-v3.mp4`, `clips/joseph1/pack-*.mp4`)
+
+| Punto | Antes (v2) | Después (v3) |
+|---|---|---|
+| Flash de arranque | overlay blanco 12% (+12% de brillo medido, casi invisible sobre fondo claro) | filtro de exposición sobre el video: brillo **1.45**, saturación **0.85**, 4 cuadros a 60 fps con rampa 100→70→35→0% + punch 1.0→1.06; sonido obturador + zap (140 ms, pasa-bajos 8 kHz, -16 dB vs voz) en el cuadro 0 |
+| Seguridad del flash | — | `config/flash.json`: on/off, intensidad, ≥ 4 s entre flashes, ≤ 3 por segundo; flash de sección (máx. 2) apagado por defecto |
+| Punto verde (24 y 29 s) | — | no es un overlay: reflejo del antirreflejo de los lentes (la corrección +10% de saturación lo realza un poco) |
+| Mentón vs subtítulo | la barba tocaba el subtítulo (~5–6 s) | mentón visual = malla + 12% (barba); el zoom cede y el video sube hasta 15%; QA cuadro por cuadro: **aire mínimo 42 px, 0 cuadros < 24 px** |
+| Style packs | uno solo | `config/styles/`: **punch** (cortes con zoom), **push** (push-in largo, whip, pulsos en vez de cortes), **capas** (video a 0.88 sobre fondo desenfocado, slide), **mano** (±3 px a 0.4 Hz, zoom suave, sin flash); rotación sin repetir el pack anterior; columna `pack` en `hooks-log.csv` |
+
+QA de joseph1-v3 (pack punch): solape con ojos/boca/mentón 0% en gancho, subtítulos, íconos y tarjetas; los 4 packs pasan las mismas metas con los datos de este video. Audio -14,0 LUFS / -1,5 dBTP. Actions: **11,9 min**.
+
+**Lo que no se cumplió exacto:**
+- El archivo del sonido de flash dura 0,18 s por el relleno del mp3 (el sonido en sí, 140 ms).
+- Para separar la barba del subtítulo, la subida máxima del video pasó de 10% a 15% (la franja que se abre queda en la zona de UI de TikTok, ya oscura).
+- Íconos: 54% del tiempo no entran fuera de la cara en este primer plano (en el pack capas entran todos).
+
 ## Misión 2B — gancho poderoso + subtítulos abajo (`samples/joseph1-v2.mp4`, `clips/joseph1/`)
 
 Parámetros nuevos: `config/hook.json`. Lo demás (ritmo, SFX, lista, comparación, -14 LUFS, 60 fps) se conserva.
