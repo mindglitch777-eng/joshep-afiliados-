@@ -29,7 +29,10 @@ def glosario(ps, correcciones):
         t0 = p["texto"]
         if str(i) in correcciones:
             p["texto"] = correcciones[str(i)]
-        elif norm(t0) == "voz" and i > 0 and norm(ps[i - 1]["texto"]) in PREV:
+        # "voz"→"vos" solo cuando es el pronombre: nunca en "tono de voz", "la/una/tu/mi voz", "voz grave"…
+        elif (norm(t0) == "voz" and i > 0 and norm(ps[i - 1]["texto"]) in PREV
+              and not (i > 1 and norm(ps[i - 2]["texto"]) in {"tono", "timbre", "volumen", "nota", "hilo"})
+              and not (i + 1 < len(ps) and norm(ps[i + 1]["texto"]) in {"grave", "aguda", "alta", "baja", "firme"})):
             p["texto"] = re.sub(r"[Vv]oz", lambda m: "Vos" if m.group(0)[0] == "V" else "vos", t0)
         if p["texto"] != t0:
             cambios.append({"i": i, "antes": t0, "despues": p["texto"], "t": p["desde"]})
