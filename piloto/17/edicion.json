@@ -1,0 +1,100 @@
+{
+ "clip": "17",
+ "estilo": "punch",
+ "tramos": [
+  [
+   0.4,
+   5.76,
+   "arranca 0.1 s antes de la voz (había 0.5 s de silencio)"
+  ],
+  [
+   10.75,
+   38.4,
+   "saco «Muchos hombres tienen miedo… se quedan de más»: repite la idea del gancho"
+  ],
+  [
+   38.58,
+   49.65,
+   "acorto la pausa después de «emociones» y corto justo después de «link en el perfil»"
+  ]
+ ],
+ "correcciones": {
+  "88": "Imaginate",
+  "128": "quedás",
+  "138": "querés"
+ },
+ "claves": [
+  32,
+  52,
+  97,
+  122,
+  149
+ ],
+ "tonos": {
+  "37": "neg",
+  "52": "neg",
+  "57": "neg",
+  "109": "neg",
+  "113": "pos",
+  "124": "pos"
+ },
+ "gancho": {
+  "A": "TE QUEDASTE 40 MIN DE MÁS",
+  "claveA": "QUEDASTE",
+  "B": "IBA PERFECTO, HASTA QUE…",
+  "claveB": "PERFECTO"
+ },
+ "piezas": [
+  {
+   "tipo": "curva",
+   "desde": {
+    "palabra": 63
+   },
+   "hasta": {
+    "palabra": 88
+   },
+   "alto": "EL PICO",
+   "marcaAlto": {
+    "palabra": 78
+   },
+   "medio": "ACÁ TE QUEDASTE",
+   "marcaMedio": {
+    "palabra": 66
+   },
+   "bajo": "ACÁ TE FUISTE",
+   "marcaBajo": {
+    "palabra": 87
+   },
+   "numero": "+40",
+   "unidad": "MIN",
+   "numeroEn": {
+    "palabra": 69
+   }
+  },
+  {
+   "tipo": "enfasis",
+   "desde": {
+    "palabra": 97
+   },
+   "hasta": 1.0,
+   "palabra": "Continuará"
+  }
+ ],
+ "cta": {
+  "archivo": "18-tu-proximo-paso.mp4",
+  "inicio": 1.0,
+  "fin": 5.2,
+  "velocidad": 1.3
+ },
+ "post": {
+  "descripcion": "Si la charla va bien, irte en el pico es lo que la deja con ganas de volver a verte.",
+  "hashtags": [
+   "#seduccion",
+   "#atraccion",
+   "#citas",
+   "#confianza",
+   "#hombres"
+  ],
+  "portada": "cuadro 0 (gancho completo con el flash)"
+ }
+}

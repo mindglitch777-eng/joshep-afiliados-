@@ -10,3 +10,6 @@ public/raw/
 work/
 salida/
 __pycache__/
+piloto/activos/
+piloto/out/
+piloto/build/

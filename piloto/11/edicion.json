@@ -1,0 +1,134 @@
+{
+ "clip": "11",
+ "estilo": "capas",
+ "capas_gancho": true,
+ "tramos": [
+  [
+   0.12,
+   19.95,
+   "arranca con la voz"
+  ],
+  [
+   29.08,
+   49.45,
+   "saco los ejemplos «Enderezar la espalda… estar presente» (9 s): une «corregir todo al mismo tiempo» con «probá un solo ajuste»; corto después de «perfil»"
+  ]
+ ],
+ "correcciones": {
+  "43": "respirás,",
+  "47": "movés"
+ },
+ "claves": [
+  19,
+  32,
+  93,
+  109
+ ],
+ "tonos": {
+  "26": "neg",
+  "119": "pos"
+ },
+ "gancho": {
+  "A": "TU CUERPO YA LE CONTÓ LA VERDAD",
+  "claveA": "VERDAD",
+  "B": "ELLA NO NECESITA ESCUCHARLO",
+  "claveB": "ESCUCHARLO"
+ },
+ "piezas": [
+  {
+   "tipo": "pasos",
+   "estilo": "check",
+   "desde": {
+    "palabra": 33,
+    "mas": -0.2
+   },
+   "hasta": {
+    "palabra": 49,
+    "fin": true,
+    "mas": 0.4
+   },
+   "titulo": "Se nota en",
+   "pasos": [
+    "Tono de voz",
+    "Lenguaje corporal",
+    "Respiración",
+    "Moverte sin apuro"
+   ],
+   "tiempos": [
+    {
+     "palabra": 35
+    },
+    {
+     "palabra": 39
+    },
+    {
+     "palabra": 42
+    },
+    {
+     "palabra": 45
+    }
+   ]
+  },
+  {
+   "tipo": "pasos",
+   "estilo": "check",
+   "desde": {
+    "palabra": 85
+   },
+   "hasta": {
+    "palabra": 89,
+    "mas": 0.3
+   },
+   "titulo": "Probá",
+   "pasos": [
+    "Tono de voz",
+    "Lenguaje corporal",
+    "Respiración",
+    "Moverte sin apuro"
+   ],
+   "tiempos": [
+    {
+     "palabra": 85
+    },
+    {
+     "palabra": 85
+    },
+    {
+     "palabra": 85
+    },
+    {
+     "palabra": 85
+    }
+   ],
+   "cierre": "UN SOLO AJUSTE",
+   "cierreEn": {
+    "palabra": 86
+   }
+  },
+  {
+   "tipo": "imagen",
+   "desde": {
+    "palabra": 115
+   },
+   "hasta": 1.8,
+   "archivo": "img/11_54-lenguaje_no_verbal-04.png"
+  }
+ ],
+ "cta": {
+  "archivo": "32-leer-probar-ajustar.mp4",
+  "inicio": 1.0,
+  "fin": 5.4,
+  "velocidad": 1.3
+ },
+ "post": {
+  "descripcion": "No hace falta decir que sos seguro: tu tono, tu cuerpo y tu ritmo ya lo dicen. Probá un ajuste por vez.",
+  "hashtags": [
+   "#seduccion",
+   "#atraccion",
+   "#citas",
+   "#confianza",
+   "#hombres"
+  ],
+  "portada": "cuadro 0 (gancho completo con el flash)"
+ }
+}

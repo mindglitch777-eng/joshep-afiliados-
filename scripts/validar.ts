@@ -11,6 +11,7 @@ import {area, inter, Rect, rectBloque, rectSticker, tocan, zonasCara, altoCompar
 import hookCfg from '../config/hook.json';
 import flashCfg from '../config/flash.json';
 import {packDe} from '../src/estilos';
+import {altoPieza, esTarjeta, PANTALLA_COMPLETA} from '../src/graficos';
 import {SEGURA} from '../src/theme';
 
 const [planPath, out] = process.argv.slice(2);
@@ -51,7 +52,8 @@ const g = plan.piezas.find((p) => p.tipo === 'gancho');
 const frases = armarFrases(plan.subtitulos);
 const iconos = eventos.filter((e) => e.tipo === 'ícono');
 const cnt = {gancho: [0, 0, 0], subs: [0, 0], iconos: [0, 0, 0], tarjetas: [0, 0]};
-let mentonMin = Infinity, mentonMal = 0; // [cuadros activos, solapes...]
+let mentonMin = Infinity, mentonMal = 0, distMin = Infinity, distMal = 0, simMax = 0;
+const cajasPieza = new Map<unknown, Rect>(); // [cuadros activos, solapes...]
 const A = hookCfg.asentamiento;
 for (let fr = 0; fr < N; fr++) {
   const t = fr / fps;
@@ -80,10 +82,22 @@ for (let fr = 0; fr < N; fr++) {
     if (!r) cnt.iconos[2]++;
     else if (tocan(r, z.cara)) cnt.iconos[1]++;
   });
+  // ≤ 1 gráfico a la vez (tarjetas, énfasis, insertos, imágenes y CTA; el gancho y los subtítulos no cuentan)
+  simMax = Math.max(simMax, plan.piezas.filter((p) => p.tipo !== 'gancho' && t >= p.desde && t < p.hasta).length);
+  for (const p of plan.piezas) {
+    if (!esTarjeta(p) || t < p.desde || t >= p.hasta) continue;
+    // distancia de la tarjeta a la caja de la cara (con cabeza): mínimo 40 px
+    if (!cajasPieza.has(p)) cajasPieza.set(p, rectBloque(Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 3)}, (_, i) => camaraEn(plan, planos, pista, fps, p.desde * fps + i * 3, lay?.bajada ?? 0, lin).cara), altoPieza(p)));
+    const rb = cajasPieza.get(p)!, zc = z.cara;
+    const dx = Math.max(zc.x0 - rb.x1, rb.x0 - zc.x1, 0), dy = Math.max(zc.y0 - rb.y1, rb.y0 - zc.y1, 0);
+    const dist = dx > 0 || dy > 0 ? Math.hypot(dx, dy) : -Math.min(rb.x1 - zc.x0, zc.x1 - rb.x0, rb.y1 - zc.y0, zc.y1 - rb.y0);
+    distMin = Math.min(distMin, dist);
+    if (dist < 40) distMal++;
+  }
   for (const p of plan.piezas) {
     if ((p.tipo !== 'comparacion' && p.tipo !== 'pasos') || t < p.desde || t >= p.hasta) continue;
     cnt.tarjetas[0]++;
-    const caras = Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 6)}, (_, i) => camaraEn(plan, planos, pista, fps, p.desde * fps + i * 6, lay?.bajada ?? 0, lin).cara);
+    const caras = Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 3)}, (_, i) => camaraEn(plan, planos, pista, fps, p.desde * fps + i * 3, lay?.bajada ?? 0, lin).cara);
     const r = rectBloque(caras, p.tipo === 'comparacion' ? altoComparacion : altoLista(p.pasos.length, !!p.titulo));
     if (tocan(r, z.ojos) || tocan(r, z.boca)) cnt.tarjetas[1]++;
     if (r.y1 > BORDE_INF + 0.5 || r.x1 > X_MAX + 0.5) avisos.push(`Tarjeta fuera del límite (y ${r.y1.toFixed(0)}, x ${r.x1.toFixed(0)})`);
@@ -97,6 +111,8 @@ const solape = {
   iconos_sobre_cara_pct: pct(cnt.iconos[1], cnt.iconos[0]), iconos_omitidos_por_falta_de_lugar: iconos.length ? pct(cnt.iconos[2], cnt.iconos[0]) : 0,
   tarjetas_sobre_ojos_o_boca_pct: pct(cnt.tarjetas[1], cnt.tarjetas[0]),
 };
+const graficos = {distancia_min_cara_px: Number.isFinite(distMin) ? +distMin.toFixed(0) : null, cuadros_a_menos_de_40px: distMal, simultaneos_max: simMax,
+  pantalla_completa: plan.piezas.filter((p) => PANTALLA_COMPLETA.has(p.tipo)).map((p) => `${p.tipo} ${p.desde.toFixed(1)}–${p.hasta.toFixed(1)} s`)};
 const mentonSub = {aire_min_px: Number.isFinite(mentonMin) ? +mentonMin.toFixed(0) : null, cuadros_con_menos_de_24px: mentonMal, ok: mentonMal === 0};
 // flashes: seguridad (≥ 4 s entre flashes, ≤ 3 por segundo)
 const fl = lin.flashes;
@@ -110,7 +126,7 @@ const gancho = lay && g && g.tipo === 'gancho' ? {texto: g.texto, variante: g.va
 if (gancho && gancho.relacion_vs_subtitulo < hookCfg.texto.relacion_min_subtitulo) avisos.push(`Gancho ${gancho.tam_px} px = ${gancho.relacion_vs_subtitulo}x del subtítulo (meta ≥ ${hookCfg.texto.relacion_min_subtitulo}x)`);
 if (!cuadro0) avisos.push('Cuadro 0: el gancho no entra completo');
 
-const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, menton_vs_subtitulo: mentonSub, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
+const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, graficos, menton_vs_subtitulo: mentonSub, gancho_detras: !!lay?.detras, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
   avisos: [...new Set(avisos)], linea_de_tiempo: eventos.map((e) => ({t: +e.t.toFixed(2), tipo: e.tipo, detalle: e.desc, sonido: e.sfx}))};
 writeFileSync(out, JSON.stringify(res, null, 1));
 console.log(`eventos ${eventos.length}, huecos > 1.5 s: ${huecos.length}, avisos: ${res.avisos.length}`);

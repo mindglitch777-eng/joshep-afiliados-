@@ -1,0 +1,81 @@
+{
+ "clip": "03",
+ "estilo": "push",
+ "tramos": [
+  [
+   0.42,
+   6.94,
+   "arranca 0.1 s antes de la voz"
+  ],
+  [
+   19.05,
+   51.3,
+   "saco «el equivalente… ni con una rama» (12 s): la idea queda clara y une con «Pero no tiene que ver con el dinero»; corto después de «perfil»"
+  ]
+ ],
+ "correcciones": {
+  "75": "cómo",
+  "77": "usás",
+  "161": "link"
+ },
+ "claves": [
+  79,
+  103,
+  121,
+  151
+ ],
+ "tonos": {
+  "106": "neg",
+  "130": "neg",
+  "160": "pos"
+ },
+ "gancho": {
+  "A": "MÁS PLATA NO TE HACE ATRACTIVO",
+  "claveA": "PLATA",
+  "B": "NO TIENE QUE VER CON EL DINERO",
+  "claveB": "DINERO"
+ },
+ "piezas": [
+  {
+   "tipo": "comparacion",
+   "estilo": "versus",
+   "desde": {
+    "palabra": 64
+   },
+   "hasta": {
+    "palabra": 84,
+    "fin": true,
+    "mas": 0.3
+   },
+   "mal": "PLATA",
+   "notaMal": "lo que tenés",
+   "bien": "ATRACCIÓN",
+   "notaBien": "cómo la usás"
+  },
+  {
+   "tipo": "enfasis",
+   "desde": {
+    "palabra": 112
+   },
+   "hasta": 1.0,
+   "palabra": "Traducción"
+  }
+ ],
+ "cta": {
+  "archivo": "14-quien-te-gusta.mp4",
+  "inicio": 1.0,
+  "fin": 5.2,
+  "velocidad": 1.3
+ },
+ "post": {
+  "descripcion": "La plata no atrae: lo que atrae es cómo la usás y quién sos sin ella.",
+  "hashtags": [
+   "#seduccion",
+   "#atraccion",
+   "#citas",
+   "#confianza",
+   "#hombres"
+  ],
+  "portada": "cuadro 0 (gancho completo con el flash)"
+ }
+}

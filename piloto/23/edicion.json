@@ -1,0 +1,134 @@
+{
+ "clip": "23",
+ "estilo": "punch",
+ "tramos": [
+  [
+   0.2,
+   17.01,
+   "arranca con la voz"
+  ],
+  [
+   17.19,
+   25.27,
+   "acorto pausa"
+  ],
+  [
+   25.49,
+   27.49,
+   "acorto pausa"
+  ],
+  [
+   27.74,
+   33.61,
+   "acorto pausa"
+  ],
+  [
+   33.77,
+   36.77,
+   "acorto pausa"
+  ],
+  [
+   37.31,
+   38.45,
+   "saco la pausa de 0,8 s entre «link» y «en el perfil»; corto después de «perfil»"
+  ]
+ ],
+ "correcciones": {
+  "13": "llevás",
+  "35": "podés",
+  "90": "sabés",
+  "105": "desde",
+  "108": "link"
+ },
+ "claves": [
+  31,
+  42,
+  99
+ ],
+ "tonos": {
+  "59": "neg",
+  "107": "neg",
+  "99": "pos"
+ },
+ "gancho": {
+  "A": "SI TODAS TE SIRVEN, NO ELEGÍS",
+  "claveA": "ELEGÍS",
+  "B": "TE ESTÁS CONFORMANDO",
+  "claveB": "CONFORMANDO"
+ },
+ "piezas": [
+  {
+   "tipo": "comparacion",
+   "estilo": "versus",
+   "desde": {
+    "palabra": 6,
+    "mas": 0.3
+   },
+   "hasta": {
+    "palabra": 11,
+    "fin": true,
+    "mas": 0.3
+   },
+   "mal": "CONFORMARSE",
+   "bien": "ELEGIR"
+  },
+  {
+   "tipo": "imagen",
+   "desde": {
+    "palabra": 50
+   },
+   "hasta": 1.8,
+   "archivo": "img/07_37-limites_y_preferencias-03.png"
+  },
+  {
+   "tipo": "pasos",
+   "estilo": "preguntas",
+   "desde": {
+    "palabra": 70
+   },
+   "hasta": {
+    "palabra": 79
+   },
+   "titulo": "Hacete 2 preguntas",
+   "pasos": [
+    "¿Me gustó estar con ella?",
+    "¿Podemos construir algo?"
+   ],
+   "tiempos": [
+    {
+     "palabra": 73
+    },
+    {
+     "palabra": 78
+    }
+   ]
+  },
+  {
+   "tipo": "inserto",
+   "desde": {
+    "palabra": 79
+   },
+   "hasta": 1.9,
+   "archivo": "anim/24-interes-de-a-dos.mp4",
+   "inicio": 1.6,
+   "velocidad": 1.0
+  }
+ ],
+ "cta": {
+  "archivo": "14-quien-te-gusta.mp4",
+  "inicio": 1.0,
+  "fin": 5.2,
+  "velocidad": 1.3
+ },
+ "post": {
+  "descripcion": "Que alguien te dé bola no alcanza: después de cada cita, hacete estas 2 preguntas.",
+  "hashtags": [
+   "#seduccion",
+   "#atraccion",
+   "#citas",
+   "#confianza",
+   "#hombres"
+  ],
+  "portada": "cuadro 0 (gancho completo con el flash)"
+ }
+}

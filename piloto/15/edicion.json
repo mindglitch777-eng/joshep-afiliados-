@@ -1,0 +1,110 @@
+{
+ "clip": "15",
+ "estilo": "mano",
+ "tramos": [
+  [
+   0.58,
+   12.53,
+   "arranca con la voz"
+  ],
+  [
+   15.81,
+   31.4,
+   "saco «Entonces se conecta con la emoción…» (repite la idea)"
+  ],
+  [
+   39.75,
+   52.05,
+   "saco «Empezá contando la historia en un minuto…» (8 s) y corto después de «perfil»"
+  ]
+ ],
+ "correcciones": {
+  "55": "podés",
+  "65": "¿Qué",
+  "73": "final?",
+  "135": "el"
+ },
+ "claves": [
+  14,
+  103,
+  106,
+  126
+ ],
+ "tonos": {
+  "126": "pos"
+ },
+ "gancho": {
+  "A": "LA ESCENA, NO TUS DATOS",
+  "claveA": "ESCENA",
+  "B": "CONTÁ HISTORIAS, NO DATOS",
+  "claveB": "HISTORIAS"
+ },
+ "piezas": [
+  {
+   "tipo": "comparacion",
+   "estilo": "versus",
+   "desde": {
+    "palabra": 37
+   },
+   "hasta": {
+    "palabra": 46,
+    "fin": true,
+    "mas": 0.3
+   },
+   "mal": "DATOS",
+   "notaMal": "vacíos",
+   "bien": "ESCENA",
+   "notaBien": "lo que sintió"
+  },
+  {
+   "tipo": "pasos",
+   "estilo": "flujo",
+   "desde": {
+    "palabra": 58
+   },
+   "hasta": {
+    "palabra": 73,
+    "fin": true,
+    "mas": 0.4
+   },
+   "titulo": "4 pasos",
+   "pasos": [
+    "Contexto",
+    "Problema",
+    "Qué hiciste",
+    "Final"
+   ],
+   "tiempos": [
+    {
+     "palabra": 62
+    },
+    {
+     "palabra": 63
+    },
+    {
+     "palabra": 65
+    },
+    {
+     "palabra": 70
+    }
+   ]
+  }
+ ],
+ "cta": {
+  "archivo": "14-quien-te-gusta.mp4",
+  "inicio": 1.0,
+  "fin": 5.2,
+  "velocidad": 1.3
+ },
+ "post": {
+  "descripcion": "Ella no se acuerda de tus datos: se acuerda de cómo la hiciste sentir. Probá contar una historia en 4 pasos.",
+  "hashtags": [
+   "#seduccion",
+   "#atraccion",
+   "#citas",
+   "#confianza",
+   "#hombres"
+  ],
+  "portada": "cuadro 0 (gancho completo con el flash)"
+ }
+}
