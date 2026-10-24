@@ -12,6 +12,10 @@ on:
         description: "Clips a procesar (JSON)"
         required: true
         default: '["20","09","06"]'
+      fase:
+        description: "render o materiales"
+        required: false
+        default: render
       etiqueta:
         description: "Nombre de la corrida (prueba, ola1, ola2)"
         required: false
@@ -22,7 +26,36 @@ concurrency: lote
 env:
   WHISPER_VER: v1.7.5
 jobs:
+  materiales:
+    if: inputs.fase == 'materiales'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Enmascarar IDs
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - name: tesseract, ffmpeg y pillow
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa ffmpeg >/dev/null
+          pip install -q pillow
+      - name: Caché de materiales
+        uses: actions/cache@v4
+        with: {path: piloto/activos, key: "lote-materiales-v1"}
+      - name: Bajar animaciones, CTA e imágenes
+        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python3 pipeline/piloto/activos.py anim,cta,img
+      - run: python3 pipeline/lote/materiales.py mat
+      - name: Cifrar y subir a la rama cifrado-materiales
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          rm -rf mat/tmp; bash pipeline/piloto/cifrar.sh mat materiales
+          mkdir enc && mv materiales.*.enc enc/ && cd enc && git init -q && git checkout -q -b cifrado-materiales
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Materiales cifrados (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-materiales
   base:
+    if: inputs.fase != 'materiales'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -122,7 +155,7 @@ jobs:
         with: {name: "clip-${{ matrix.clip }}", path: "entrega/${{ matrix.clip }}/", retention-days: 14}
   juntar:
     needs: [clip]
-    if: always()
+    if: always() && inputs.fase != 'materiales'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
