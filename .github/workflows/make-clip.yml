@@ -15,6 +15,10 @@ on:
       clip_end:
         description: "Fin en segundos (opcional)"
         required: false
+      etiqueta:
+        description: "Sufijo para el archivo de muestra (ej: -v2)"
+        required: false
+        default: ""
       publicar_muestra:
         description: "Subir muestra chica + informe a la rama (para revisar desde el celular)"
         type: boolean
@@ -107,4 +111,4 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: bash pipeline/publicar.sh "${{ inputs.nombre }}" "${{ inputs.publicar_muestra }}"
+        run: bash pipeline/publicar.sh "${{ inputs.nombre }}" "${{ inputs.publicar_muestra }}" "${{ inputs.etiqueta }}"
