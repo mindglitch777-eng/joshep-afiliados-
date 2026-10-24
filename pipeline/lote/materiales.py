@@ -41,6 +41,18 @@ def main(out):
         w = csv.DictWriter(fh, ["tipo", "archivo", "texto"]); w.writeheader(); w.writerows(filas)
     with open(out / "cta_boton.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, ["archivo", "boton", "desde_s", "y_px"]); w.writeheader(); w.writerows(botones)
+    # hoja de los CTA: 6 cuadros por animación (1–5,8 s) para ver a ojo dónde está el botón
+    ctas = sorted((A / "cta").glob("*.mp4"))
+    TS = (1.0, 2.0, 3.0, 4.0, 5.0, 5.8)
+    hc = Image.new("RGB", (60 + len(TS) * 164, len(ctas) * 290), "white")
+    dc = ImageDraw.Draw(hc)
+    for i, v in enumerate(ctas):
+        dc.text((4, i * 290 + 140), v.name[:2], fill="black")
+        for j, t in enumerate(TS):
+            cuadro(v, t, tmp / "c.png")
+            im = Image.open(tmp / "c.png").convert("RGB"); im.thumbnail((160, 284), Image.LANCZOS)
+            hc.paste(im, (60 + j * 164, i * 290))
+    hc.save(out / "ctas_hoja.jpg", quality=72)
     # hoja de imágenes por tema: una fila por carpeta (00 = sueltas), miniaturas de 110 px de ancho
     imgs = sorted((A / "img").glob("*.png"))
     temas = {}
