@@ -12,6 +12,10 @@ on:
         description: "prep o render"
         required: true
         default: prep
+      corridas:
+        description: "Solo fase entregar: clip=run_id,... de donde tomar cada video"
+        required: false
+        default: ""
       clips:
         description: "Clips a procesar (JSON)"
         required: false
@@ -194,4 +198,35 @@ jobs:
           git init -q && git checkout -q -b cifrado-catalogo
           git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
           git add . && git commit -qm "Piloto: revisión cifrada (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-catalogo
+  entregar:
+    if: inputs.fase == 'entregar'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions: {contents: write, actions: read}
+    steps:
+      - name: Bajar los videos de cada corrida y comprimirlos para el celular
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)
+          mkdir -p videos
+          for par in $(echo "${{ inputs.corridas }}" | tr ',' ' '); do
+            C=${par%%=*}; R=${par#*=}
+            gh run download "$R" -R "${{ github.repository }}" -n "clip-$C" -D "dl/$C"
+            ffmpeg -loglevel error -y -i "dl/$C/clip-$C.mp4" -c:v libx264 -crf 25 -preset slow -c:a aac -b:a 160k -movflags +faststart "videos/clip-$C.mp4"
+            ls -la "videos/clip-$C.mp4"
+          done
+      - uses: actions/checkout@v4
+        with: {path: repo, sparse-checkout: "config/claves\npipeline/piloto/cifrar.sh"}
+      - name: Cifrar y subir a la rama cifrado-catalogo
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p enc
+          for f in videos/*.mp4; do
+            n=$(basename "$f" .mp4); mkdir -p "v/$n" && cp "$f" "v/$n/"
+            (cd repo && bash pipeline/piloto/cifrar.sh "../v/$n" "../enc/$n")
+          done
+          cd enc && git init -q && git checkout -q -b cifrado-catalogo
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Piloto: videos cifrados (temporal)"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-catalogo
