@@ -1,16 +1,50 @@
 {
-  "niveles_db": {"voz_rms_referencia": -20, "sfx_normal": -14, "impactos": -8, "musica": -24, "ducking_sin_voz": 6},
-  "impactos": ["boom", "subhit", "stamp"],
+  "niveles_db": {
+    "voz_rms_referencia": -20,
+    "sfx_normal": -14,
+    "impactos": -8,
+    "musica": -24,
+    "ducking_sin_voz": 6
+  },
+  "impactos": [
+    "boom",
+    "subhit",
+    "stamp"
+  ],
   "mapa": {
-    "gancho": ["boom"],
-    "plano": ["whoosh-a", "whoosh-b"],
-    "clave": ["ding"],
-    "tarjetaMal": ["golpe"],
-    "tachado": ["swipe"],
-    "tarjetaBien": ["exito"],
-    "lista": ["swipe"],
-    "item": ["tick", "pop"],
-    "enfasis": ["stamp", "subhit"],
-    "icono": ["burbuja"]
+    "gancho": [
+      "boom",
+      "whoosh-a"
+    ],
+    "plano": [
+      "whoosh-a",
+      "whoosh-b"
+    ],
+    "clave": [
+      "ding"
+    ],
+    "tarjetaMal": [
+      "golpe"
+    ],
+    "tachado": [
+      "swipe"
+    ],
+    "tarjetaBien": [
+      "exito"
+    ],
+    "lista": [
+      "swipe"
+    ],
+    "item": [
+      "tick",
+      "pop"
+    ],
+    "enfasis": [
+      "stamp",
+      "subhit"
+    ],
+    "icono": [
+      "burbuja"
+    ]
   }
 }

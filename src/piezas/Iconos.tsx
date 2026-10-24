@@ -1,5 +1,6 @@
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {acento, C, SEGURA} from '../theme';
+import {acento, C} from '../theme';
+import {Rect} from '../geometria';
 
 // Biblioteca de íconos propios (CC0, dibujados para este repo). viewBox 0 0 100 100.
 const k = {fill: 'none', stroke: C.negro, strokeWidth: 7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const};
@@ -17,12 +18,10 @@ export const ICONOS: Record<string, React.ReactNode> = {
 };
 
 // Sticker con pop al lado de la cara (alterna lado), ~160 px, sin taparla.
-export const Sticker: React.FC<{icono: string; lado: 1 | -1; cara: {x: number; y: number; w: number; h: number}}> = ({icono, lado, cara}) => {
+export const Sticker: React.FC<{icono: string; lado: 1 | -1; r: Rect}> = ({icono, lado, r}) => {
   const frame = useCurrentFrame();
   const s = acento(frame, useVideoConfig().fps);
-  const T = 160;
-  const x = Math.min(Math.max(cara.x + lado * (cara.w / 2 + 20 + T / 2), SEGURA.izq + T / 2), 1080 - SEGURA.der - T / 2);
-  const y = Math.max(cara.y - cara.h * 0.3, SEGURA.arriba + T / 2);
+  const T = r.x1 - r.x0, x = r.x0 + T / 2, y = r.y0 + T / 2;
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', left: x - T / 2, top: y - T / 2, width: T, height: T, borderRadius: T / 2, background: 'rgba(255,255,255,0.96)', boxShadow: '0 12px 40px rgba(0,0,0,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: interpolate(s, [0, 0.3], [0, 1], {extrapolateRight: 'clamp'}), transform: `scale(${s}) rotate(${lado * -8 * (1 - s) + lado * 6}deg)`}}>

@@ -1,17 +1,18 @@
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
-import {BRAND, C, ENTRADA, FUENTE, SEGURA} from '../theme';
+import {BRAND, C, ENTRADA, FUENTE} from '../theme';
+import {altoLista, rectBloque} from '../geometria';
+import {Camara} from '../camara';
 import {ANCHO_TARJETA, tarjetaClara} from './Comparacion';
 
 // Pieza 3: lista en tarjeta clara debajo de la cara; cada ítem entra cuando se dice.
-export const Pasos: React.FC<{titulo?: string; pasos: string[]; inicios: number[]; caraAbajo: number}> = ({titulo, pasos, inicios, caraAbajo}) => {
+export const Pasos: React.FC<{titulo?: string; pasos: string[]; inicios: number[]; cara: Camara['cara']}> = ({titulo, pasos, inicios, cara}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const alto = 64 + (titulo ? 100 : 0) + pasos.length * 84;
-  const top = Math.min(caraAbajo + 40, 1920 - SEGURA.abajo - alto);
+  const r = rectBloque(cara, altoLista(pasos.length, !!titulo));
   const caja = ENTRADA(frame, fps);
   return (
     <AbsoluteFill>
-      <div style={{...tarjetaClara, position: 'absolute', left: (1080 - ANCHO_TARJETA) / 2, width: ANCHO_TARJETA, top, boxSizing: 'border-box', padding: '32px 44px', opacity: caja, transform: `translateY(${(1 - caja) * 20}px)`}}>
+      <div style={{...tarjetaClara, position: 'absolute', left: r.x0, width: ANCHO_TARJETA, top: r.y0, height: r.y1 - r.y0, boxSizing: 'border-box', padding: '32px 44px', opacity: caja, transform: `translateY(${(1 - caja) * 20}px)`}}>
         {titulo && <div style={{fontFamily: FUENTE, fontWeight: 900, fontSize: BRAND.lista.titulo, lineHeight: 1.05, letterSpacing: '-0.01em', color: C.negro, textTransform: 'uppercase', marginBottom: 28}}>{titulo}</div>}
         {pasos.map((p, i) => {
           const s = ENTRADA(frame - inicios[i], fps);

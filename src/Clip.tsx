@@ -13,9 +13,12 @@ import {Comparacion} from './piezas/Comparacion';
 import {Pasos} from './piezas/Pasos';
 import {Enfasis} from './piezas/Enfasis';
 import {Sticker} from './piezas/Iconos';
+import hookCfg from '../config/hook.json';
+import {layoutDelPlan} from './gancho-layout';
+import {fraseOculta} from './subs-layout';
+import {rectSticker} from './geometria';
 import {Subtitulos} from './piezas/Subtitulos';
 
-const norm = (s: string) => s.toLowerCase().replace(/[^a-záéíóúñü]/g, '');
 
 // Salida común: fade + scale 0.97 en los últimos frames de cada pieza.
 const Salida: React.FC<{dur: number; children: React.ReactNode}> = ({dur, children}) => {
@@ -35,31 +38,38 @@ const Progreso: React.FC = () => {
   );
 };
 
-export const Clip: React.FC<Plan> = (plan) => {
+const aplicarVariante = (p: Plan): Plan => {
+  const v = p.ganchoVariante && p.ganchos?.find((x) => x.formula === p.ganchoVariante);
+  if (!v) return p;
+  return {...p, piezas: p.piezas.map((x) => (x.tipo === 'gancho' ? {...x, texto: v.texto, clave: v.clave, variante: v.formula} : x))};
+};
+
+export const Clip: React.FC<Plan> = (planIn) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
+  // variante del gancho forzada (previews A/B/C)
+  const plan = useMemo(() => aplicarVariante(planIn), [planIn]);
   const pista = useMemo(() => pistaCara(plan, fps, durationInFrames), [plan, fps, durationInFrames]);
   const lin = useMemo(() => linea(plan, fps), [plan, fps]);
-  const cam = camaraEn(plan, lin.planos, pista, fps, frame);
-  const caraAbajo = cam.cara.y + cam.cara.h / 2, caraArriba = cam.cara.y - cam.cara.h / 2;
+  // gancho sobre la frente: se mide la y más alta de los ojos durante el gancho (sin bajada) y se ajusta el texto
+  const lay = useMemo(() => layoutDelPlan(plan, lin.planos, pista, fps), [plan, lin, pista, fps]);
+  const bajada = lay?.bajada ?? 0;
+  const cam = camaraEn(plan, lin.planos, pista, fps, frame, bajada);
+  const caraArriba = cam.cara.y - cam.cara.h / 2;
   const hayVoz = (s: number) => plan.subtitulos.some((p) => s >= p.desde - 0.15 && s < p.hasta + 0.15);
   const enfasisEn = (t: number) => plan.piezas.find((p) => p.tipo === 'enfasis' && t >= p.desde - 4 / fps && t < p.hasta);
-  const ocultarSubs = (t: number, fr: {ini: number; palabras: {texto: string}[]}) => {
-    // oculto mientras hay tarjeta/lista/gancho, y también la frase que empezó durante una
-    if (plan.piezas.some((p) => p.tipo !== 'enfasis' && ((t >= p.desde && t < p.hasta) || (fr.ini >= p.desde && fr.ini < p.hasta)))) return true;
-    const e = enfasisEn(t);
-    return !!(e && e.tipo === 'enfasis' && fr.palabras.some((w) => norm(w.texto) === norm(e.palabra)));
-  };
+  const ocultarSubs = (t: number, fr: {ini: number; palabras: {texto: string}[]}) => fraseOculta(plan, fps, t, fr);
 
   const render = (p: Pieza) => {
     switch (p.tipo) {
-      case 'gancho': return <Gancho texto={p.texto} />;
-      case 'comparacion': return <Comparacion mal={p.mal} bien={p.bien} caraAbajo={caraAbajo} />;
-      case 'pasos': return <Pasos titulo={p.titulo} pasos={p.pasos} caraAbajo={caraAbajo} inicios={p.pasos.map((_, i) => ((p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5) - p.desde) * fps)} />;
+      case 'gancho': return lay ? <Gancho lay={lay} /> : null;
+      case 'comparacion': return <Comparacion mal={p.mal} bien={p.bien} cara={cam.cara} />;
+      case 'pasos': return <Pasos titulo={p.titulo} pasos={p.pasos} cara={cam.cara} inicios={p.pasos.map((_, i) => ((p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5) - p.desde) * fps)} />;
       case 'enfasis': return <Enfasis palabra={p.palabra} caraArriba={caraArriba} />;
     }
   };
-  const fondo = <Fondo plan={plan} planos={lin.planos} pista={pista} />;
+  const fondo = <Fondo plan={plan} planos={lin.planos} pista={pista} bajada={bajada} />;
+  const I = hookCfg.interrupcion;
   const iconos = lin.eventos.filter((e) => e.tipo === 'ícono');
 
   return (
@@ -78,9 +88,13 @@ export const Clip: React.FC<Plan> = (plan) => {
       })}
       {iconos.map((e, i) => {
         const dur = Math.round(1.4 * fps);
-        return <Sequence key={`i${i}`} from={f(e.t, fps)} durationInFrames={dur}><Salida dur={dur}><Sticker icono={e.desc} lado={i % 2 ? -1 : 1} cara={cam.cara} /></Salida></Sequence>;
+        const r = rectSticker(cam.cara, i % 2 ? -1 : 1);
+        if (!r) return null; // no entra fuera de la cara: no se muestra
+        return <Sequence key={`i${i}`} from={f(e.t, fps)} durationInFrames={dur}><Salida dur={dur}><Sticker icono={e.desc} lado={i % 2 ? -1 : 1} r={r} /></Salida></Sequence>;
       })}
       <Subtitulos palabras={plan.subtitulos} ocultar={ocultarSubs} />
+      {/* interrupción de patrón: destello blanco de 2 frames al 12% (configurable) */}
+      {I.destello && frame < I.destello_frames && <AbsoluteFill style={{background: '#fff', opacity: I.destello_opacidad}} />}
       <Progreso />
       {lin.sonidos.map((s, i) => {
         const dur = Math.max(1, Math.round(s.dur * fps));
