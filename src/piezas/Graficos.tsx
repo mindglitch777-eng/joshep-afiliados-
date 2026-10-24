@@ -32,7 +32,7 @@ export const Versus: React.FC<{mal: string; bien: string; notaMal?: string; nota
       <div style={{flex: 1, height: 214, borderRadius: 26, background: ok ? 'rgba(45,227,139,0.12)' : 'rgba(255,59,78,0.10)', border: `4px solid ${ok ? C.verde : C.rojo}`,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, opacity: Math.min(1, s * 1.5), transform: `scale(${0.85 + 0.15 * s})`}}>
         <Insignia ok={ok} />
-        <div style={{...titulo, fontSize: txt.length > 8 ? 46 : 56, color: C.negro, textAlign: 'center', padding: '0 8px'}}>{txt}</div>
+        <div style={{...titulo, fontSize: txt.length > 10 ? 40 : txt.length > 8 ? 46 : 56, color: C.negro, textAlign: 'center', padding: '0 8px'}}>{txt}</div>
         {nota && <div style={{fontFamily: FUENTE, fontWeight: 800, fontSize: 34, color: 'rgba(11,11,15,0.65)'}}>{nota}</div>}
       </div>
     );

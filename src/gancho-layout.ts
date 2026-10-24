@@ -3,7 +3,6 @@ import hookCfg from '../config/hook.json';
 import {camaraEn} from './camara';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
-import {zonasCara} from './geometria';
 
 // Layout del gancho con anchos reales de Montserrat 900 (kerning apagado), igual que los subtítulos.
 const A = anchos as Record<string, number>;
@@ -32,7 +31,7 @@ const lineas = (ws: string[], fs: number) => {
 };
 
 // ojosMin: la y más alta de los ojos en pantalla durante el gancho (peor caso). El texto termina ≥ 40 px arriba.
-export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number, cabezaTop?: number): LayoutGancho => {
+export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number, cabezaTop?: number, cabezaMin?: number): LayoutGancho => {
   const ws = texto.toUpperCase().split(/\s+/).filter(Boolean);
   CLAVE = limpia((clave ?? '').toUpperCase());
   const limite = ojosMin - U.margen_ojos;
@@ -50,7 +49,8 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
   // detrás de Joseph: la cabeza tapa solo el 40% inferior de las letras; si no hay lugar arriba de la cabeza, va delante (plan B)
   let detras = false;
   if (cabezaTop !== undefined) {
-    const topDetras = cabezaTop + 0.4 * h - h;
+    // cabezaTop = altura típica (mediana) de la cabeza: tapa ~40% de las letras; en el peor momento (cabezaMin) nunca más de 70%
+    const topDetras = Math.max(cabezaTop + 0.4 * h - h, (cabezaMin ?? cabezaTop) + 0.3 * h - h);
     if (topDetras >= U.y_top_min && topDetras + h <= limite + bajada) {
       top = topDetras;
       detras = true;
@@ -73,11 +73,15 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
 export const layoutDelPlan = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number): LayoutGancho | null => {
   const g = plan.piezas.find((p) => p.tipo === 'gancho');
   if (!g || g.tipo !== 'gancho') return null;
-  let ojosMin = Infinity, cabeza = Infinity;
+  let ojosMin = Infinity;
+  const cabezas: number[] = [];
   for (let fr = 0; fr <= g.hasta * fps; fr += 2) {
     const c = camaraEn(plan, planos, pista, fps, fr).cara;
     ojosMin = Math.min(ojosMin, c.ojos);
-    cabeza = Math.min(cabeza, zonasCara(c).cara.y0);
+    // altura real de la cabeza (la zona de seguridad usa 30% sobre la frente; acá se estima más ajustado: 18%)
+    if (fr >= 0.3 * fps) cabezas.push(c.frente - 0.18 * (c.menton - c.frente));
   }
-  return layoutGancho(g.texto, g.clave, ojosMin, plan.recorte ? cabeza : undefined);
+  cabezas.sort((a, b) => a - b);
+  const mediana = cabezas[Math.floor(cabezas.length / 2)];
+  return layoutGancho(g.texto, g.clave, ojosMin, plan.recorte ? mediana : undefined, cabezas[0]);
 };

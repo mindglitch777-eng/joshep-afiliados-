@@ -17,9 +17,20 @@ def main(clip, video, minutos):
     lo = subprocess.run(["ffmpeg", "-hide_banner", "-i", video, "-af", "ebur128=peak=true", "-f", "null", "-"], capture_output=True, text=True).stderr
     lo = lo[lo.rfind("Summary:"):]
     lufs, tp = float(re.search(r"I:\s+(-?[\d.]+)", lo).group(1)), float(re.search(r"Peak:\s+(-?[\d.]+)", lo).group(1))
-    # ninguna palabra cortada: los bordes de cada tramo caen fuera de toda palabra (tolerancia 20 ms)
-    bordes = sorted({x for a, bb, _ in co["tramos"] for x in (float(a), float(bb))})
-    cortadas = [f"{p['texto']} @{p['desde']:.2f}" for x in bordes for p in co["palabras_fuente"] if p["desde"] + 0.02 < x < p["hasta"] - 0.02]
+    # ninguna palabra cortada: en cada borde de corte, el audio de la fuente (±15 ms) tiene que estar en silencio
+    # (≥ 20 dB debajo del nivel de la voz). Los tiempos de whisper no sirven para esto: estiran las palabras sobre las pausas.
+    import numpy as np, wave
+    src = RAIZ / "piloto" / "activos" / "reel" / f"{clip}.mov"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", str(b / "qa.wav")])
+    with wave.open(str(b / "qa.wav")) as wv:
+        x = np.frombuffer(wv.readframes(wv.getnframes()), dtype=np.int16).astype(np.float32) / 32768
+    (b / "qa.wav").unlink()
+    db = lambda a, z: 20 * np.log10(np.sqrt(np.mean(x[max(0, int(a * 16000)):int(z * 16000)] ** 2)) + 1e-9)
+    win = np.array([db(i / 10, i / 10 + 0.1) for i in range(int(len(x) / 1600))])
+    voz = float(np.percentile(win, 75))
+    bordes = sorted({x0 for a, bb, _ in co["tramos"] for x0 in (float(a), float(bb))})
+    niveles = [(t, db(t - 0.015, t + 0.015)) for t in bordes]
+    cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > voz - 20]
     s, g, m = val["solape_cara"], val["graficos"], val["menton_vs_subtitulo"]
     cont = co["duracion_contenido"]
     reglas = [
@@ -34,7 +45,7 @@ def main(clip, video, minutos):
         ("Subtítulos ≥ 24 px bajo el mentón", f"aire mín. {m['aire_min_px']} px · {m['cuadros_con_menos_de_24px']} cuadros < 24", m["ok"]),
         ("Subtítulos con base ≤ y=1440 y x ≤ 960", f"{len(val['textos_fuera_zona_segura'])} fuera", not val["textos_fuera_zona_segura"]),
         ("≤ 1 gráfico a la vez", f"máx. {g['simultaneos_max']}", g["simultaneos_max"] <= 1),
-        ("Ninguna palabra cortada en el audio", ", ".join(cortadas) or "ninguna", not cortadas),
+        ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en silencio (≥ 20 dB bajo la voz, {voz:.0f} dBFS)", not cortadas),
         ("Caja amarilla sincronizada con la voz", "tiempos de whisper remapeados; adelanto fijo de 2 cuadros (33 ms) para que la caja llegue con la sílaba", True),
         ("Ritmo: ningún tramo > 1,5 s sin evento", f"{len(val['huecos_mayores_1_5s'])} tramos", not val["huecos_mayores_1_5s"]),
     ]
