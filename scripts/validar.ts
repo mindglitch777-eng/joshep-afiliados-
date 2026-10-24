@@ -76,7 +76,8 @@ for (let fr = 0; fr < N; fr++) {
   for (const p of plan.piezas) {
     if ((p.tipo !== 'comparacion' && p.tipo !== 'pasos') || t < p.desde || t >= p.hasta) continue;
     cnt.tarjetas[0]++;
-    const r = rectBloque(cam.cara, p.tipo === 'comparacion' ? altoComparacion : altoLista(p.pasos.length, !!p.titulo));
+    const caras = Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 6)}, (_, i) => camaraEn(plan, planos, pista, fps, p.desde * fps + i * 6, lay?.bajada ?? 0).cara);
+    const r = rectBloque(caras, p.tipo === 'comparacion' ? altoComparacion : altoLista(p.pasos.length, !!p.titulo));
     if (tocan(r, z.ojos) || tocan(r, z.boca)) cnt.tarjetas[1]++;
     if (r.y1 > BORDE_INF + 0.5 || r.x1 > X_MAX + 0.5) avisos.push(`Tarjeta fuera del límite (y ${r.y1.toFixed(0)}, x ${r.x1.toFixed(0)})`);
   }

@@ -16,11 +16,15 @@ const ancho = (w: string, fs: number) => [...w].reduce((s, c) => s + ((A[c] ?? A
 export type PalabraGancho = {t: string; x: number; y: number; ancho: number; clave: boolean};
 export type LayoutGancho = {fs: number; palabras: PalabraGancho[]; top: number; alto: number; bajada: number; entra: boolean};
 
+// gap normal 0.3em; al lado de la palabra clave se suma el padding de su caja
+let CLAVE = '';
+const gapEntre = (a: string, b: string, fs: number) => 0.3 * fs + (limpia(a) === CLAVE || limpia(b) === CLAVE ? PAD_GANCHO.x : 0);
+const anchoL = (l: string[], fs: number) => l.reduce((s, x, i) => s + ancho(x, fs) + (i ? gapEntre(l[i - 1], x, fs) : 0), 0);
 const lineas = (ws: string[], fs: number) => {
-  const gap = 0.3 * fs + 2 * PAD_GANCHO.x, out: string[][] = [];
+  const out: string[][] = [];
   for (const w of ws) {
     const l = out[out.length - 1];
-    if (l && l.reduce((s, x) => s + ancho(x, fs) + gap, 0) + ancho(w, fs) <= T.ancho) l.push(w);
+    if (l && anchoL([...l, w], fs) <= T.ancho) l.push(w);
     else out.push([w]);
   }
   return out;
@@ -29,6 +33,7 @@ const lineas = (ws: string[], fs: number) => {
 // ojosMin: la y más alta de los ojos en pantalla durante el gancho (peor caso). El texto termina ≥ 40 px arriba.
 export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number): LayoutGancho => {
   const ws = texto.toUpperCase().split(/\s+/).filter(Boolean);
+  CLAVE = limpia((clave ?? '').toUpperCase());
   const limite = ojosMin - U.margen_ojos;
   let fs = T.tam_max, ls = lineas(ws, fs);
   const alto = (n: number, f: number) => n * f * LH_GANCHO + 2 * PAD_GANCHO.y;
@@ -41,16 +46,15 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
   const falta = Math.max(0, U.y_top_min + h - limite);
   const bajada = Math.min(falta, U.bajar_video_max * 1920);
   const top = Math.max(U.y_top_min, limite + bajada - h);
-  const gap = 0.3 * fs + 2 * PAD_GANCHO.x;
   const palabras: PalabraGancho[] = [];
   ls.forEach((l, i) => {
-    const total = l.reduce((s, x) => s + ancho(x, fs), 0) + gap * (l.length - 1);
-    let x = CENTRO_X - total / 2;
-    for (const w of l) {
+    let x = CENTRO_X - anchoL(l, fs) / 2;
+    l.forEach((w, j) => {
+      if (j) x += gapEntre(l[j - 1], w, fs);
       const a = ancho(w, fs);
-      palabras.push({t: w, x, y: top + PAD_GANCHO.y + i * fs * LH_GANCHO, ancho: a, clave: !!clave && limpia(w) === limpia(clave.toUpperCase())});
-      x += a + gap;
-    }
+      palabras.push({t: w, x, y: top + PAD_GANCHO.y + i * fs * LH_GANCHO, ancho: a, clave: !!clave && limpia(w) === CLAVE});
+      x += a;
+    });
   });
   return {fs, palabras, top, alto: h, bajada, entra: falta <= bajada && ls.length <= T.max_lineas};
 };

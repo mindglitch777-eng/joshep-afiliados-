@@ -29,12 +29,13 @@ const Tarjeta: React.FC<{ok: boolean; texto: string; frame: number}> = ({ok, tex
 };
 
 // Pieza 2: ✗ vs ✓ claras, debajo de la cara (top = borde inferior de la cara + 40 px).
-export const Comparacion: React.FC<{mal: string; bien: string; cara: Camara['cara']}> = ({mal, bien, cara}) => {
+export const Comparacion: React.FC<{mal: string; bien: string; caras: Camara['cara'][]}> = ({mal, bien, caras}) => {
+  // el lugar se decide con la cara del primer cuadro de la pieza (no salta)
   const frame = useCurrentFrame();
-  const r = rectBloque(cara, altoComparacion);
+  const r = rectBloque(caras, altoComparacion);
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', left: r.x0, width: ANCHO_TARJETA, top: r.y0, display: 'flex', flexDirection: 'column', gap: GAP}}>
+      <div style={{position: 'absolute', left: r.x0, width: ANCHO_TARJETA, top: r.y0, display: 'flex', flexDirection: 'column', gap: GAP, transform: `scale(${r.k})`, transformOrigin: 'top left'}}>
         <Tarjeta ok={false} texto={mal} frame={frame} />
         <Tarjeta ok texto={bien} frame={frame - 8} />
       </div>

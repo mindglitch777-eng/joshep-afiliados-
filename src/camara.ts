@@ -95,6 +95,14 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
     s = s + (ZOOM_ENFASIS - s) * k;
     dx *= 1 - k;
   }
+  // con tarjeta o lista en pantalla la cámara abre (zoom → 1.0 en 9 frames) para dejarles lugar sin tapar la cara
+  for (const p of plan.piezas) {
+    if (p.tipo !== 'comparacion' && p.tipo !== 'pasos') continue;
+    const a = p.desde * fps - PUNCH, b = p.hasta * fps;
+    const k = interpolate(frame, [a, a + PUNCH, b, b + PUNCH], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
+    s = s + (1 - s) * k;
+    dx *= 1 - k;
+  }
   // jump cuts: micro-zoom alternado de 4% en cada corte de silencio
   const nCortes = (plan.cortes ?? []).filter((c) => c <= t).length;
   if (nCortes % 2) s *= 1.04;

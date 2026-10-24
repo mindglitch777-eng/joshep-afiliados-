@@ -62,11 +62,14 @@
   },
   "camara": {
     "ojos_y": 0.28,
-    "subir_video_max": 0.08
+    "subir_video_max": 0.1
   },
   "stickers": {
     "margen_cara": 40,
     "tam": 160,
     "tam_min": 110
+  },
+  "tarjetas": {
+    "escala_min": 0.75
   }
 }
