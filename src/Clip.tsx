@@ -3,7 +3,7 @@ import {CameraMotionBlur} from '@remotion/motion-blur';
 import {useMemo} from 'react';
 import './fuentes';
 import {camaraEn, pistaCara} from './camara';
-import {Capas, Fondo} from './Fondo';
+import {Capas, Fondo, RecortePersona} from './Fondo';
 import {linea} from './linea';
 import {f, Pieza, Plan} from './plan';
 import {MUSICA} from './sfx-map';
@@ -18,6 +18,9 @@ import {layoutDelPlan} from './gancho-layout';
 import {fraseOculta} from './subs-layout';
 import {rectSticker} from './geometria';
 import {Subtitulos} from './piezas/Subtitulos';
+import {Curva, ListaPro, Numero, PantallaImagen, PantallaVideo, Versus} from './piezas/Graficos';
+import {altoPieza} from './graficos';
+import {packDe} from './estilos';
 
 
 // Salida común: fade + scale 0.97 en los últimos frames de cada pieza.
@@ -57,7 +60,7 @@ export const Clip: React.FC<Plan> = (planIn) => {
   const cam = camaraEn(plan, lin.planos, pista, fps, frame, bajada, lin);
   const caraArriba = cam.cara.y - cam.cara.h / 2;
   // la cara a lo largo de cada pieza (cada 6 cuadros): tarjetas y lista se ubican para el peor caso
-  const carasPieza = useMemo(() => new Map(plan.piezas.map((p) => [p, Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 6)}, (_, i) => camaraEn(plan, lin.planos, pista, fps, p.desde * fps + i * 6, bajada, lin).cara)])), [plan, lin, pista, fps, bajada]);
+  const carasPieza = useMemo(() => new Map(plan.piezas.map((p) => [p, Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 3)}, (_, i) => camaraEn(plan, lin.planos, pista, fps, p.desde * fps + i * 3, bajada, lin).cara)])), [plan, lin, pista, fps, bajada]);
   const hayVoz = (s: number) => plan.subtitulos.some((p) => s >= p.desde - 0.15 && s < p.hasta + 0.15);
   const enfasisEn = (t: number) => plan.piezas.find((p) => p.tipo === 'enfasis' && t >= p.desde - 4 / fps && t < p.hasta);
   const ocultarSubs = (t: number, fr: {ini: number; palabras: {texto: string}[]}) => fraseOculta(plan, fps, t, fr);
@@ -65,9 +68,17 @@ export const Clip: React.FC<Plan> = (planIn) => {
   const render = (p: Pieza) => {
     switch (p.tipo) {
       case 'gancho': return lay ? <Gancho lay={lay} /> : null;
-      case 'comparacion': return <Comparacion mal={p.mal} bien={p.bien} caras={carasPieza.get(p)!} />;
-      case 'pasos': return <Pasos titulo={p.titulo} pasos={p.pasos} caras={carasPieza.get(p)!} inicios={p.pasos.map((_, i) => ((p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5) - p.desde) * fps)} />;
+      case 'comparacion': if (p.estilo === 'versus') return <Versus mal={p.mal} bien={p.bien} notaMal={p.notaMal} notaBien={p.notaBien} caras={carasPieza.get(p)!} />;
+        return <Comparacion mal={p.mal} bien={p.bien} caras={carasPieza.get(p)!} />;
+      case 'pasos': if (p.estilo && p.estilo !== 'lista') return <ListaPro titulo={p.titulo} pasos={p.pasos} estilo={p.estilo} cierre={p.cierre} cierreEn={p.cierreEn !== undefined ? (p.cierreEn - p.desde) * fps : undefined}
+          alto={altoPieza(p)} caras={carasPieza.get(p)!} inicios={p.pasos.map((_, i) => ((p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5) - p.desde) * fps)} />;
+        return <Pasos titulo={p.titulo} pasos={p.pasos} caras={carasPieza.get(p)!} inicios={p.pasos.map((_, i) => ((p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5) - p.desde) * fps)} />;
       case 'enfasis': return <Enfasis palabra={p.palabra} caraArriba={caraArriba} />;
+      case 'curva': return <Curva alto={p.alto} bajo={p.bajo} marcaAlto={(p.marcaAlto - p.desde) * fps} marcaBajo={(p.marcaBajo - p.desde) * fps} medio={p.medio} marcaMedio={p.marcaMedio !== undefined ? (p.marcaMedio - p.desde) * fps : undefined} numero={p.numero} unidad={p.unidad}
+        numeroEn={p.numeroEn !== undefined ? (p.numeroEn - p.desde) * fps : undefined} caras={carasPieza.get(p)!} />;
+      case 'numero': return <Numero valor={p.valor} unidad={p.unidad} etiqueta={p.etiqueta} caras={carasPieza.get(p)!} />;
+      case 'inserto': case 'cta': return <PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} />;
+      case 'imagen': return <PantallaImagen archivo={p.archivo} />;
     }
   };
   const fondo = <Fondo plan={plan} planos={lin.planos} pista={pista} bajada={bajada} lin={lin} />;
@@ -94,7 +105,9 @@ export const Clip: React.FC<Plan> = (planIn) => {
         if (!r) return null; // no entra fuera de la cara: no se muestra
         return <Sequence key={`i${i}`} from={f(e.t, fps)} durationInFrames={dur}><Salida dur={dur}><Sticker icono={e.desc} lado={i % 2 ? -1 : 1} r={r} /></Salida></Sequence>;
       })}
-      <Subtitulos palabras={plan.subtitulos} ocultar={ocultarSubs} />
+      {/* gancho detrás de Joseph: la persona recortada va encima del texto (solo si el layout lo permitió) */}
+      {lay?.detras && <RecortePersona plan={plan} planos={lin.planos} pista={pista} bajada={bajada} lin={lin} />}
+      <Subtitulos palabras={plan.subtitulos} ocultar={ocultarSubs} trazo={packDe(plan).nombre === 'mano'} />
       {/* interrupción de patrón: destello blanco de 2 frames al 12% (configurable) */}
       {I.destello && frame < I.destello_frames && <AbsoluteFill style={{background: '#fff', opacity: I.destello_opacidad}} />}
       <Progreso />

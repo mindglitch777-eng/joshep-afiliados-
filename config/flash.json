@@ -17,5 +17,6 @@
   "seguridad": {
     "min_intervalo_s": 4,
     "max_por_segundo": 3
-  }
+  },
+  "retraso_sonido": 0.06
 }

@@ -5,7 +5,7 @@ export type Pieza =
   | (Base & {tipo: 'comparacion'; mal: string; bien: string; estilo?: 'filas' | 'versus'; notaMal?: string; notaBien?: string})
   | (Base & {tipo: 'pasos'; titulo?: string; pasos: string[]; tiempos?: number[]; estilo?: 'lista' | 'check' | 'flujo' | 'preguntas'; cierre?: string; cierreEn?: number})
   // gráficos contextuales nativos
-  | (Base & {tipo: 'curva'; alto: string; bajo: string; marcaAlto: number; marcaBajo: number; numero?: string; unidad?: string; numeroEn?: number})
+  | (Base & {tipo: 'curva'; alto: string; bajo: string; marcaAlto: number; marcaBajo: number; medio?: string; marcaMedio?: number; numero?: string; unidad?: string; numeroEn?: number})
   | (Base & {tipo: 'numero'; valor: string; unidad?: string; etiqueta?: string})
   // material de Joseph a pantalla completa (la voz sigue de fondo)
   | (Base & {tipo: 'inserto'; archivo: string; inicio?: number; velocidad?: number})
@@ -30,6 +30,7 @@ export type Plan = {
   cortes?: number[]; // jump cuts (segundos, ya en la línea de tiempo cortada): micro-zoom en cada uno
   ganchos?: {formula: string; texto: string; clave: string}[]; // variantes A/B/C (previews)
   ganchoVariante?: string; // fuerza una variante (render de previews)
+  recorte?: {carpeta: string; hasta: number; fps?: number; n?: number}; // persona recortada (gancho detrás de Joseph)
   estilo?: string; // style pack (config/styles/*.json); lo elige la rotación de plan.py
   piezas: Pieza[];
   subtitulos: Palabra[];

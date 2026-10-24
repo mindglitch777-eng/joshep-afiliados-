@@ -23,6 +23,7 @@ export const linea = (plan: Plan, fps: number) => {
     if (p.tipo === 'gancho') {
       ev.push({t: p.desde, tipo: 'gancho', desc: p.texto, sfx: SFX_MAP.gancho});
       sonidos.push({t: Math.max(0, p.hasta - durSfx('riser')), sfx: 'riser', dur: durSfx('riser')});
+      if (p.clave) ev.push({t: 0.2, tipo: 'caja del gancho', desc: p.clave, sfx: SFX_MAP.cajaGancho});
     }
     if (p.tipo === 'comparacion') {
       ev.push({t: p.desde, tipo: 'tarjeta ✗', desc: p.mal, sfx: SFX_MAP.tarjetaMal});
@@ -32,7 +33,18 @@ export const linea = (plan: Plan, fps: number) => {
     if (p.tipo === 'pasos') {
       ev.push({t: p.desde, tipo: 'lista', desc: p.titulo ?? '', sfx: SFX_MAP.lista});
       p.pasos.forEach((x, i) => ev.push({t: p.tiempos?.[i] ?? p.desde + 0.3 + i * 0.5, tipo: 'ítem', desc: x, sfx: SFX_MAP.item}));
+      if (p.cierre && p.cierreEn !== undefined) ev.push({t: p.cierreEn, tipo: 'cierre de lista', desc: p.cierre, sfx: SFX_MAP.clave});
     }
+    if (p.tipo === 'curva') {
+      ev.push({t: p.desde, tipo: 'curva', desc: 'se dibuja', sfx: SFX_MAP.grafico});
+      ev.push({t: p.marcaAlto, tipo: 'marca alta', desc: p.alto, sfx: SFX_MAP.clave});
+      ev.push({t: p.marcaBajo, tipo: 'marca baja', desc: p.bajo, sfx: SFX_MAP.tarjetaMal});
+      if (p.medio && p.marcaMedio !== undefined) ev.push({t: p.marcaMedio, tipo: 'marca media', desc: p.medio, sfx: SFX_MAP.item});
+      if (p.numero && p.numeroEn !== undefined) ev.push({t: p.numeroEn, tipo: 'número', desc: `${p.numero} ${p.unidad ?? ''}`, sfx: SFX_MAP.numero});
+    }
+    if (p.tipo === 'numero') ev.push({t: p.desde, tipo: 'número', desc: `${p.valor} ${p.unidad ?? ''}`, sfx: SFX_MAP.numero});
+    if (p.tipo === 'inserto' || p.tipo === 'imagen') ev.push({t: p.desde, tipo: p.tipo, desc: p.archivo.split('/').pop() ?? '', sfx: SFX_MAP.inserto});
+    if (p.tipo === 'cta') ev.push({t: p.desde, tipo: 'CTA', desc: p.archivo.split('/').pop() ?? '', sfx: SFX_MAP.cta});
     if (p.tipo === 'enfasis') ev.push({t: p.desde - fr(4), tipo: 'énfasis', desc: p.palabra, sfx: SFX_MAP.enfasis});
   }
 
@@ -97,7 +109,8 @@ export const linea = (plan: Plan, fps: number) => {
   const planos: Plano[] = bordes.slice(0, -1).map((ini, i) => ({ini, fin: bordes[i + 1], tipo: abierto(i) ? 'abierto' : 'push', dir: (i % 4 < 2 ? 1 : -1) as 1 | -1}));
 
   // sonidos: máx. 2 simultáneos; si entra un tercero se recorta el más viejo
-  for (const e of ev) for (const s of e.sfx) sonidos.push({t: Math.max(0, e.t), sfx: s, dur: durSfx(s)});
+  // el sonido de cámara va ~60 ms después del cuadro 0 (config/flash.json → retraso_sonido)
+  for (const e of ev) for (const s of e.sfx) sonidos.push({t: Math.max(0, e.t + (e.tipo === 'flash' ? F.retraso_sonido ?? 0 : 0)), sfx: s, dur: durSfx(s)});
   sonidos.sort((a, b) => a.t - b.t);
   const finales: Sonido[] = [];
   for (const s of sonidos) {

@@ -50,6 +50,21 @@
     ],
     "flash": [
       "flash"
+    ],
+    "cajaGancho": [
+      "pop"
+    ],
+    "grafico": [
+      "whoosh-a"
+    ],
+    "numero": [
+      "pop"
+    ],
+    "inserto": [
+      "whoosh-b"
+    ],
+    "cta": [
+      "whoosh-a"
     ]
   }
 }

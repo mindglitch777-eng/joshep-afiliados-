@@ -32,14 +32,14 @@ export const Versus: React.FC<{mal: string; bien: string; notaMal?: string; nota
       <div style={{flex: 1, height: 214, borderRadius: 26, background: ok ? 'rgba(45,227,139,0.12)' : 'rgba(255,59,78,0.10)', border: `4px solid ${ok ? C.verde : C.rojo}`,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, opacity: Math.min(1, s * 1.5), transform: `scale(${0.85 + 0.15 * s})`}}>
         <Insignia ok={ok} />
-        <div style={{...titulo, fontSize: 56, color: C.negro, textAlign: 'center', padding: '0 10px'}}>{txt}</div>
+        <div style={{...titulo, fontSize: txt.length > 8 ? 46 : 56, color: C.negro, textAlign: 'center', padding: '0 8px'}}>{txt}</div>
         {nota && <div style={{fontFamily: FUENTE, fontWeight: 800, fontSize: 34, color: 'rgba(11,11,15,0.65)'}}>{nota}</div>}
       </div>
     );
   };
   return (
     <Bloque caras={caras} alto={270} fondo={false}>
-      <div style={{...tarjetaClara, display: 'flex', gap: 20, alignItems: 'center', padding: 24, height: 270, boxSizing: 'border-box', position: 'relative'}}>
+      <div style={{...tarjetaClara, display: 'flex', gap: 76, alignItems: 'center', padding: 24, height: 270, boxSizing: 'border-box', position: 'relative'}}>
         {col(false, mal, notaMal, 0)}
         {col(true, bien, notaBien, 8)}
         <div style={{position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 64, height: 64, borderRadius: 32, background: C.negro, color: C.amarillo,
@@ -99,20 +99,22 @@ export const ListaPro: React.FC<{titulo?: string; pasos: string[]; inicios: numb
 };
 
 // CURVA DE EMOCIÓN: pico → caída. Marca "ACÁ TE FUISTE" (verde, en el pico) y "ACÁ TE QUEDASTE" (rojo, en el piso); número grande opcional.
-export const Curva: React.FC<{alto: string; bajo: string; marcaAlto: number; marcaBajo: number; numero?: string; unidad?: string; numeroEn?: number; caras: Camara['cara'][]}> = (p) => {
+export const Curva: React.FC<{alto: string; bajo: string; marcaAlto: number; marcaBajo: number; medio?: string; marcaMedio?: number; numero?: string; unidad?: string; numeroEn?: number; caras: Camara['cara'][]}> = (p) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const d = 'M 20 300 C 160 300, 200 40, 300 40 C 400 40, 470 250, 600 300 C 680 330, 740 320, 788 320';
+  const d = 'M 20 300 C 160 300, 200 110, 300 110 C 400 110, 470 260, 600 300 C 680 325, 740 320, 788 320';
   const k = interpolate(frame, [0, 30], [0, 1], {extrapolateRight: 'clamp'});
   const ev = evolvePath(k, d);
-  const marca = (en: number, x: number, y: number, ok: boolean, txt: string) => {
+  // etiqueta con ancho según el texto (≈ 0.68 em por letra a 40 px), sin salirse del gráfico
+  const marca = (en: number, x: number, y: number, color: string, txt: string, claro = false) => {
     const s = acento(frame - en, fps);
+    const w = txt.length * 27 + 36, lx = Math.min(Math.max(x - w / 2, 0), 808 - w);
     return (
       <>
-        <circle cx={x} cy={y} r={16 * s} fill={ok ? C.verde : C.rojo} />
-        <g opacity={Math.min(1, s * 2)} transform={`translate(${x}, ${ok ? y - 46 : y - 46})`}>
-          <rect x={ok ? -150 : -330} y={-44} width={ok ? 300 : 360} height={64} rx={16} fill={ok ? C.verde : C.rojo} />
-          <text x={ok ? 0 : -150} y={0} textAnchor="middle" fontFamily="Montserrat" fontWeight={900} fontSize={40} fill={ok ? C.negro : '#fff'}>{txt}</text>
+        <circle cx={x} cy={y} r={16 * s} fill={color} />
+        <g opacity={Math.min(1, s * 2)} transform={`translate(${lx}, ${y - 52})`}>
+          <rect x={0} y={-44} width={w} height={64} rx={16} fill={color} />
+          <text x={w / 2} y={0} textAnchor="middle" fontFamily="Montserrat" fontWeight={900} fontSize={40} fill={claro ? C.negro : '#fff'}>{txt}</text>
         </g>
       </>
     );
@@ -120,19 +122,22 @@ export const Curva: React.FC<{alto: string; bajo: string; marcaAlto: number; mar
   const n = p.numeroEn !== undefined ? spring({frame: frame - p.numeroEn, fps, config: {damping: 14}, durationInFrames: 12}) : 0;
   return (
     <Bloque caras={p.caras} alto={470}>
-      <div style={{...titulo, fontSize: 40, color: 'rgba(11,11,15,0.55)'}}>Energía de la charla</div>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', height: 70}}>
+        <div style={{...titulo, fontSize: 36, color: 'rgba(11,11,15,0.55)'}}>Energía de la charla</div>
+        {p.numero && (
+          <div style={{display: 'flex', alignItems: 'baseline', gap: 8, opacity: n, transform: `scale(${0.6 + 0.4 * n})`, transformOrigin: 'right center'}}>
+            <span style={{...titulo, fontSize: 84, color: C.rojo}}>{p.numero}</span>
+            <span style={{...titulo, fontSize: 40, color: C.negro}}>{p.unidad}</span>
+          </div>
+        )}
+      </div>
       <svg viewBox="0 0 808 340" width={808} height={340} style={{overflow: 'visible'}}>
         <line x1={20} y1={320} x2={788} y2={320} stroke="#E3E3E8" strokeWidth={4} />
         <path d={d} fill="none" stroke={C.negro} strokeWidth={10} strokeLinecap="round" strokeDasharray={ev.strokeDasharray} strokeDashoffset={ev.strokeDashoffset} />
-        {marca(p.marcaAlto, 300, 40, true, p.alto)}
-        {marca(p.marcaBajo, 690, 318, false, p.bajo)}
+        {marca(p.marcaAlto, 300, 110, C.verde, p.alto, true)}
+        {p.medio && p.marcaMedio !== undefined && marca(p.marcaMedio, 470, 210, '#FF9F0A', p.medio, true)}
+        {marca(p.marcaBajo, 690, 318, C.rojo, p.bajo)}
       </svg>
-      {p.numero && (
-        <div style={{position: 'absolute', right: 36, top: 22, display: 'flex', alignItems: 'baseline', gap: 8, opacity: n, transform: `scale(${0.6 + 0.4 * n})`, transformOrigin: 'right top'}}>
-          <span style={{...titulo, fontSize: 96, color: C.rojo}}>{p.numero}</span>
-          <span style={{...titulo, fontSize: 44, color: C.negro}}>{p.unidad}</span>
-        </div>
-      )}
     </Bloque>
   );
 };
