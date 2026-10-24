@@ -63,7 +63,8 @@
   "camara": {
     "ojos_y": 0.28,
     "subir_video_max": 0.15,
-    "barba_extra": 0.12
+    "barba_extra": 0.12,
+    "micro_zoom": 1.06
   },
   "stickers": {
     "margen_cara": 40,

@@ -2,8 +2,15 @@
 type Base = {desde: number; hasta: number};
 export type Pieza =
   | (Base & {tipo: 'gancho'; texto: string; clave?: string; variante?: string})
-  | (Base & {tipo: 'comparacion'; mal: string; bien: string})
-  | (Base & {tipo: 'pasos'; titulo?: string; pasos: string[]; tiempos?: number[]})
+  | (Base & {tipo: 'comparacion'; mal: string; bien: string; estilo?: 'filas' | 'versus'; notaMal?: string; notaBien?: string})
+  | (Base & {tipo: 'pasos'; titulo?: string; pasos: string[]; tiempos?: number[]; estilo?: 'lista' | 'check' | 'flujo' | 'preguntas'; cierre?: string; cierreEn?: number})
+  // gráficos contextuales nativos
+  | (Base & {tipo: 'curva'; alto: string; bajo: string; marcaAlto: number; marcaBajo: number; numero?: string; unidad?: string; numeroEn?: number})
+  | (Base & {tipo: 'numero'; valor: string; unidad?: string; etiqueta?: string})
+  // material de Joseph a pantalla completa (la voz sigue de fondo)
+  | (Base & {tipo: 'inserto'; archivo: string; inicio?: number; velocidad?: number})
+  | (Base & {tipo: 'imagen'; archivo: string})
+  | (Base & {tipo: 'cta'; archivo: string; inicio?: number; velocidad?: number})
   | (Base & {tipo: 'enfasis'; palabra: string});
 
 // clave: crece y suena el ding de marca · tono: color semántico · icono: sticker (ver piezas/Iconos.tsx)

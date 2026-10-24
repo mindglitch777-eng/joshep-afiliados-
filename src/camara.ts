@@ -3,6 +3,7 @@ import brand from '../config/brand.json';
 import hookCfg from '../config/hook.json';
 import flashCfg from '../config/flash.json';
 import {encuadreDe, packDe} from './estilos';
+import {altoPieza, esTarjeta} from './graficos';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
 import {EASE_ZOOM} from './theme';
@@ -123,7 +124,7 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   }
   // con tarjeta o lista en pantalla la cámara abre (zoom → 1.0 en 9 frames) para dejarles lugar sin tapar la cara
   for (const p of plan.piezas) {
-    if (p.tipo !== 'comparacion' && p.tipo !== 'pasos') continue;
+    if (!esTarjeta(p)) continue;
     const a = p.desde * fps - PUNCH, b = p.hasta * fps;
     const k = interpolate(frame, [a, a + PUNCH, b, b + PUNCH], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
     s = s + (1 - s) * k;
@@ -131,7 +132,7 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   }
   // jump cuts: micro-zoom alternado de 4% en cada corte de silencio
   const nCortes = (plan.cortes ?? []).filter((c) => c <= t).length;
-  if (nCortes % 2) s *= 1.04;
+  if (nCortes % 2) s *= HC.camara.micro_zoom ?? 1.04;
   // cara a (50%, 38%) con translate, limitado para que nunca se vean bordes
   const fi = Math.min(Math.max(Math.floor(frame), 0), pista.length - 1);
   const c = pista[fi] ?? CARA_FIJA;
@@ -160,9 +161,22 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   const mentonPx = H / 2 + s * (menton - H / 2) + ty, tope = TOPE_SUBS - HC.subtitulos.aire_menton;
   const subida = seguir || encuadreDe(plan) === 'capas' ? Math.min(Math.max(0, mentonPx - tope), HC.camara.subir_video_max * H) : 0;
   ty -= subida;
+  // modo panel: con una tarjeta en pantalla el video sube (spring de 12 cuadros) para dejarle lugar debajo del mentón
+  // sin tapar la cara (≥ 40 px) y con base ≤ 1440; tope 22% y ojos siempre ≥ 200 px
+  let panel = 0;
+  for (const p of plan.piezas) {
+    if (!esTarjeta(p)) continue;
+    const a = p.desde * fps - 12, b = p.hasta * fps;
+    const k = interpolate(frame, [a, a + 12, b, b + 12], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
+    if (k <= 0) continue;
+    const ojosPx = H / 2 + s * (ojos - H / 2) + ty;
+    const falta = mentonPx - subida + 40 + altoPieza(p) - HC.subtitulos.borde_inferior;
+    panel = Math.max(panel, k * Math.max(0, Math.min(falta, 0.22 * H, ojosPx - 200)));
+  }
+  ty -= panel;
   const tMano = M.amp_px > 0 ? {x: M.amp_px * Math.sin(2 * Math.PI * M.hz * t), y: M.amp_px * Math.sin(2 * Math.PI * M.hz * 1.3 * t + 1)} : {x: 0, y: 0};
   const sy = (v: number) => H / 2 + s * (v - H / 2) + ty;
   const cx = W / 2 + s * (px - W / 2) + tx, cy = sy(py);
-  return {s, tx: tx + tMano.x, ty: ty + tMano.y, enPunch, dispW, dispH, bajada, subida, cara: {x: cx, y: cy, w: c.w * dispW * s, h: c.h * dispH * s,
+  return {s, tx: tx + tMano.x, ty: ty + tMano.y, enPunch, dispW, dispH, bajada, subida: subida + panel, cara: {x: cx, y: cy, w: c.w * dispW * s, h: c.h * dispH * s,
     frente: sy(aY(c.frente ?? c.y - c.h / 2)), ojos: sy(ojos), boca: sy(aY(c.boca ?? c.y + c.h * 0.25)), menton: sy(menton)}};
 };
