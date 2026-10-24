@@ -56,27 +56,49 @@ const anchoLinea = (l: Palabra[]) => l.reduce((s, x) => s + anchoPalabra(x), 0) 
 const entra = (l: Palabra[], tolerancia = 1) => l.length <= SUB.porLinea && anchoLinea(l) <= SUB.maxW * tolerancia;
 
 const partirLineas = (tr: Palabra[]) => {
+  // unidades: cada palabra débil viaja pegada a la siguiente ("que no te podés" no se separa al final de línea)
+  const unidades: Palabra[][] = [];
+  let u: Palabra[] = [];
+  tr.forEach((w, i) => {
+    u.push(w);
+    if (!esDebil(w) || i === tr.length - 1) {
+      unidades.push(u);
+      u = [];
+    }
+  });
   const lineas: Palabra[][] = [];
   let l: Palabra[] = [];
-  for (const w of tr) {
-    // si la línea terminaría en palabra débil, se acepta un poco de exceso (se achica) antes que cortarla mal
-    const debilAlFinal = l.length > 0 && esDebil(l[l.length - 1]);
-    if (l.length && !entra([...l, w], debilAlFinal ? 1.2 : 1)) {
-      // si igual no entra, la palabra débil pasa a la línea siguiente
-      const pasa: Palabra[] = [];
-      while (l.length > 1 && esDebil(l[l.length - 1])) pasa.unshift(l.pop()!);
+  for (const un of unidades) {
+    if (l.length && !entra([...l, ...un])) {
       lineas.push(l);
-      l = pasa;
+      l = [];
     }
-    l.push(w);
+    // una unidad que no entra (ej. "EN LA CONVERSACIÓN") va sola en su línea y se achica (hasta 62%) antes que partirla mal
+    if (!entra(un) && un.length <= 5 && anchoLinea(un) <= SUB.maxW / 0.62) {
+      if (l.length) lineas.push(l);
+      lineas.push([...un]);
+      l = [];
+      continue;
+    }
+    if (!l.length && !entra(un, 1.2)) {
+      // unidad demasiado larga: se parte (último recurso) dejando todo lo posible junto
+      for (const w of un) {
+        if (l.length && !entra([...l, w], 1.2)) {
+          lineas.push(l);
+          l = [];
+        }
+        l.push(w);
+      }
+      continue;
+    }
+    l.push(...un);
   }
   if (l.length) lineas.push(l);
   // evita una palabra sola al final si la anterior puede cederle una sin quedar terminando en débil
-  const u = lineas[lineas.length - 1], pen = lineas[lineas.length - 2];
-  if (u && pen && u.length === 1 && pen.length >= 3 && !esDebil(pen[pen.length - 2]) && entra([pen[pen.length - 1], ...u])) u.unshift(pen.pop()!);
+  const ul = lineas[lineas.length - 1], pen = lineas[lineas.length - 2];
+  if (ul && pen && ul.length === 1 && pen.length >= 3 && !esDebil(pen[pen.length - 2]) && entra([pen[pen.length - 1], ...ul])) ul.unshift(pen.pop()!);
   return lineas;
 };
-
 
 const ubicar = (lineas: Palabra[][]): Frase => {
   // cada línea que excede 856 px se achica entera (tamaño y gap) para entrar

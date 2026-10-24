@@ -15,7 +15,7 @@ export const estiloPalabra = (c: Caja): React.CSSProperties => ({
 
 const rect = (c: Caja) => ({x: c.x - PAD.x, y: c.y + (c.alto - c.fs * 1.0) / 2 - PAD.y, w: c.ancho + PAD.x * 2, h: c.fs * 1.0 + PAD.y * 2});
 
-const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number}> = ({fr, frame, fps}) => {
+const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number; trazo?: boolean}> = ({fr, frame, fps, trazo}) => {
   const ini = fr.ini * fps - 2, fin = fr.fin * fps;
   const entra = interpolate(frame - ini, [0, 6], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const sale = interpolate(frame, [fin, fin + 3], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -36,6 +36,17 @@ const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number}> = ({fr, fram
   return (
     <div style={{position: 'absolute', inset: 0, opacity: entra * sale, transform: `translateY(${(1 - entra) * 12}px)`}}>
       {caja}
+      {/* pack "mano": subrayado dibujado a mano bajo cada palabra clave ya dicha */}
+      {trazo && fr.cajas.filter((c) => c.w.clave && frame >= c.w.desde * fps).map((c, i) => {
+        const k = interpolate(frame - c.w.desde * fps, [0, 9], [0, 1], {extrapolateRight: 'clamp'});
+        const y = c.y + c.alto * 0.92, L = c.ancho + 20;
+        return (
+          <svg key={`t${i}`} style={{position: 'absolute', left: c.x - 10, top: y - 14, overflow: 'visible'}} width={L} height={28}>
+            <path d={`M 4 18 Q ${L * 0.3} 6, ${L * 0.55} 14 T ${L - 4} 10`} fill="none" stroke={C.amarillo} strokeWidth={9} strokeLinecap="round"
+              strokeDasharray={L * 1.2} strokeDashoffset={L * 1.2 * (1 - k)} />
+          </svg>
+        );
+      })}
       {fr.cajas.map((c, i) => {
         const activa = i === act && llego > 0.97; // negro recién cuando la caja llegó: nunca letras cortadas
         // palabra clave: tamaño final desde el inicio; al decirse hace un pop que no pasa del padding reservado
@@ -56,11 +67,11 @@ const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number}> = ({fr, fram
 };
 
 // Pieza 5: subtítulos con caja deslizante, palabras clave grandes y color semántico.
-export const Subtitulos: React.FC<{palabras: Palabra[]; ocultar: (t: number, fr: Frase) => boolean}> = ({palabras, ocultar}) => {
+export const Subtitulos: React.FC<{palabras: Palabra[]; ocultar: (t: number, fr: Frase) => boolean; trazo?: boolean}> = ({palabras, ocultar, trazo}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const frases = useMemo(() => armarFrases(palabras), [palabras]);
   const fr = frases.find((x) => frame >= x.ini * fps - 2 && frame < x.fin * fps + 3);
   if (!fr || ocultar(frame / fps, fr)) return null;
-  return <VistaFrase fr={fr} frame={frame} fps={fps} />;
+  return <VistaFrase fr={fr} frame={frame} fps={fps} trazo={trazo} />;
 };

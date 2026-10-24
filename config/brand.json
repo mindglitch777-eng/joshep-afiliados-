@@ -32,8 +32,8 @@
   "limites_caracteres": {
     "gancho": 45,
     "tarjeta": 24,
-    "item": 22,
+    "item": 26,
     "enfasis": 12,
-    "titulo": 14
+    "titulo": 18
   }
 }
