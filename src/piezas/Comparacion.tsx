@@ -7,9 +7,9 @@ export const ANCHO_TARJETA = ANCHO;
 export const tarjetaClara: React.CSSProperties = {background: 'rgba(255,255,255,0.96)', borderRadius: 30, boxShadow: '0 12px 40px rgba(0,0,0,.35)'};
 const ALTO = 150, GAP = 24;
 
-export const Insignia: React.FC<{ok: boolean}> = ({ok}) => (
-  <div style={{minWidth: 64, height: 64, borderRadius: 32, background: ok ? C.verde : C.rojo, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-    <svg viewBox="0 0 100 100" width={34} height={34}><path d={ok ? 'M20 52 L42 74 L82 28' : 'M26 26 L74 74 M74 26 L26 74'} fill="none" stroke="#fff" strokeWidth={16} strokeLinecap="round" strokeLinejoin="round" /></svg>
+export const Insignia: React.FC<{ok: boolean; tam?: number}> = ({ok, tam = 64}) => (
+  <div style={{minWidth: tam, height: tam, borderRadius: tam / 2, background: ok ? C.verde : C.rojo, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+    <svg viewBox="0 0 100 100" width={tam * 0.55} height={tam * 0.55}><path d={ok ? 'M20 52 L42 74 L82 28' : 'M26 26 L74 74 M74 26 L26 74'} fill="none" stroke="#fff" strokeWidth={16} strokeLinecap="round" strokeLinejoin="round" /></svg>
   </div>
 );
 

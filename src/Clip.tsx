@@ -80,7 +80,8 @@ export const Clip: React.FC<Plan> = (planIn) => {
       case 'escena': return <Escena escena={p.escena} marcas={(p.tiempos ?? []).map((x) => (x - p.desde) * fps)} alto={altoPieza(p)} caras={carasPieza.get(p)!} />;
       case 'ecuacion': return <Ecuacion bloques={p.bloques} inicios={(p.tiempos ?? []).map((x) => (x - p.desde) * fps)} alto={altoPieza(p)} caras={carasPieza.get(p)!} />;
       case 'inserto': return <PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} />;
-      case 'cta': return <><PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} /><BotonCTA texto={p.boton} /></>;
+      // el botón propio solo si la animación no trae el suyo (cta_boton.csv)
+      case 'cta': return <><PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} wipe />{p.boton && <BotonCTA texto={p.boton} />}</>;
       case 'imagen': return <PantallaImagen archivo={p.archivo} />;
     }
   };
@@ -100,7 +101,8 @@ export const Clip: React.FC<Plan> = (planIn) => {
         // el énfasis arranca 4 frames antes, junto con el zoom
         const desde = Math.max(0, f(p.desde, fps) - (p.tipo === 'enfasis' ? 4 : 0));
         const dur = f(p.hasta, fps) - desde;
-        return <Sequence key={i} from={desde} durationInFrames={dur}><Salida dur={dur}>{render(p)}</Salida></Sequence>;
+        // el CTA cierra el clip: entra con corte seco + barrido y no se funde (si no, asoma la cara debajo)
+        return <Sequence key={i} from={desde} durationInFrames={dur}>{p.tipo === 'cta' ? render(p) : <Salida dur={dur}>{render(p)}</Salida>}</Sequence>;
       })}
       {iconos.map((e, i) => {
         const dur = Math.round(1.4 * fps);

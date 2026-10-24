@@ -18,6 +18,15 @@ PAUSA_MAX = 0.4  # pausas más largas se achican
 QUEDA = 0.12  # silencio que queda a cada lado de una pausa achicada
 CTA = {"inicio": 1.0, "fin": 5.2, "velocidad": 1.3}  # 3,2 s con el botón visible ≥ 2 s; aceleración ≤ 1,4x
 
+def cta_de(archivo):
+    """Tramo del CTA. Con botón propio (plans/cta_boton.csv): la animación desde que aparece el texto (1,5–5,9 s a 1,3x) y armar.py sostiene
+    el último cuadro hasta que el botón se vio ≥ 2,1 s. Sin botón: el tramo de siempre y el chip propio en una zona libre."""
+    b = {r["archivo"]: r for r in csv.DictReader(open(RAIZ / "plans/cta_boton.csv", encoding="utf-8"))}.get(archivo, {})
+    if b.get("boton") == "si" and b.get("desde_s"):
+        v = CTA["velocidad"]
+        return {"archivo": archivo, "inicio": 1.5, "fin": 5.9, "velocidad": v, "boton_desde": round(max(0.0, (float(b["desde_s"]) - 1.5) / v), 2)}
+    return {"archivo": archivo, **CTA, "boton": "LINK EN MI PERFIL", "boton_desde": 0.12}
+
 def nrm(t):
     t = unicodedata.normalize("NFD", t.lower())
     return re.sub(r"[^a-z0-9ñ]", "", "".join(c for c in t if unicodedata.category(c) != "Mn"))
@@ -205,14 +214,38 @@ def main(clip, intento=0):
         elif fmt == "escena":
             esc = row["titulo"]
             if esc == "jarron":
-                piezas.append({"tipo": "escena", "escena": esc, "desde": W(ok[0]), "hasta": {**W(ok[-1], True), "fin": True, "mas": 1.0}, "tiempos": [W(r) for r in ok[1:]]})
+                # del primer golpe a medio segundo después de que se rompe (≤ 4 s)
+                piezas.append({"tipo": "escena", "escena": esc, "desde": {**W(ok[1] if len(ok) > 1 else ok[0]), "mas": -0.2}, "hasta": {**W(ok[-1], True), "fin": True, "mas": 0.5}, "tiempos": [W(r) for r in ok[1:]]})
             elif esc == "taza":
                 piezas.append({"tipo": "escena", "escena": esc, "desde": W(ok[0]), "hasta": 3.8, "tiempos": [W(r) for r in ok]})
             else:
-                piezas.append({"tipo": "escena", "escena": esc, "desde": {**W(ok[0]), "mas": -0.6}, "hasta": {**W(ok[-1], True), "fin": True, "mas": 1.2}, "tiempos": [W(r) for r in ok]})
+                piezas.append({"tipo": "escena", "escena": esc, "desde": {**W(ok[0]), "mas": -0.6}, "hasta": {**W(ok[-1], True), "fin": True, "mas": 1.0}, "tiempos": [W(r) for r in ok]})
         elif fmt == "ecuacion":
             piezas.append({"tipo": "ecuacion", "bloques": items, "desde": {**W(ok[0]), "mas": -0.3}, "hasta": {**W(ok[-1], True), "fin": True, "mas": 1.6 if not corto else 1.0},
                            "tiempos": [{**W(r), "mas": 0.9 * sum(1 for q in ok[:k] if q == r)} for k, r in enumerate(ok)]})
+
+    # ── foto del tema como cutaway (1,3 s, zoom lento) e inserto literal: plans/uso_assets.csv; lejos (≥ 3 s) del gráfico,
+    # del gancho y del cierre, en el punto que más reparte los eventos (nunca dos assets seguidos)
+    uso = {r["clip"]: r for r in csv.DictReader(open(RAIZ / "plans/uso_assets.csv", encoding="utf-8"))}.get(clip, {})
+    ocupado = [(0.0, ps[idx[0]]["desde"] + 3.5), (ps[idx[-1]]["hasta"] - 5.0, ps[idx[-1]]["hasta"] + 9)]
+    if ok:
+        ocupado.append((ps[ok[0][0]]["desde"] - 0.5, ps[ok[-1][1]]["hasta"] + 2.5))
+    if uso.get("inserto") and uso.get("frase_inserto"):
+        r = buscar(ps, uso["frase_inserto"])
+        if r and r[0] in vivas and all(not (a - 3 < ps[r[0]]["desde"] < b + 3) for a, b in ocupado[2:]):
+            piezas.append({"tipo": "inserto", "desde": W(r), "hasta": 1.8, "archivo": f"anim/{uso['inserto']}", "inicio": 1.5, "velocidad": 1.0})
+            ocupado.append((ps[r[0]]["desde"], ps[r[0]]["desde"] + 1.8))
+            log.append(f"inserto {uso['inserto']} en «{uso['frase_inserto']}»")
+    if uso.get("foto"):
+        cands = [f[0] for f in frases(ps, idx)]
+        def lejos(i):
+            t = ps[i]["desde"]
+            return min(min(abs(t - a), abs(t + 1.3 - a), abs(t - b), abs(t + 1.3 - b)) if not (a - 3 < t < b + 3 or a - 3 < t + 1.3 < b + 3) else -1 for a, b in ocupado)
+        mejor = max(cands, key=lejos, default=None)
+        if mejor is not None and lejos(mejor) >= 0:
+            piezas.append({"tipo": "imagen", "desde": {"palabra": ps[mejor]["i"]}, "hasta": 1.3, "archivo": f"img/{uso['foto']}"})
+        else:
+            log.append("foto sin lugar a ≥ 3 s de los otros gráficos")
 
     # ── palabras clave del subtítulo (ding): la clave del gancho y la del B, primera vez después de la 6ª palabra
     claves = []
@@ -229,7 +262,7 @@ def main(clip, intento=0):
     estilo = cal["estilo"]
     ed = {"clip": clip, "estilo": estilo, "tramos": [[a, b, "frase completa" if i else "arranca con la voz"] for i, (a, b) in enumerate(tr)],
           "correcciones": corr, "claves": claves, "tonos": {}, "gancho": {"A": gA, "claveA": cA, "B": gB, "claveB": cB},
-          "piezas": piezas, "cta": {"archivo": cal["cta"] + ".mp4", **CTA, "boton": "LINK EN MI PERFIL"},
+          "piezas": piezas, "cta": cta_de(cal["cta"] + ".mp4"),
           "post": {"descripcion": row["descripcion"], "hashtags": row["hashtags"].split("|"), "portada": "cuadro a 0,2 s (gancho completo, después del flash)"},
           "formato": fmt, "intento": intento, "log": log}
     if estilo == "capas" and not falla("Gancho"):

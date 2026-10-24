@@ -142,7 +142,15 @@ const numeros = plan.piezas.filter((p) => p.tipo === 'numero').map((p) => {
 });
 // CTA: botón "Link en mi perfil" visible (entra en 6 cuadros; la salida común funde los últimos SALIDA_FR)
 const cta = plan.piezas.find((p) => p.tipo === 'cta');
-const botonS = cta ? +((cta.hasta - cta.desde) - (6 + SALIDA_FR) / fps).toFixed(2) : 0;
+const botonS = cta && cta.tipo === 'cta' ? +((cta.hasta - cta.desde) - Math.max(7 / fps, cta.botonDesde ?? 0)).toFixed(2) : 0; // desde que termina el barrido o aparece el botón
+// densidad: eventos visuales (gráficos, insertos, fotos, cortes/punch con SFX, flash) y separación entre assets
+const VIS = new Set(['plano', 'pulso', 'flash', 'gancho', 'tarjeta ✗', 'lista', 'curva', 'número', 'escena', 'ecuación', 'inserto', 'imagen', 'énfasis']);
+const tv = [...new Set(eventos.filter((e) => VIS.has(e.tipo) && e.t < (cta?.desde ?? plan.duracion)).map((e) => +e.t.toFixed(2)))].sort((a, b) => a - b);
+const finC = cta?.desde ?? plan.duracion;
+const huecoMax = +Math.max(...[0, ...tv, finC].slice(1).map((t, i) => t - [0, ...tv][i])).toFixed(2);
+const assets = plan.piezas.filter((p) => p.tipo !== 'gancho' && p.tipo !== 'cta' && p.tipo !== 'enfasis').sort((a, b) => a.desde - b.desde);
+const sepMin = assets.length > 1 ? +Math.min(...assets.slice(1).map((p, i) => p.desde - assets[i].hasta)).toFixed(2) : null;
+const densidad = {hueco_max_s: huecoMax, eventos_por_minuto: +((tv.length / finC) * 60).toFixed(1), separacion_min_s: sepMin, assets: assets.map((p) => `${p.tipo} ${p.desde.toFixed(1)}–${p.hasta.toFixed(1)}`)};
 // último subtítulo: termina antes del CTA y su frase se ve (no la tapa un gráfico)
 const ultima = plan.subtitulos[plan.subtitulos.length - 1];
 const frUlt = frases.find((x) => x.palabras.includes(ultima));
@@ -150,7 +158,7 @@ const finContenido = cta ? cta.desde : plan.duracion;
 const ultimoSub = ultima && frUlt ? {texto: frUlt.palabras.map(textoSub).join(' '), hasta: ultima.hasta, fin_contenido: finContenido,
   ok: ultima.hasta <= finContenido + 0.01 && !fraseOculta(plan, fps, Math.min(ultima.desde + 0.05, ultima.hasta), frUlt)} : {texto: '', hasta: 0, fin_contenido: finContenido, ok: false};
 const brilloFlashMin = +(1 + (flashCfg.brillo - 1) * Math.min(...flashCfg.rampa)).toFixed(2);
-const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, graficos, menton_vs_subtitulo: mentonSub, gancho_detras: !!lay?.detras, gancho_vs_cabeza: {aire_min_px: Number.isFinite(aireCabeza) ? +aireCabeza.toFixed(0) : null, cuadros_con_menos_de_16px: aireCabezaMal}, numero_cifra_px: numeros, boton_cta_s: botonS, ultimo_subtitulo: ultimoSub, flash_brillo_min: brilloFlashMin, flash_frames: flashCfg.frames, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
+const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, graficos, menton_vs_subtitulo: mentonSub, gancho_detras: !!lay?.detras, gancho_vs_cabeza: {aire_min_px: Number.isFinite(aireCabeza) ? +aireCabeza.toFixed(0) : null, cuadros_con_menos_de_16px: aireCabezaMal}, numero_cifra_px: numeros, boton_cta_s: botonS, densidad, ultimo_subtitulo: ultimoSub, flash_brillo_min: brilloFlashMin, flash_frames: flashCfg.frames, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
   avisos: [...new Set(avisos)], linea_de_tiempo: eventos.map((e) => ({t: +e.t.toFixed(2), tipo: e.tipo, detalle: e.desc, sonido: e.sfx}))};
 writeFileSync(out, JSON.stringify(res, null, 1));
 console.log(`eventos ${eventos.length}, huecos > 1.5 s: ${huecos.length}, avisos: ${res.avisos.length}`);

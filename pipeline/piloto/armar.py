@@ -158,20 +158,37 @@ def main(clip):
         for k in ("tiempos",):
             if k in q:
                 q[k] = [t_palabra(x) for x in q[k]]
+        if q["hasta"] <= q["desde"] + 1.0:  # anclas fuera de orden: duración mínima
+            q["hasta"] = round(q["desde"] + 3.0, 3)
+        if q["tipo"] == "escena" and q["hasta"] - q["desde"] > 4.0:  # escena ≤ 4 s: termina igual, empieza más tarde
+            q["desde"] = round(q["hasta"] - 4.0, 3)
         for k in ("marcaAlto", "marcaBajo", "marcaMedio", "numeroEn", "cierreEn"):
             if k in q:
                 q[k] = t_palabra(q[k])
         if "archivo" in q:
             dst = pub / Path(q["archivo"]).name
-            shutil.copy(RAIZ / "piloto" / "activos" / q["archivo"], dst)
+            src_a = RAIZ / "piloto" / "activos" / q["archivo"]
+            if q["tipo"] == "imagen":
+                # la tarjeta ocupa el 65% del ancho (702 px): se escala una vez con lanczos (no lo hace el navegador)
+                from PIL import Image
+                im = Image.open(src_a).convert("RGB")
+                im.resize((702, round(im.height * 702 / im.width)), Image.LANCZOS).save(dst)
+            else:
+                shutil.copy(src_a, dst)
             q["archivo"] = f"raw/{clip}/{dst.name}"
         piezas.append(q)
     dur = round(acum, 3)
     cta = ed["cta"]
-    shutil.copy(RAIZ / "piloto" / "activos" / "cta" / cta["archivo"], pub / cta["archivo"])
-    dur_cta = round((cta["fin"] - cta["inicio"]) / cta.get("velocidad", 1), 3)
-    piezas.append({"tipo": "cta", "desde": dur, "hasta": round(dur + dur_cta, 3), "archivo": f"raw/{clip}/{cta['archivo']}", "inicio": cta["inicio"], "velocidad": cta.get("velocidad", 1),
-                   **({"boton": cta["boton"]} if cta.get("boton") else {})})
+    # CTA renderizado aparte: tramo de la animación, acelerado (≤ 1,4x) y, si hace falta, el último cuadro sostenido
+    # hasta que el botón "Link en mi perfil" se vio ≥ 2,1 s
+    v = cta.get("velocidad", 1)
+    seg = (cta["fin"] - cta["inicio"]) / v
+    hold = round(max(0.0, cta.get("boton_desde", 0) + 2.1 - seg), 3)
+    sh("ffmpeg", "-y", "-loglevel", "error", "-ss", cta["inicio"], "-to", cta["fin"], "-i", RAIZ / "piloto" / "activos" / "cta" / cta["archivo"],
+       "-vf", f"setpts=PTS/{v},fps=60,tpad=stop_mode=clone:stop_duration={hold}", "-an", "-c:v", "libx264", "-crf", "14", "-pix_fmt", "yuv420p", pub / "cta.mp4")
+    dur_cta = round(seg + hold, 3)
+    piezas.append({"tipo": "cta", "desde": dur, "hasta": round(dur + dur_cta, 3), "archivo": f"raw/{clip}/cta.mp4", "inicio": 0, "velocidad": 1,
+                   **({"boton": cta["boton"]} if cta.get("boton") else {}), "botonDesde": cta.get("boton_desde", 0), "sostenido": hold, "aceleracion": v})
     g = ed["gancho"]
     hcfg = cfg("hook")["duracion"]
     dur_g = round(min(max(hcfg["base"] + len(g["A"]) / hcfg["caracteres_por_segundo"], hcfg["min"]), hcfg["max"]), 2)

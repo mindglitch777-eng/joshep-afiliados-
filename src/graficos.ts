@@ -8,7 +8,7 @@ export const altoEcuacion = (bloques: string[]) => (bloques.length > 3 ? 316 : 1
 export const PANTALLA_COMPLETA = new Set(['inserto', 'imagen', 'cta']);
 export const altoPieza = (p: Pieza): number => {
   switch (p.tipo) {
-    case 'comparacion': return p.estilo === 'versus' ? 270 : 150 * 2 + 24;
+    case 'comparacion': return p.estilo === 'versus' ? 300 : 150 * 2 + 24;
     case 'pasos': {
       const n = p.pasos.length, tit = p.titulo ? 100 : 0, cierre = p.cierre ? 96 : 0;
       if (p.estilo === 'flujo') return 64 + tit + 190;

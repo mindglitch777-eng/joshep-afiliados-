@@ -117,7 +117,12 @@ jobs:
         with: {path: piloto/activos/reel, key: "piloto-reel-${{ matrix.clip }}"}
       - name: Bajar el reel
         run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py reel "${{ matrix.clip }}.mov"
+      - name: Caché de la transcripción y la cara
+        id: cprep
+        uses: actions/cache@v4
+        with: {path: "piloto/out/${{ matrix.clip }}", key: "prep-v1-${{ matrix.clip }}-${{ hashFiles('pipeline/piloto/prep.py', 'pipeline/cara.py') }}"}
       - name: Transcribir y analizar
+        if: steps.cprep.outputs.cache-hit != 'true'
         run: python pipeline/piloto/prep.py "${{ matrix.clip }}"
       - name: Editar, renderizar y controlar (hasta 2 reintentos)
         run: |
@@ -125,6 +130,10 @@ jobs:
           for i in 0 1 2; do
             echo "── intento $i"
             python pipeline/lote/plan_builder.py $C --intento $i
+            # foto e inserto del clip (solo esos archivos)
+            for f in $(jq -r '.piezas[] | select(.archivo) | .archivo' plans/$C.json); do
+              ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py "${f%%/*}" "${f#*/}" >/dev/null
+            done
             python pipeline/piloto/armar.py $C
             if jq -e '.capas_gancho' plans/$C.json >/dev/null; then
               T0=$(date +%s)
@@ -133,13 +142,14 @@ jobs:
               echo "recorte (capas): $(( $(date +%s) - T0 )) s" | tee $B/capas.txt
             fi
             npx tsx scripts/validar.ts $B/plan.json $B/validacion.json | head -4
+            jq --slurpfile v $B/validacion.json '.densidad = $v[0].densidad' $B/plan.json > /tmp/p.json && mv /tmp/p.json $B/plan.json
             npx remotion render src/index.ts Clip $B/render.mp4 --props=$B/plan.json --crf 18 --concurrency=100% --log=error
             bash scripts/master.sh $B/render.mp4 $B/master.mp4 >/dev/null
             bash scripts/comprimir.sh $B/master.mp4 $B/clip-$C.mp4
             python pipeline/piloto/qa.py $C $B/clip-$C.mp4 $(( ($(date +%s) - ${{ steps.prep.outputs.inicio }}) / 60 ))
             jq -e '.pasa' $B/qa.json >/dev/null && break
             # solo se reintenta si lo que falló lo puede corregir el plan
-            jq -r '.reglas[] | select(.pasa | not) | .regla' $B/qa.json | grep -qE 'Duración|Gráficos|Gancho|palabra cortada|Último subtítulo|gráfico a la vez' || break
+            jq -r '.reglas[] | select(.pasa | not) | .regla' $B/qa.json | grep -qE 'Duración|Gráficos|Gancho|palabra cortada|Último subtítulo|gráfico a la vez|assets seguidos|Densidad' || break
           done
           echo "$i" > $B/intentos.txt
       - name: Hoja de contacto y entrega

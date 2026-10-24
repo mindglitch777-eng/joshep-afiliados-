@@ -2,7 +2,7 @@ import {AbsoluteFill, Img, interpolate, OffthreadVideo, spring, staticFile, useC
 import {evolvePath} from '@remotion/paths';
 import {Camara} from '../camara';
 import {rectBloque} from '../geometria';
-import {acento, C, ENTRADA, FUENTE} from '../theme';
+import {acento, C, EASE_ZOOM, ENTRADA, FUENTE} from '../theme';
 import {ANCHO_TARJETA, Insignia, tarjetaClara} from './Comparacion';
 import anchosJson from '../anchos.json';
 import {FS_NUMERO} from '../graficos';
@@ -34,17 +34,17 @@ export const Versus: React.FC<{mal: string; bien: string; notaMal?: string; nota
   const col = (ok: boolean, txt: string, nota: string | undefined, d: number) => {
     const s = acento(frame - d, fps);
     return (
-      <div style={{flex: 1, height: 214, borderRadius: 26, background: ok ? 'rgba(45,227,139,0.12)' : 'rgba(255,59,78,0.10)', border: `4px solid ${ok ? C.verde : C.rojo}`,
+      <div style={{flex: 1, height: 244, borderRadius: 26, background: ok ? 'rgba(45,227,139,0.12)' : 'rgba(255,59,78,0.10)', border: `8px solid ${ok ? C.verde : C.rojo}`,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, opacity: Math.min(1, s * 1.5), transform: `scale(${0.85 + 0.15 * s})`}}>
-        <Insignia ok={ok} />
+        <Insignia ok={ok} tam={110} />
         <div style={{...titulo, fontSize: txt.length > 10 ? 40 : txt.length > 8 ? 46 : 56, color: C.negro, textAlign: 'center', padding: '0 8px'}}>{txt}</div>
         {nota && <div style={{fontFamily: FUENTE, fontWeight: 800, fontSize: 34, color: 'rgba(11,11,15,0.65)'}}>{nota}</div>}
       </div>
     );
   };
   return (
-    <Bloque caras={caras} alto={270} fondo={false}>
-      <div style={{...tarjetaClara, display: 'flex', gap: 76, alignItems: 'center', padding: 24, height: 270, boxSizing: 'border-box', position: 'relative'}}>
+    <Bloque caras={caras} alto={300} fondo={false}>
+      <div style={{...tarjetaClara, display: 'flex', gap: 76, alignItems: 'center', padding: 24, height: 300, boxSizing: 'border-box', position: 'relative'}}>
         {col(false, mal, notaMal, 0)}
         {col(true, bien, notaBien, 8)}
         <div style={{position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 64, height: 64, borderRadius: 32, background: C.negro, color: C.amarillo,
@@ -84,7 +84,7 @@ export const ListaPro: React.FC<{titulo?: string; pasos: string[]; inicios: numb
           const ok = spring({frame: frame - p.inicios[i] - 6, fps, config: {damping: 12}, durationInFrames: 10});
           return (
             <div key={i} style={{display: 'flex', alignItems: 'center', gap: 20, height: p.estilo === 'preguntas' ? 112 : 84, opacity: s, transform: `translateX(${(1 - s) * -40}px)`}}>
-              <div style={{width: 56, height: 56, borderRadius: 14, border: `4px solid ${C.negro}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              <div style={{width: 56, height: 56, borderRadius: 14, border: `8px solid ${C.negro}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 background: p.estilo === 'check' ? (ok > 0.5 ? C.verde : 'transparent') : C.amarillo}}>
                 {p.estilo === 'check' ? <svg viewBox="0 0 100 100" width={36}><path d="M18 52 L42 74 L84 26" fill="none" stroke={C.negro} strokeWidth={16} strokeLinecap="round" strokeDasharray={120} strokeDashoffset={120 * (1 - ok)} /></svg>
                   : <span style={{...titulo, fontSize: 34}}>?</span>}
@@ -137,7 +137,7 @@ export const Curva: React.FC<{alto: string; bajo: string; marcaAlto: number; mar
         )}
       </div>
       <svg viewBox="0 0 808 340" width={808} height={340} style={{overflow: 'visible'}}>
-        <line x1={20} y1={320} x2={788} y2={320} stroke="#E3E3E8" strokeWidth={4} />
+        <line x1={20} y1={320} x2={788} y2={320} stroke="#E3E3E8" strokeWidth={8} />
         <path d={d} fill="none" stroke={C.negro} strokeWidth={10} strokeLinecap="round" strokeDasharray={ev.strokeDasharray} strokeDashoffset={ev.strokeDashoffset} />
         {marca(p.marcaAlto, 300, 110, C.verde, p.alto, true)}
         {p.medio && p.marcaMedio !== undefined && marca(p.marcaMedio, 470, 210, '#FF9F0A', p.medio, true)}
@@ -181,7 +181,7 @@ const Jarron: React.FC<{frame: number; marcas: number[]}> = ({frame, marcas}) =>
   const grieta = (d: string, en: number) => {
     const k = interpolate(frame, [en, en + 6], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
     const ev = evolvePath(k, d);
-    return <path d={d} fill="none" stroke={C.negro} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={ev.strokeDasharray} strokeDashoffset={ev.strokeDashoffset} />;
+    return <path d={d} fill="none" stroke={C.negro} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={ev.strokeDasharray} strokeDashoffset={ev.strokeDashoffset} />;
   };
   // golpe: sacudida de 6 cuadros en cada marca
   const sac = [g1, g2].reduce((m, en) => m + (frame >= en && frame < en + 6 ? Math.sin((frame - en) * 2.6) * 8 * (1 - (frame - en) / 6) : 0), 0);
@@ -189,7 +189,7 @@ const Jarron: React.FC<{frame: number; marcas: number[]}> = ({frame, marcas}) =>
   const roto = frame >= rompe;
   const trozo = (clip: string, dx: number, rot: number) => (
     <g transform={`translate(${dx * r * 90}, ${r * r * 60}) rotate(${rot * r * 22}, 404, 340)`} opacity={1 - 0.3 * r}>
-      <path d={vaso} fill="rgba(140,200,255,0.25)" stroke={C.negro} strokeWidth={7} clipPath={`url(#${clip})`} />
+      <path d={vaso} fill="rgba(140,200,255,0.25)" stroke={C.negro} strokeWidth={10} clipPath={`url(#${clip})`} />
     </g>
   );
   return (
@@ -198,10 +198,10 @@ const Jarron: React.FC<{frame: number; marcas: number[]}> = ({frame, marcas}) =>
         <clipPath id="jIzq"><path d="M 0 0 L 410 0 L 380 160 L 430 250 L 390 400 L 0 400 Z" /></clipPath>
         <clipPath id="jDer"><path d="M 410 0 L 808 0 L 808 400 L 390 400 L 430 250 L 380 160 Z" /></clipPath>
       </defs>
-      <line x1={200} y1={350} x2={608} y2={350} stroke="#E3E3E8" strokeWidth={6} strokeLinecap="round" />
+      <line x1={200} y1={350} x2={608} y2={350} stroke="#E3E3E8" strokeWidth={8} strokeLinecap="round" />
       {!roto ? (
         <g transform={`translate(${sac}, 0)`}>
-          <path d={vaso} fill="rgba(140,200,255,0.25)" stroke={C.negro} strokeWidth={7} strokeLinejoin="round" />
+          <path d={vaso} fill="rgba(140,200,255,0.25)" stroke={C.negro} strokeWidth={10} strokeLinejoin="round" />
           <path d="M 360 120 C 330 160, 324 220, 336 270" fill="none" stroke="#fff" strokeWidth={10} strokeLinecap="round" opacity={0.8} />
           {grieta('M 420 150 L 400 190 L 430 215 L 410 250', g1)}
           {grieta('M 470 230 L 445 255 L 465 285 L 440 320', g2)}
@@ -223,16 +223,16 @@ const Taza: React.FC<{frame: number; marcas: number[]}> = ({frame, marcas}) => {
   const cartel = spring({frame: frame - (marcas[1] ?? 40), fps, config: {damping: 9, stiffness: 120}});
   const gotas = Array.from({length: 22}, (_, i) => {
     const x = (i * 97) % ESC_W, v = 9 + (i % 5) * 2, y = ((frame * v + i * 53) % (ESC_H + 60)) - 40;
-    return <line key={i} x1={x} y1={y} x2={x - 6} y2={y + 26} stroke="#7FA7D9" strokeWidth={4} strokeLinecap="round" opacity={0.75} />;
+    return <line key={i} x1={x} y1={y} x2={x - 6} y2={y + 26} stroke="#7FA7D9" strokeWidth={8} strokeLinecap="round" opacity={0.75} />;
   });
   return (
     <svg viewBox={`0 0 ${ESC_W} ${ESC_H}`} width={ESC_W} height={ESC_H} style={{overflow: 'visible'}}>
       {gotas}
-      <path d="M 300 170 L 500 170 L 482 320 C 478 340, 462 350, 440 350 L 360 350 C 338 350, 322 340, 318 320 Z" fill="#fff" stroke={C.negro} strokeWidth={8} strokeLinejoin="round" />
-      <path d="M 498 200 C 560 200, 560 290, 488 290" fill="none" stroke={C.negro} strokeWidth={8} />
+      <path d="M 300 170 L 500 170 L 482 320 C 478 340, 462 350, 440 350 L 360 350 C 338 350, 322 340, 318 320 Z" fill="#fff" stroke={C.negro} strokeWidth={10} strokeLinejoin="round" />
+      <path d="M 498 200 C 560 200, 560 290, 488 290" fill="none" stroke={C.negro} strokeWidth={10} />
       <g transform={`translate(400, 60) rotate(${(1 - Math.min(cartel, 1.1)) * -24 + Math.sin(frame / 7) * 2})`} opacity={Math.min(1, cartel * 3)}>
-        <line x1={-70} y1={-40} x2={0} y2={-70} stroke={C.negro} strokeWidth={4} />
-        <line x1={70} y1={-40} x2={0} y2={-70} stroke={C.negro} strokeWidth={4} />
+        <line x1={-70} y1={-40} x2={0} y2={-70} stroke={C.negro} strokeWidth={8} />
+        <line x1={70} y1={-40} x2={0} y2={-70} stroke={C.negro} strokeWidth={8} />
         <rect x={-150} y={-40} width={300} height={84} rx={14} fill={C.rojo} />
         <text x={0} y={16} textAnchor="middle" fontFamily="Montserrat" fontWeight={900} fontSize={48} fill="#fff">CERRADO</text>
       </g>
@@ -260,7 +260,7 @@ const Grupo: React.FC<{frame: number; marcas: number[]}> = ({frame, marcas}) => 
       {/* el que lo incluye: brazo que se estira hacia el que quedó afuera */}
       <path d={`M 520 260 Q ${560 + dx / 2} 220 ${600 + dx * 0.8} 250`} fill="none" stroke={C.verde} strokeWidth={14} strokeLinecap="round" opacity={vuelve > 0.05 ? Math.min(1, vuelve * 2) * (1 - Math.max(0, vuelve - 0.9) * 10) : 0} />
       <circle cx={630} cy={60} r={30 * Math.min(vuelve, 1)} fill={C.verde} />
-      <path d="M 616 60 L 627 71 L 646 50" fill="none" stroke="#fff" strokeWidth={7} strokeLinecap="round" opacity={vuelve > 0.6 ? 1 : 0} />
+      <path d="M 616 60 L 627 71 L 646 50" fill="none" stroke="#fff" strokeWidth={9} strokeLinecap="round" opacity={vuelve > 0.6 ? 1 : 0} />
     </svg>
   );
 };
@@ -296,7 +296,7 @@ export const Ecuacion: React.FC<{bloques: string[]; inicios: number[]; alto: num
   const fs = Math.min(60, Math.floor((808 - 60 - 2 * 16 - 2 * 2 * 22) / ((anchoTxt(fila1[0].b, 1) + anchoTxt(fila1[2]?.b ?? '', 1)) || 1)));
   const pill = (x: (typeof items)[number]) => x.op ? <Operador key={x.b + x.s} op={x.b} s={x.s} /> : (
     <div key={x.b} style={{...titulo, fontSize: fs, padding: '18px 22px', borderRadius: 22, whiteSpace: 'nowrap', background: x.ultimo ? C.verde : '#F1F1F4', color: C.negro,
-      border: `4px solid ${x.ultimo ? C.verde : C.negro}`, opacity: Math.min(1, x.s * 2), transform: `scale(${0.7 + 0.3 * x.s})`}}>{x.b}</div>
+      border: `8px solid ${x.ultimo ? C.verde : C.negro}`, opacity: Math.min(1, x.s * 2), transform: `scale(${0.7 + 0.3 * x.s})`}}>{x.b}</div>
   );
   const fila = (xs: typeof items) => <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16}}>{xs.map(pill)}</div>;
   return (
@@ -327,23 +327,30 @@ export const BotonCTA: React.FC<{texto?: string}> = ({texto = 'LINK EN MI PERFIL
   );
 };
 
-// A pantalla completa: animación de Joseph (inserto / CTA) o imagen como tarjeta al 65% sobre el video desenfocado.
-export const PantallaVideo: React.FC<{archivo: string; inicio?: number; velocidad?: number}> = ({archivo, inicio = 0, velocidad = 1}) => {
+// A pantalla completa: animación de Joseph (inserto / CTA) o foto del tema como cutaway.
+// CTA: corte seco con barrido (wipe) de 7 cuadros de derecha a izquierda; inserto: entrada corta de 8 cuadros.
+export const PantallaVideo: React.FC<{archivo: string; inicio?: number; velocidad?: number; wipe?: boolean}> = ({archivo, inicio = 0, velocidad = 1, wipe = false}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const e = spring({frame, fps, config: {damping: 200}, durationInFrames: 8});
+  const w = interpolate(frame, [0, 7], [100, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
   return (
-    <AbsoluteFill style={{background: '#0B0B0F', opacity: e, transform: `scale(${1.04 - 0.04 * e})`}}>
+    <AbsoluteFill style={wipe ? {background: '#0B0B0F', clipPath: `inset(0 0 0 ${w}%)`} : {background: '#0B0B0F', opacity: e, transform: `scale(${1.04 - 0.04 * e})`}}>
       <OffthreadVideo src={staticFile(archivo)} startFrom={Math.round(inicio * fps)} playbackRate={velocidad} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
     </AbsoluteFill>
   );
 };
+// Foto del tema: tarjeta al 65% del ancho (≤ 70%: las de 768 px no se ven blandas) con zoom lento 1.00→1.06.
 export const PantallaImagen: React.FC<{archivo: string}> = ({archivo}) => {
   const frame = useCurrentFrame();
-  const s = acento(frame, useVideoConfig().fps);
+  const {fps, durationInFrames} = useVideoConfig();
+  const s = acento(frame, fps);
+  const z = interpolate(frame, [0, Math.max(durationInFrames, 1)], [1, 1.06]);
   return (
     <AbsoluteFill style={{background: 'rgba(11,11,15,0.82)', backdropFilter: 'blur(30px)', alignItems: 'center', justifyContent: 'center', opacity: Math.min(1, s * 2)}}>
-      <Img src={staticFile(archivo)} style={{width: '65%', borderRadius: 40, boxShadow: '0 30px 80px rgba(0,0,0,0.6)', transform: `scale(${0.85 + 0.15 * s}) rotate(${(1 - s) * -3}deg)`}} />
+      <div style={{width: '65%', borderRadius: 40, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.6)', transform: `scale(${0.9 + 0.1 * s})`}}>
+        <Img src={staticFile(archivo)} style={{width: '100%', display: 'block', transform: `scale(${z})`}} />
+      </div>
     </AbsoluteFill>
   );
 };

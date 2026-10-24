@@ -12,7 +12,7 @@ export type Pieza =
   // material de Joseph a pantalla completa (la voz sigue de fondo)
   | (Base & {tipo: 'inserto'; archivo: string; inicio?: number; velocidad?: number})
   | (Base & {tipo: 'imagen'; archivo: string})
-  | (Base & {tipo: 'cta'; archivo: string; inicio?: number; velocidad?: number; boton?: string})
+  | (Base & {tipo: 'cta'; archivo: string; inicio?: number; velocidad?: number; boton?: string; botonDesde?: number; sostenido?: number; aceleracion?: number})
   | (Base & {tipo: 'enfasis'; palabra: string});
 
 // clave: crece y suena el ding de marca · tono: color semántico · icono: sticker (ver piezas/Iconos.tsx)
