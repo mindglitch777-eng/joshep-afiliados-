@@ -10,6 +10,11 @@ def main(video, salida, inicio):
     qa = leer(WORK / "validacion.json")
     qa["audio"] = {"lufs_integrado": num("I"), "lra": num("LRA"), "true_peak_dbtp": num("Peak"),
                    "ok": abs(num("I") + 14) <= 1 and num("Peak") <= -1}
+    # silencio inicial del video final (primeros 3 s)
+    sil = sh("ffmpeg", "-hide_banner", "-t", "3", "-i", video, "-af", "silencedetect=noise=-40dB:d=0.1", "-f", "null", "-", capturar=True)
+    ini = re.findall(r"silence_start: ([\d.]+)", sil); fin = re.findall(r"silence_end: ([\d.]+)", sil)
+    qa["audio"]["silencio_inicial"] = [f"{float(a):.2f}–{float(b):.2f} s" for a, b in zip(ini, fin) if float(a) < 0.05]
+    qa["arranque"] = leer(WORK / "arranque.json")
     qa["cara"] = leer(WORK / "cara_info.json")
     qa["minutos_corrida"] = round((time.time() - float(inicio)) / 60, 1)
     guardar(salida, qa)
