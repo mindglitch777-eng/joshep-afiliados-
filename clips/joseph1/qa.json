@@ -1,6 +1,6 @@
 {
  "duracion": 36.747,
- "eventos": 43,
+ "eventos": 44,
  "sonidos": 52,
  "huecos_mayores_1_5s": [],
  "textos_fuera_zona_segura": [],
@@ -10,10 +10,23 @@
   "gancho_sobre_boca_pct": 0,
   "subtitulos_sobre_boca_o_menton_pct": 0,
   "iconos_sobre_cara_pct": 0,
-  "iconos_omitidos_por_falta_de_lugar": 44,
+  "iconos_omitidos_por_falta_de_lugar": 53.6,
   "tarjetas_sobre_ojos_o_boca_pct": 0
  },
+ "menton_vs_subtitulo": {
+  "aire_min_px": 42,
+  "cuadros_con_menos_de_24px": 0,
+  "ok": true
+ },
  "metas_solape_ok": true,
+ "flash": {
+  "tiempos_s": [
+   0
+  ],
+  "ok": true,
+  "cuadro0": true
+ },
+ "style_pack": "punch",
  "cuadro0_gancho_completo": true,
  "primer_sonido_s": 0,
  "gancho": {
@@ -21,8 +34,8 @@
   "variante": "A",
   "tam_px": 100,
   "lineas": 2,
-  "top": 276,
-  "borde_inferior": 512,
+  "top": 262,
+  "borde_inferior": 498,
   "bajada_video_px": 0,
   "relacion_vs_subtitulo": 1.09
  },
@@ -35,14 +48,21 @@
    "tipo": "gancho",
    "detalle": "NO SE TRATA DE FINGIR",
    "sonido": [
-    "boom",
-    "whoosh-a"
+    "boom"
+   ]
+  },
+  {
+   "t": 0,
+   "tipo": "flash",
+   "detalle": "exposición",
+   "sonido": [
+    "flash"
    ]
   },
   {
    "t": 1,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -50,7 +70,7 @@
   {
    "t": 2,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -58,7 +78,7 @@
   {
    "t": 3.25,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -66,7 +86,7 @@
   {
    "t": 4.5,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -74,7 +94,7 @@
   {
    "t": 5.55,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -99,7 +119,7 @@
   {
    "t": 7.7,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -107,7 +127,7 @@
   {
    "t": 8.95,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -115,7 +135,7 @@
   {
    "t": 10.2,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -132,7 +152,7 @@
   {
    "t": 12.13,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -140,7 +160,7 @@
   {
    "t": 13.4,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -157,7 +177,7 @@
   {
    "t": 14.85,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -165,7 +185,7 @@
   {
    "t": 15.9,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -173,7 +193,7 @@
   {
    "t": 16.67,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -221,7 +241,7 @@
   {
    "t": 19.1,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -229,7 +249,7 @@
   {
    "t": 19.92,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -245,7 +265,7 @@
   {
    "t": 21.6,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -253,7 +273,7 @@
   {
    "t": 23.02,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -261,7 +281,7 @@
   {
    "t": 23.91,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -269,7 +289,7 @@
   {
    "t": 24.8,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -277,7 +297,7 @@
   {
    "t": 25.78,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -294,7 +314,7 @@
   {
    "t": 27.58,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -302,7 +322,7 @@
   {
    "t": 28.4,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -310,7 +330,7 @@
   {
    "t": 29.78,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -326,7 +346,7 @@
   {
    "t": 31.6,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -360,7 +380,7 @@
   {
    "t": 34.1,
    "tipo": "plano",
-   "detalle": "push-in",
+   "detalle": "abierto · zoom-blur",
    "sonido": [
     "whoosh-a"
    ]
@@ -377,7 +397,7 @@
   {
    "t": 35.78,
    "tipo": "plano",
-   "detalle": "abierto",
+   "detalle": "push-in · zoom-blur",
    "sonido": [
     "whoosh-b"
    ]
@@ -461,5 +481,5 @@
   "avisos": [],
   "fps_video": 30.0
  },
- "minutos_corrida": 12.1
+ "minutos_corrida": 11.9
 }

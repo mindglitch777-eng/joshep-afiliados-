@@ -34,7 +34,7 @@
 | B · pregunta abierta | ¿QUÉ TE HACE MÁS ATRACTIVO? | 27 |  |
 | C · imperativo | DEJÁ DE FINGIR UN PERSONAJE | 27 |  |
 
-- En pantalla: 100 px, 2 líneas, y 276–512 (sobre los ojos), bajada de video 0 px.
+- En pantalla: 100 px, 2 líneas, y 262–498 (sobre los ojos), bajada de video 0 px.
 - Cambiar de variante: `"gancho_variante": "B"` en `plan.override.json` y re-render. Previews: `preview-A/B/C.mp4`.
 
 ## Arranque y cuadro 0
@@ -50,6 +50,11 @@
 | ![c5](candidatos/c5.jpg) 5 | 0.47 | 6.86 | ok | — |
 | ![c6](candidatos/c6.jpg) 6 | 0.71 | 6.79 | ok | — |
 
+## Style pack: **punch**
+- Rotación automática (no repite el del clip anterior); forzar con `"style_pack": "capas"` en el override. Previews: `pack-punch/push/capas/mano.mp4`.
+- Mentón (con barba) vs subtítulo: aire mínimo 42 px, cuadros con menos de 24 px: 0 ✅
+- Flash de exposición en [0] s · seguridad ✅ · cuadro 0 ✅
+
 ## Encuadre
 - Video 1080x1920 → modo **cara**, cara en 100% de las muestras.
 
@@ -64,8 +69,8 @@
 ## QA
 - Audio: -14.0 LUFS, true peak -1.5 dBTP ✅
 - Solape con la cara: gancho/ojos 0% · gancho/boca 0% · subtítulos/boca-mentón 0% · íconos/cara 0% · tarjetas/ojos-boca 0% → metas ✅
-- Íconos omitidos por no tener lugar fuera de la cara: 44%
+- Íconos omitidos por no tener lugar fuera de la cara: 53.6%
 - Sin sonido: cuadro 0 con el gancho completo ✅ · silencio inicial: ninguno · primer impacto de sonido a 0 s
 - Tramos > 1.5 s sin evento: 0 · textos fuera de zona segura: 0
 - ⚠ Gancho 100 px = 1.09x del subtítulo (meta ≥ 1.15x)
-- Minutos de Actions de esta corrida: **12.1**
+- Minutos de Actions de esta corrida: **11.9**
