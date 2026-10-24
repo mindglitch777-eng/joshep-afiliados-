@@ -52,9 +52,10 @@ def analizar_frame(frame, previa=None):
            "boca": (L[13].y + L[14].y) / 2, "menton": L[152].y, "ear": ear, "mirada": max(0.0, mirada), "mano_boca": mano}
     return out, len(caras)
 
-def main():
-    asegurar_base()
-    cap = cv2.VideoCapture(str(WORK / "cortado_base.mp4"))
+def main(video=None, salida=None, info=None):
+    if video is None:
+        asegurar_base()
+    cap = cv2.VideoCapture(str(video or WORK / "cortado_base.mp4"))
     fps = cap.get(cv2.CAP_PROP_FPS) or 30
     paso = max(1, round(fps / MUESTRAS_FPS))
     out, previa, i, total, multi = [], None, 0, 0, 0
@@ -77,8 +78,8 @@ def main():
         out = []
     if multi:
         avisos.append(f"Hubo {multi} muestras con 2 o más caras: se siguió la mayor con continuidad.")
-    guardar(WORK / "cara_base.json", out)
-    guardar(WORK / "cara_info.json", {"cobertura": round(cobertura, 3), "muestras": total, "avisos": avisos, "fps_video": fps})
+    guardar(salida or WORK / "cara_base.json", out)
+    guardar(info or WORK / "cara_info.json", {"cobertura": round(cobertura, 3), "muestras": total, "avisos": avisos, "fps_video": fps})
     print(json.dumps({"cobertura": cobertura, "avisos": avisos}, ensure_ascii=False))
 
 if __name__ == "__main__":

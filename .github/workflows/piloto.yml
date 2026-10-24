@@ -1,0 +1,97 @@
+name: piloto
+run-name: "Piloto 5 reels (${{ inputs.fase }})"
+# Fase "prep": transcribe y analiza los 5 reels + hojas de CTA/animaciones/imágenes → resultados cifrados.
+# Fase "render": arma, renderiza y controla los 5 clips (uno por job) → artifacts.
+on:
+  workflow_dispatch:
+    inputs:
+      activos:
+        description: "tipo:nombre=ID;... de los archivos de Drive (no queda guardado)"
+        required: true
+      fase:
+        description: "prep o render"
+        required: true
+        default: prep
+permissions:
+  contents: write
+concurrency: piloto
+env:
+  WHISPER_VER: v1.7.5
+jobs:
+  prep:
+    if: inputs.fase == 'prep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        clip: ["17", "03", "11", "15", "23"]
+    steps:
+      - name: Enmascarar IDs
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip, cache-dependency-path: pipeline/requirements.txt}
+      - run: pip install -q -r pipeline/requirements.txt
+      - name: Caché whisper medium
+        id: cw
+        uses: actions/cache@v4
+        with: {path: whisper.cpp, key: "whisper-${{ env.WHISPER_VER }}-medium-${{ runner.os }}"}
+      - name: Compilar whisper.cpp + modelo medium
+        if: steps.cw.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --depth 1 --branch "$WHISPER_VER" https://github.com/ggml-org/whisper.cpp
+          cmake -S whisper.cpp -B whisper.cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DWHISPER_BUILD_TESTS=OFF >/dev/null
+          cmake --build whisper.cpp/build -j "$(nproc)" --target whisper-cli >/dev/null
+          bash whisper.cpp/models/download-ggml-model.sh medium >/dev/null
+      - name: Caché del reel
+        uses: actions/cache@v4
+        with: {path: piloto/activos/reel, key: "piloto-reel-${{ matrix.clip }}"}
+      - name: Bajar reel
+        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py reel "${{ matrix.clip }}.mov"
+      - name: Transcribir y analizar
+        run: python pipeline/piloto/prep.py "${{ matrix.clip }}"
+      - name: Cifrar
+        run: bash pipeline/piloto/cifrar.sh piloto/out/${{ matrix.clip }} prep-${{ matrix.clip }}
+      - uses: actions/upload-artifact@v4
+        with: {name: "prep-${{ matrix.clip }}", path: "prep-${{ matrix.clip }}.*.enc", retention-days: 1}
+  activos:
+    if: inputs.fase == 'prep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Enmascarar IDs
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -q pillow
+      - name: Caché de activos
+        uses: actions/cache@v4
+        with: {path: piloto/activos, key: "piloto-activos-v1"}
+      - name: Bajar CTA, animaciones e imágenes
+        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py cta,anim,img
+      - run: python pipeline/piloto/hojas_activos.py
+      - run: bash pipeline/piloto/cifrar.sh piloto/out/activos prep-activos
+      - uses: actions/upload-artifact@v4
+        with: {name: prep-activos, path: "prep-activos.*.enc", retention-days: 1}
+  juntar:
+    needs: [prep, activos]
+    if: always() && inputs.fase == 'prep'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {path: enc, merge-multiple: true}
+      - name: Subir cifrado a la rama cifrado-catalogo
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          cd enc && ls
+          git init -q && git checkout -q -b cifrado-catalogo
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Piloto: preparación cifrada (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-catalogo
