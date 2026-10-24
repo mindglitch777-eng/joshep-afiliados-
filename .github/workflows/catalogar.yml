@@ -1,0 +1,68 @@
+name: catalogar
+run-name: "Catálogo de material"
+# Solo lectura del Drive: inventario, descarga temporal y análisis. Los resultados salen CIFRADOS
+# (AES-256 + RSA con config/claves/catalogo.pub.pem) a la rama "cifrado-catalogo"; nada legible queda en el repo.
+on:
+  workflow_dispatch:
+    inputs:
+      carpetas:
+        description: "Nombre=ID;Nombre=ID de las carpetas compartidas por link (no queda guardado)"
+        required: true
+permissions:
+  contents: write
+concurrency: catalogar
+env:
+  WHISPER_VER: v1.7.5
+jobs:
+  catalogar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Enmascarar carpetas
+        id: prep
+        run: |
+          C=$(jq -r '.inputs.carpetas' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$C"
+          for par in ${C//;/ }; do echo "::add-mask::${par#*=}"; done
+          echo "inicio=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Dependencias
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa poppler-utils pandoc >/dev/null
+          command -v ffmpeg >/dev/null || sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q pillow
+      - name: Caché de whisper.cpp + modelo
+        id: cache-whisper
+        uses: actions/cache@v4
+        with:
+          path: whisper.cpp
+          key: whisper-${{ env.WHISPER_VER }}-small-${{ runner.os }}
+      - name: Compilar whisper.cpp
+        if: steps.cache-whisper.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --depth 1 --branch "$WHISPER_VER" https://github.com/ggml-org/whisper.cpp
+          cmake -S whisper.cpp -B whisper.cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DWHISPER_BUILD_TESTS=OFF >/dev/null
+          cmake --build whisper.cpp/build -j "$(nproc)" --target whisper-cli >/dev/null
+          bash whisper.cpp/models/download-ggml-model.sh small >/dev/null
+      - name: Inventario
+        run: CARPETAS=$(jq -r '.inputs.carpetas' "$GITHUB_EVENT_PATH") python pipeline/catalogar.py inventario
+      - name: Descarga
+        run: python pipeline/catalogar.py descargar
+      - name: Análisis (ffprobe, loudness, whisper, OCR, hojas de contacto)
+        run: python pipeline/catalogar.py analizar
+      - name: Cifrar y subir a la rama cifrado-catalogo
+        run: |
+          MIN=$(( ($(date +%s) - ${{ steps.prep.outputs.inicio }}) / 60 ))
+          echo "minutos=$MIN" > cat/tiempo.txt
+          tar czf /tmp/cat.tgz --exclude=cat/bajados cat
+          openssl rand -hex 32 > /tmp/k.txt
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in /tmp/cat.tgz -out /tmp/cat.tgz.enc -pass file:/tmp/k.txt
+          openssl pkeyutl -encrypt -pubin -inkey config/claves/catalogo.pub.pem -pkeyopt rsa_padding_mode:oaep -in /tmp/k.txt -out /tmp/k.enc
+          rm -rf cat /tmp/k.txt /tmp/cat.tgz
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git checkout -q --orphan cifrado-catalogo && git rm -rq --cached . && git clean -fdq -e /tmp
+          cp /tmp/cat.tgz.enc /tmp/k.enc . && git add cat.tgz.enc k.enc && git commit -qm "Catálogo cifrado (temporal)"
+          git push -qf origin cifrado-catalogo
+          echo "### Catálogo listo (cifrado) en $MIN min" >> "$GITHUB_STEP_SUMMARY"
