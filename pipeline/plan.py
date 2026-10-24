@@ -3,6 +3,7 @@ Uso: python pipeline/plan.py <nombre>  → work/plan.auto.json y work/plan.json 
 import re, sys
 from pathlib import Path
 from comun import RAIZ, WORK, cfg, guardar, info_video, leer, norm
+import hook
 
 KW, BR, P = cfg("keywords"), cfg("brand"), cfg("pipeline")
 LIM = BR["limites_caracteres"]
@@ -157,6 +158,8 @@ def mezclar(base, over):
         if k == "palabras":
             for idx, cambios in v.items():
                 base["subtitulos"][int(idx)].update(cambios)
+        elif k == "gancho_variante":
+            continue
         elif k == "quitar_piezas":
             base["piezas"] = [p for i, p in enumerate(base["piezas"]) if i not in v and p["tipo"] not in v]
         elif k == "agregar_piezas":
@@ -179,6 +182,14 @@ def main(nombre):
     plan = {"fps": BR["fps"], "video": "raw/cortado.mp4", "videoInfo": {"ancho": w, "alto": h},
             "encuadre": P["encuadre"] if w > h else "cara", "duracion": cort["duracion"], "musica": {"archivo": P["musica"]},
             "cortes": cort["cortes"], "cara": leer(WORK / "cara.json"), "piezas": detectar(ps, cort["duracion"]), "subtitulos": subtitulos(ps)}
+    # gancho: variante elegida (A por defecto; el override puede pedir "gancho_variante": "B")
+    vs, elegida = hook.main(nombre, plan["piezas"], over.get("gancho_variante"))
+    H = cfg("hook")["duracion"]
+    plan["ganchos"] = [{k: v[k] for k in ("formula", "texto", "clave")} for v in vs]
+    v = next((x for x in vs if x["formula"] == elegida), vs[0])
+    dur_g = round(min(max(H["base"] + len(v["texto"]) / H["caracteres_por_segundo"], H["min"]), H["max"]), 2)
+    plan["piezas"] = [p for p in plan["piezas"] if p["tipo"] != "gancho" and p["desde"] >= dur_g]
+    plan["piezas"].insert(0, {"tipo": "gancho", "desde": 0, "hasta": dur_g, "texto": v["texto"], "clave": v["clave"], "variante": v["formula"]})
     guardar(WORK / "plan.auto.json", plan)
     if over:
         plan = mezclar(plan, over)

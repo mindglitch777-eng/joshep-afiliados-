@@ -34,3 +34,11 @@ def info_video(video):
     w, h = s["width"], s["height"]
     rot = next((abs(int(d.get("rotation", 0))) for d in s.get("side_data_list", [])), 0)
     return (h, w) if rot in (90, 270) else (w, h)
+
+def asegurar_base():
+    """Guarda una sola vez la salida de cortar.py como *_base para que los recortes posteriores sean repetibles."""
+    import shutil
+    if not (WORK / "cortado_base.mp4").exists():
+        shutil.move(WORK / "cortado.mp4", WORK / "cortado_base.mp4")
+        shutil.copy(WORK / "palabras_clip.json", WORK / "palabras_base.json")
+        shutil.copy(WORK / "cortes.json", WORK / "cortes_base.json")

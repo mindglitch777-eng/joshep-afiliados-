@@ -1,0 +1,14 @@
+{
+  "salida": {"muestra_ancho": 1080, "preview_ancho": 720, "preview_segundos": 3},
+  "duracion": {"min": 1.8, "max": 3.0, "base": 0.6, "caracteres_por_segundo": 15},
+  "texto": {"max_caracteres": 32, "max_lineas": 2, "ancho": 880, "tam_max": 100, "tam_min": 72, "relacion_min_subtitulo": 1.15},
+  "ubicacion": {"y_top_min": 170, "margen_ojos": 40, "bajar_video_max": 0.06},
+  "asentamiento": {"escala_desde": 1.12, "frames": 6},
+  "interrupcion": {"punch_hasta": 1.10, "punch_segundos": 0.25, "destello": true, "destello_frames": 2, "destello_opacidad": 0.12, "temblor": false},
+  "variantes": {"elegida": "A", "max_formulas": 2},
+  "aperturas_muertas": ["hola chicos", "hola a todos", "bueno", "o sea", "alguna vez te preguntaste", "en este video", "hoy les traigo"],
+  "arranque": {"primera_palabra_max": 0.15, "ventana": 0.6, "candidatos": 6, "mano_boca_franja": 0.4},
+  "subtitulos": {"borde_inferior": 1440, "x_max": 960, "ancho": 880, "aire_menton": 24},
+  "camara": {"ojos_y": 0.28},
+  "stickers": {"margen_cara": 40, "tam": 160, "tam_min": 110}
+}
