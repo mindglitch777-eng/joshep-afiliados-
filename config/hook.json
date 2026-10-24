@@ -30,7 +30,7 @@
   "interrupcion": {
     "punch_hasta": 1.1,
     "punch_segundos": 0.25,
-    "destello": true,
+    "destello": false,
     "destello_frames": 2,
     "destello_opacidad": 0.12,
     "temblor": false
@@ -62,7 +62,8 @@
   },
   "camara": {
     "ojos_y": 0.28,
-    "subir_video_max": 0.1
+    "subir_video_max": 0.15,
+    "barba_extra": 0.12
   },
   "stickers": {
     "margen_cara": 40,
