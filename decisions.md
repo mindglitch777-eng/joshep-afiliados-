@@ -47,3 +47,5 @@ Cortes: búsqueda de silencio en ±0,5 s (antes ±0,3) con un segundo umbral (pi
 Fin del contenido antes de que empiece la palabra siguiente | whisper estira la última palabra sobre lo que sigue y se colaban «PODÉS» (08) e «Y SI QUERÉS» (31) | qa.md «Último subtítulo completo» | —
 Gancho medido cuadro por cuadro (antes cada 2) | 05 y 22 fallaban en 1–2 cuadros sueltos | validacion.json | —
 05 usa el gancho B «SÉ UN HOMBRE RESOLUTIVO» | el A (31 caracteres) no entraba arriba de la cabeza ni a 64 px | 05: bajada máxima 230 px y aun así no entraba | —
+Silencio buscado en ventanas de 30 ms (antes 10 ms) | el corte caía en micro-huecos de 10 ms y el QA (30 ms) oía voz: 04, 05, 13 y 21 | qa.md 3ª pasada, ajustes de 4 ms | —
+08 termina en «…sin generar la otra» y ningún gráfico tapa la última frase | la ecuación tapaba «podés…» y el último subtítulo no se veía | qa.md 08 | 08 dura ~3 s más

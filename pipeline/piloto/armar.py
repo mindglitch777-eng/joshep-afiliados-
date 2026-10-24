@@ -66,7 +66,7 @@ def main(clip):
     sh("ffmpeg", "-y", "-loglevel", "error", "-i", src, "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", build / "fuente.wav")
     with wave.open(str(build / "fuente.wav")) as wv:
         x = np.frombuffer(wv.readframes(wv.getnframes()), dtype=np.int16).astype(np.float32)
-    rms = np.sqrt(np.convolve(x ** 2, np.ones(160) / 160, mode="same"))  # ventana de 10 ms
+    rms = np.sqrt(np.convolve(x ** 2, np.ones(480) / 480, mode="same"))  # ventana de 30 ms (la misma que mide el QA)
     rdb = 20 * np.log10(rms / 32768 + 1e-9)
     piso = float(np.percentile(rdb[::160], 10))  # piso de ruido de la sala
     pausas = json.loads((prep / "info.json").read_text(encoding="utf-8"))["silencios"]
@@ -172,6 +172,9 @@ def main(clip):
         if q["tipo"] in ("comparacion", "pasos", "ecuacion", "numero") and q["hasta"] - q["desde"] > 6.0:  # tarjetas ≤ 6 s
             q["hasta"] = round(q["desde"] + 6.0, 3)
         q["hasta"] = round(min(q["hasta"], acum - 0.15), 3)  # nunca dentro del CTA
+        if q["tipo"] not in ("cta",):  # la última frase se ve completa: ningún gráfico la tapa
+            ult = max((remap(w["desde"]) or 0) for w in ps[-40:] if w["texto"].strip() and remap(w["desde"]) is not None)
+            q["hasta"] = round(min(q["hasta"], max(q["desde"] + 1.0, ult - 0.3)), 3)
         if q["tipo"] == "escena" and q["hasta"] - q["desde"] > 4.0:  # escena ≤ 4 s: termina igual, empieza más tarde
             q["desde"] = round(q["hasta"] - 4.0, 3)
         for k in ("marcaAlto", "marcaBajo", "marcaMedio", "numeroEn", "cierreEn"):
