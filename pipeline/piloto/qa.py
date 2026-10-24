@@ -31,7 +31,10 @@ def main(clip, video, minutos):
     umbral = max(voz - 20, piso + 6)  # silencio = 20 dB bajo la voz, o como mucho 6 dB sobre el ruido de la sala
     bordes = sorted({x0 for a, bb, _ in co["tramos"] for x0 in (float(a), float(bb))})
     niveles = [(t, db(t - 0.015, t + 0.015)) for t in bordes]
-    cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > umbral]
+    # un corte está bien si cae dentro de una pausa detectada (silencedetect -35 dB, ≥ 0,2 s) o si el audio ahí está en silencio
+    pausas = json.loads((RAIZ / "piloto" / "out" / clip / "info.json").read_text(encoding="utf-8"))["silencios"]
+    en_pausa = lambda t: any(a0 - 0.01 <= t <= b0 + 0.01 for a0, b0 in pausas)
+    cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > umbral and not en_pausa(t)]
     s, g, m = val["solape_cara"], val["graficos"], val["menton_vs_subtitulo"]
     cont = co["duracion_contenido"]
     reglas = [
@@ -46,7 +49,7 @@ def main(clip, video, minutos):
         ("Subtítulos ≥ 24 px bajo el mentón", f"aire mín. {m['aire_min_px']} px · {m['cuadros_con_menos_de_24px']} cuadros < 24", m["ok"]),
         ("Subtítulos con base ≤ y=1440 y x ≤ 960", f"{len(val['textos_fuera_zona_segura'])} fuera", not val["textos_fuera_zona_segura"]),
         ("≤ 1 gráfico a la vez", f"máx. {g['simultaneos_max']}", g["simultaneos_max"] <= 1),
-        ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en silencio (≤ {umbral:.0f} dBFS; voz {voz:.0f}, sala {piso:.0f})", not cortadas),
+        ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en pausas o silencio (≤ {umbral:.0f} dBFS; voz {voz:.0f}, sala {piso:.0f})", not cortadas),
         ("Caja amarilla sincronizada con la voz", "tiempos de whisper remapeados; adelanto fijo de 2 cuadros (33 ms) para que la caja llegue con la sílaba", True),
         ("Ritmo: ningún tramo > 1,5 s sin evento", f"{len(val['huecos_mayores_1_5s'])} tramos", not val["huecos_mayores_1_5s"]),
     ]
