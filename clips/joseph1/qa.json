@@ -8,12 +8,12 @@
   "medido_con_cara": true,
   "gancho_sobre_ojos_pct": 0,
   "gancho_sobre_boca_pct": 0,
-  "subtitulos_sobre_boca_o_menton_pct": 2.7,
+  "subtitulos_sobre_boca_o_menton_pct": 0,
   "iconos_sobre_cara_pct": 0,
-  "iconos_omitidos_por_falta_de_lugar": 27.4,
-  "tarjetas_sobre_ojos_o_boca_pct": 74.9
+  "iconos_omitidos_por_falta_de_lugar": 44,
+  "tarjetas_sobre_ojos_o_boca_pct": 0
  },
- "metas_solape_ok": false,
+ "metas_solape_ok": true,
  "cuadro0_gancho_completo": true,
  "primer_sonido_s": 0,
  "gancho": {
@@ -461,5 +461,5 @@
   "avisos": [],
   "fps_video": 30.0
  },
- "minutos_corrida": 9.5
+ "minutos_corrida": 12.1
 }

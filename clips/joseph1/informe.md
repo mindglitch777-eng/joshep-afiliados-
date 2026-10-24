@@ -63,9 +63,9 @@
 
 ## QA
 - Audio: -14.0 LUFS, true peak -1.5 dBTP ✅
-- Solape con la cara: gancho/ojos 0% · gancho/boca 0% · subtítulos/boca-mentón 2.7% · íconos/cara 0% · tarjetas/ojos-boca 74.9% → metas ⚠
-- Íconos omitidos por no tener lugar fuera de la cara: 27.4%
+- Solape con la cara: gancho/ojos 0% · gancho/boca 0% · subtítulos/boca-mentón 0% · íconos/cara 0% · tarjetas/ojos-boca 0% → metas ✅
+- Íconos omitidos por no tener lugar fuera de la cara: 44%
 - Sin sonido: cuadro 0 con el gancho completo ✅ · silencio inicial: ninguno · primer impacto de sonido a 0 s
 - Tramos > 1.5 s sin evento: 0 · textos fuera de zona segura: 0
 - ⚠ Gancho 100 px = 1.09x del subtítulo (meta ≥ 1.15x)
-- Minutos de Actions de esta corrida: **9.5**
+- Minutos de Actions de esta corrida: **12.1**
