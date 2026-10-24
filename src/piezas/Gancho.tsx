@@ -1,22 +1,26 @@
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {acento, BRAND, C, textoPremium} from '../theme';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import hookCfg from '../../config/hook.json';
+import {LayoutGancho, LH_GANCHO, LS_GANCHO, PAD_GANCHO} from '../gancho-layout';
+import {C, EASE_ZOOM, FUENTE} from '../theme';
 
-// Pieza 1: gancho. Palabra por palabra (stagger 3 frames), máx. 880 px incluso en el pico.
-// Arranca 6 frames adelantado para que el frame 0 (miniatura) ya muestre texto.
-export const Gancho: React.FC<{texto: string}> = ({texto}) => {
+// Pieza 1: HookIntro. Cuadro 0 con el gancho COMPLETO (opacidad 1); solo se asienta: escala 1.12→1.0 en 6 frames.
+// Palabra clave en la caja amarilla de marca; el resto blanco con contorno. Ubicado sobre la frente.
+export const Gancho: React.FC<{lay: LayoutGancho}> = ({lay}) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const A = hookCfg.asentamiento;
+  const k = interpolate(frame, [0, A.frames], [A.escala_desde, 1], {extrapolateRight: 'clamp', easing: EASE_ZOOM});
+  const origenY = lay.top + lay.alto / 2;
   return (
-    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{width: 880, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', columnGap: 22, rowGap: 6, marginTop: -120}}>
-        {texto.split(' ').map((w, i) => {
-          const s = acento(frame + 6 - i * 3, fps);
-          const clave = w === w.toUpperCase() && /[A-ZÁÉÍÓÚÑ]{3,}/.test(w);
-          return (
-            <span key={i} style={{...textoPremium(8), fontSize: BRAND.gancho.tam, textTransform: 'uppercase', color: clave ? C.amarillo : C.blanco, display: 'inline-block', opacity: interpolate(s, [0, 0.4], [0, 1], {extrapolateRight: 'clamp'}), transform: `translateY(${(1 - s) * 30}px) scale(${0.85 + 0.15 * s})`}}>{w}</span>
-          );
-        })}
-      </div>
+    <AbsoluteFill style={{transform: `scale(${k})`, transformOrigin: `512px ${origenY}px`}}>
+      {lay.palabras.map((p, i) => (
+        <div key={i} style={{position: 'absolute', left: p.x, top: p.y, width: p.ancho, height: lay.fs * LH_GANCHO}}>
+          {p.clave && <div style={{position: 'absolute', left: -PAD_GANCHO.x, top: (lay.fs * LH_GANCHO - lay.fs) / 2 - PAD_GANCHO.y, width: p.ancho + 2 * PAD_GANCHO.x, height: lay.fs + 2 * PAD_GANCHO.y, background: C.amarillo, borderRadius: 18, boxShadow: '0 8px 24px rgba(0,0,0,0.35)'}} />}
+          <span style={{position: 'relative', fontFamily: FUENTE, fontWeight: 900, fontSize: lay.fs, lineHeight: `${lay.fs * LH_GANCHO}px`, letterSpacing: `${LS_GANCHO}em`, whiteSpace: 'pre',
+            fontKerning: 'none', fontFeatureSettings: '"kern" 0, "liga" 0', color: p.clave ? C.negro : C.blanco,
+            WebkitTextStroke: p.clave ? undefined : '8px rgba(0,0,0,0.85)', paintOrder: 'stroke fill',
+            textShadow: p.clave ? 'none' : '0 4px 10px rgba(0,0,0,0.45), 0 12px 32px rgba(0,0,0,0.35)'}}>{p.t}</span>
+        </div>
+      ))}
     </AbsoluteFill>
   );
 };
