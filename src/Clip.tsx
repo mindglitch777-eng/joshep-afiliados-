@@ -54,10 +54,10 @@ export const Clip: React.FC<Plan> = (planIn) => {
   // gancho sobre la frente: se mide la y más alta de los ojos durante el gancho (sin bajada) y se ajusta el texto
   const lay = useMemo(() => layoutDelPlan(plan, lin.planos, pista, fps), [plan, lin, pista, fps]);
   const bajada = lay?.bajada ?? 0;
-  const cam = camaraEn(plan, lin.planos, pista, fps, frame, bajada);
+  const cam = camaraEn(plan, lin.planos, pista, fps, frame, bajada, lin);
   const caraArriba = cam.cara.y - cam.cara.h / 2;
   // la cara a lo largo de cada pieza (cada 6 cuadros): tarjetas y lista se ubican para el peor caso
-  const carasPieza = useMemo(() => new Map(plan.piezas.map((p) => [p, Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 6)}, (_, i) => camaraEn(plan, lin.planos, pista, fps, p.desde * fps + i * 6, bajada).cara)])), [plan, lin, pista, fps, bajada]);
+  const carasPieza = useMemo(() => new Map(plan.piezas.map((p) => [p, Array.from({length: Math.ceil(((p.hasta - p.desde) * fps) / 6)}, (_, i) => camaraEn(plan, lin.planos, pista, fps, p.desde * fps + i * 6, bajada, lin).cara)])), [plan, lin, pista, fps, bajada]);
   const hayVoz = (s: number) => plan.subtitulos.some((p) => s >= p.desde - 0.15 && s < p.hasta + 0.15);
   const enfasisEn = (t: number) => plan.piezas.find((p) => p.tipo === 'enfasis' && t >= p.desde - 4 / fps && t < p.hasta);
   const ocultarSubs = (t: number, fr: {ini: number; palabras: {texto: string}[]}) => fraseOculta(plan, fps, t, fr);
@@ -70,7 +70,7 @@ export const Clip: React.FC<Plan> = (planIn) => {
       case 'enfasis': return <Enfasis palabra={p.palabra} caraArriba={caraArriba} />;
     }
   };
-  const fondo = <Fondo plan={plan} planos={lin.planos} pista={pista} bajada={bajada} />;
+  const fondo = <Fondo plan={plan} planos={lin.planos} pista={pista} bajada={bajada} lin={lin} />;
   const I = hookCfg.interrupcion;
   const iconos = lin.eventos.filter((e) => e.tipo === 'ícono');
 

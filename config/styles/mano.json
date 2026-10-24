@@ -1,0 +1,28 @@
+{
+  "nombre": "mano",
+  "descripcion": "Cámara en mano sutil (±3 px, ~0.4 Hz) con zoom suave.",
+  "camara": {
+    "planos": "largos",
+    "push_max": 1.05,
+    "abierto": false,
+    "mano": {
+      "amp_px": 3,
+      "hz": 0.4
+    },
+    "relleno_ritmo": "pulso"
+  },
+  "encuadre": null,
+  "transicion": "zoom-blur",
+  "sfx": {
+    "plano": [
+      "whoosh-a"
+    ],
+    "pulso": [
+      "tick"
+    ]
+  },
+  "flash": {
+    "arranque": false,
+    "secciones": false
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "nombre": "capas",
+  "descripcion": "Video a 0.88 sobre fondo desenfocado, con aire arriba y abajo para gráficos grandes.",
+  "camara": {
+    "planos": "cortes",
+    "push_max": 1.05,
+    "abierto": false,
+    "mano": {
+      "amp_px": 0,
+      "hz": 0
+    },
+    "relleno_ritmo": "corte"
+  },
+  "encuadre": "capas",
+  "escala_capas": 0.88,
+  "transicion": "slide",
+  "sfx": {
+    "plano": [
+      "swipe"
+    ],
+    "pulso": [
+      "tick"
+    ]
+  },
+  "flash": {
+    "arranque": true,
+    "secciones": false
+  }
+}

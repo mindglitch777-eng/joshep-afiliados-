@@ -1,0 +1,29 @@
+{
+  "nombre": "punch",
+  "descripcion": "Cortes con zoom (el estilo de siempre).",
+  "camara": {
+    "planos": "cortes",
+    "push_max": 1.1,
+    "abierto": true,
+    "mano": {
+      "amp_px": 0,
+      "hz": 0
+    },
+    "relleno_ritmo": "corte"
+  },
+  "encuadre": null,
+  "transicion": "zoom-blur",
+  "sfx": {
+    "plano": [
+      "whoosh-a",
+      "whoosh-b"
+    ],
+    "pulso": [
+      "tick"
+    ]
+  },
+  "flash": {
+    "arranque": true,
+    "secciones": true
+  }
+}

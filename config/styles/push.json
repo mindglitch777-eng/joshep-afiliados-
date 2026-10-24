@@ -1,0 +1,28 @@
+{
+  "nombre": "push",
+  "descripcion": "Push-in lento continuo por plano, casi sin cortes, transición whip.",
+  "camara": {
+    "planos": "largos",
+    "push_max": 1.1,
+    "abierto": false,
+    "mano": {
+      "amp_px": 0,
+      "hz": 0
+    },
+    "relleno_ritmo": "pulso"
+  },
+  "encuadre": null,
+  "transicion": "whip",
+  "sfx": {
+    "plano": [
+      "whoosh-b"
+    ],
+    "pulso": [
+      "tick"
+    ]
+  },
+  "flash": {
+    "arranque": true,
+    "secciones": false
+  }
+}

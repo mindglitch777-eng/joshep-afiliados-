@@ -1,0 +1,9 @@
+{
+  "orden": [
+    "punch",
+    "push",
+    "capas",
+    "mano"
+  ],
+  "por_defecto": "punch"
+}

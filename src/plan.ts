@@ -19,10 +19,11 @@ export type Plan = {
   musica?: {archivo: string} | null; // nivel y ducking en src/audio.ts
   cara?: MuestraCara[]; // face_track; si falta se usa una cara fija centrada
   videoInfo?: {ancho: number; alto: number}; // tamaño del video fuente (para horizontales)
-  encuadre?: 'cara' | 'desenfocado'; // horizontal: recorte 9:16 siguiendo la cara o video entero sobre fondo desenfocado
+  encuadre?: 'cara' | 'desenfocado' | 'capas'; // horizontal: recorte 9:16 siguiendo la cara o video entero sobre fondo desenfocado
   cortes?: number[]; // jump cuts (segundos, ya en la línea de tiempo cortada): micro-zoom en cada uno
   ganchos?: {formula: string; texto: string; clave: string}[]; // variantes A/B/C (previews)
   ganchoVariante?: string; // fuerza una variante (render de previews)
+  estilo?: string; // style pack (config/styles/*.json); lo elige la rotación de plan.py
   piezas: Pieza[];
   subtitulos: Palabra[];
 };
