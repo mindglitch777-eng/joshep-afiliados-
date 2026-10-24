@@ -1,0 +1,13 @@
+{
+  "_nota": "Look de color por clip (ffmpeg, sobre el video ya cortado; la cara se detecta en la fuente). Rota por día del calendario: dos días seguidos nunca tienen el mismo.",
+  "orden": ["natural", "calido", "frio", "contraste", "cine", "dorado", "mate"],
+  "filtros": {
+    "natural": "null",
+    "calido": "colorbalance=rs=0.06:gs=0.02:bs=-0.06,eq=saturation=1.08",
+    "frio": "colorbalance=rs=-0.05:bs=0.07,eq=saturation=0.95:contrast=1.04",
+    "contraste": "eq=contrast=1.12:saturation=1.1:gamma=0.97",
+    "cine": "curves=preset=medium_contrast,eq=saturation=0.88,vignette=PI/5,noise=alls=3:allf=t",
+    "dorado": "colorbalance=rh=0.05:gh=0.03:bh=-0.05:rs=0.03,eq=saturation=1.05,vignette=PI/6",
+    "mate": "curves=all='0/0.06 1/0.96',eq=saturation=0.9"
+  }
+}

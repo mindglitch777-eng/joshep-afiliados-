@@ -95,7 +95,10 @@ def main(clip):
         fc.append(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,scale=1080:1920,setsar=1[v{i}]")
         fin = b + (XF if i < n - 1 else 0)
         fc.append(f"[0:a]atrim={a}:{fin},asetpts=PTS-STARTPTS[a{i}]")
-    fc.append("".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[v]")
+    # look de color del clip (config/looks.json); el piloto queda natural
+    look = cfg("looks")["filtros"].get(ed.get("look", "natural"), "null")
+    fc.append("".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[vc]")
+    fc.append(f"[vc]{look}[v]")
     prev = "a0"
     for i in range(1, n):
         fc.append(f"[{prev}][a{i}]acrossfade=d={XF}:c1=tri:c2=tri[x{i}]")

@@ -34,3 +34,5 @@ Fotos al 65% del ancho, reescaladas una vez con lanczos a 702 px | las de 768 px
 Íconos de VS a 110 px (37% de la tarjeta de 300) y bordes de 8 px | regla: líneas ≥6 px (con la tarjeta achicada al 75% siguen ≥6) | Graficos.tsx | 37% < 40% en VS: más grande no entra con texto de 2 líneas
 Escena del jarrón desde el primer golpe hasta 0,5 s después de romperse | el 09 duraba 7,6 s (regla ≤4 s) | plan del runner: «jarrón» 4,3 s → «rompe» 10,0 s | la frase «la confianza es como un jarrón» va sin dibujo
 Caché de la transcripción y la cara por clip | ahorra ~4 min por clip en reintentos y re-renders | piloto: prep 3–5 min | —
+Los 28 en una sola corrida en paralelo (20 a la vez) | pedido del usuario: más rápido; la prueba de 3 se cancela | GitHub permite 20 jobs simultáneos en repo público | si hay un error común, falla en varios a la vez (los reintentos son por clip)
+Look de color por clip con ffmpeg (natural, cálido, frío, contraste, cine, dorado, mate), rotando por día | cada video distinto además del estilo de cámara | config/looks.json, probados con testsrc2 | el grano del look "cine" pide más bitrate (se dejó suave: alls=3)

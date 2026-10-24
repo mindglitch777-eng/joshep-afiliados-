@@ -260,11 +260,13 @@ def main(clip, intento=0):
         gA, cA, gB, cB = gB, cB, gA, cA
         log.append("gancho B (el A no entraba sobre la cabeza)")
     estilo = cal["estilo"]
+    looks = json.loads((RAIZ / "config/looks.json").read_text(encoding="utf-8"))["orden"]
+    look = looks[int(cal["dia"]) % len(looks)]  # rota por día: nunca el mismo dos días seguidos
     ed = {"clip": clip, "estilo": estilo, "tramos": [[a, b, "frase completa" if i else "arranca con la voz"] for i, (a, b) in enumerate(tr)],
           "correcciones": corr, "claves": claves, "tonos": {}, "gancho": {"A": gA, "claveA": cA, "B": gB, "claveB": cB},
           "piezas": piezas, "cta": cta_de(cal["cta"] + ".mp4"),
           "post": {"descripcion": row["descripcion"], "hashtags": row["hashtags"].split("|"), "portada": "cuadro a 0,2 s (gancho completo, después del flash)"},
-          "formato": fmt, "intento": intento, "log": log}
+          "formato": fmt, "look": look, "intento": intento, "log": log}
     if estilo == "capas" and not falla("Gancho"):
         ed["capas_gancho"] = True
     # plan.override.json (correcciones a mano): se aplica encima, clave por clave
