@@ -54,8 +54,12 @@ def main(clip):
     rms = np.sqrt(np.convolve(x ** 2, np.ones(160) / 160, mode="same"))  # ventana de 10 ms
     rdb = 20 * np.log10(rms / 32768 + 1e-9)
     piso = float(np.percentile(rdb[::160], 10))  # piso de ruido de la sala
+    pausas = json.loads((prep / "info.json").read_text(encoding="utf-8"))["silencios"]
     def snap(t):
-        # el silencio real más cercano (≤ piso + 6 dB) dentro de ±0.3 s; si no hay, el punto más bajo en ±0.15 s
+        # si el corte ya cae dentro de una pausa detectada (silencedetect), queda donde está
+        if any(a0 + 0.02 <= t <= b0 - 0.02 for a0, b0 in pausas):
+            return t
+        # si no: el silencio real más cercano (≤ piso + 6 dB) dentro de ±0.3 s; si no hay, el punto más bajo en ±0.15 s
         a, b = max(0, int((t - 0.3) * 16000)), min(len(rms) - 1, int((t + 0.3) * 16000))
         quietos = np.where(rdb[a:b] <= piso + 6)[0]
         if len(quietos):
