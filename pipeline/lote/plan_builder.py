@@ -174,7 +174,7 @@ def main(clip, intento=0):
         tr = tramos_de(ps, idx, sil, pausa)
         log.append(f"saco frase «{' '.join(ps[i]['texto'] for i in f)[:60]}…» ({ps[f[-1]]['hasta'] - ps[f[0]]['desde']:.1f} s)")
     # si quedó corto y hay un `hasta`, se estira frase por frase
-    while dur(tr) < MIN_CONT and idx[-1] < len(ps) - 1:
+    while dur(tr) < MIN_CONT and idx[-1] < len(ps) - 1 and not row["hasta"]:
         sig = idx[-1] + 1
         while sig < len(ps) - 1 and not re.search(r"[.?!]$", ps[sig]["texto"]):
             sig += 1
@@ -182,7 +182,9 @@ def main(clip, intento=0):
         tr = tramos_de(ps, idx, sil, pausa)
         log.append(f"estiro hasta «{ps[sig]['texto']}» ({dur(tr):.1f} s)")
     tr[0][0] = max(0.0, ps[idx[0]]["desde"] - 0.1)
-    tr[-1][1] = round(min(info["duracion"] - 0.02, ps[idx[-1]]["hasta"] + FIN_EXTRA), 3)
+    # fin: 0,3 s después de la última palabra, pero antes de que empiece la siguiente (whisper estira la última sobre lo que sigue)
+    sig = ps[idx[-1] + 1]["desde"] - 0.05 if idx[-1] + 1 < len(ps) else info["duracion"] - 0.02
+    tr[-1][1] = round(min(info["duracion"] - 0.02, ps[idx[-1]]["hasta"] + FIN_EXTRA, max(sig, ps[idx[-1]]["hasta"] + 0.05)), 3)
     vivas = set(idx)
 
     # ── gráfico

@@ -91,7 +91,7 @@ export const layoutDelPlan = (plan: Plan, planos: Plano[], pista: MuestraCara[],
   const mediana = cabezas[Math.floor(cabezas.length / 2)];
   // punto más alto de la cabeza en todo el gancho (incluye el asentamiento y el punch-in)
   let arriba = Infinity;
-  for (let fr = 0; fr <= g.hasta * fps; fr += 2) {
+  for (let fr = 0; fr <= g.hasta * fps; fr++) {
     const c = camaraEn(plan, planos, pista, fps, fr).cara;
     arriba = Math.min(arriba, cabezaArribaDe(c));
   }

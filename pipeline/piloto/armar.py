@@ -70,22 +70,23 @@ def main(clip):
     rdb = 20 * np.log10(rms / 32768 + 1e-9)
     piso = float(np.percentile(rdb[::160], 10))  # piso de ruido de la sala
     pausas = json.loads((prep / "info.json").read_text(encoding="utf-8"))["silencios"]
-    def snap(t):
+    def snap(t, atras=0.3, adelante=0.3):
         # si el corte ya cae dentro de una pausa detectada (silencedetect), queda donde está
         if any(a0 + 0.02 <= t <= b0 - 0.02 for a0, b0 in pausas):
             return t
-        # si no: el silencio real más cercano (≤ piso + 6 dB) dentro de ±0.3 s; si no hay, el punto más bajo en ±0.15 s
-        a, b = max(0, int((t - 0.3) * 16000)), min(len(rms) - 1, int((t + 0.3) * 16000))
-        quietos = np.where(rdb[a:b] <= piso + 6)[0]
-        if len(quietos):
-            return round((a + quietos[np.argmin(np.abs(a + quietos - t * 16000))]) / 16000, 3)
-        a, b = max(0, int((t - 0.15) * 16000)), min(len(rms) - 1, int((t + 0.15) * 16000))
+        # si no: el silencio real más cercano (≤ piso + 6 dB, después ≤ piso + 10 dB) en la ventana; si no hay, el punto más bajo
+        a, b = max(0, int((t - atras) * 16000)), min(len(rms) - 1, int((t + adelante) * 16000))
+        for margen in (6, 10):
+            quietos = np.where(rdb[a:b] <= piso + margen)[0]
+            if len(quietos):
+                return round((a + quietos[np.argmin(np.abs(a + quietos - t * 16000))]) / 16000, 3)
         return round((a + int(np.argmin(rms[a:b]))) / 16000, 3) if b > a else t
     ajustes = []
     for i in range(len(tramos)):
         a, b, m = tramos[i]
-        na = a if i == 0 else snap(a)
-        nb = snap(b)  # también el final: si sigue hablando, el corte va a la pausa más cercana
+        na = a if i == 0 else snap(a, 0.5, 0.5)
+        # el final se busca solo hacia atrás (si no, entra la palabra siguiente); los internos en ±0,5 s
+        nb = snap(b, 0.35, 0.0) if i == len(tramos) - 1 else snap(b, 0.5, 0.5)
         ajustes.append({"tramo": i, "a": [a, na], "b": [b, nb]})
         tramos[i] = (na, nb, m)
     (build / "fuente.wav").unlink()

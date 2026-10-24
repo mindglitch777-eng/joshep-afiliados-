@@ -43,3 +43,7 @@ Gancho hasta 64 px | «TU PUESTO IMPRESIONA 5 MINUTOS» no entraba en 2 líneas 
 Lista de 4 ítems: estilo compacto sin título | la de 4 preguntas medía 612 px y tapaba la cara (10: −21 px, 319 cuadros) | validacion.json de 10 | —
 Distancia foto–gráfico medida en tiempo del clip | en tiempo de la fuente los cortes la achicaban (28: 0,9 s; 34: 0,1 s) | validacion.json | —
 Se siguió después de pasar 600 min de Actions | el usuario pidió todo en paralelo sin frenar; repo público = sin costo | minutos.py: corrida de 28 = 1017 min (reintentos ×3) | —
+Cortes: búsqueda de silencio en ±0,5 s (antes ±0,3) con un segundo umbral (piso +10 dB); el final solo hacia atrás | 04, 13, 21, 30, 31 seguían cortando con voz: Joseph encadena frases sin pausa | qa.md 2ª pasada | algún corte puede caer en una micro-pausa entre palabras
+Fin del contenido antes de que empiece la palabra siguiente | whisper estira la última palabra sobre lo que sigue y se colaban «PODÉS» (08) e «Y SI QUERÉS» (31) | qa.md «Último subtítulo completo» | —
+Gancho medido cuadro por cuadro (antes cada 2) | 05 y 22 fallaban en 1–2 cuadros sueltos | validacion.json | —
+05 usa el gancho B «SÉ UN HOMBRE RESOLUTIVO» | el A (31 caracteres) no entraba arriba de la cabeza ni a 64 px | 05: bajada máxima 230 px y aun así no entraba | —
