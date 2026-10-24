@@ -22,7 +22,7 @@
     ]
   },
   "flash": {
-    "arranque": false,
+    "arranque": true,
     "secciones": false
   }
 }

@@ -309,7 +309,7 @@ export const Ecuacion: React.FC<{bloques: string[]; inicios: number[]; alto: num
   );
 };
 
-// Botón del CTA: "LINK EN MI PERFIL" sobre la animación del cierre, visible todo el CTA (≥ 2 s).
+// Botón del CTA: "LINK EN MI PERFIL" en la franja de arriba (la animación de Joseph tiene texto en el centro y su botón abajo, bajo la UI de TikTok).
 export const BotonCTA: React.FC<{texto?: string}> = ({texto = 'LINK EN MI PERFIL'}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -317,9 +317,9 @@ export const BotonCTA: React.FC<{texto?: string}> = ({texto = 'LINK EN MI PERFIL
   const pulso = 1 + 0.03 * Math.sin((frame / fps) * Math.PI * 2 * 1.2);
   return (
     <AbsoluteFill style={{alignItems: 'center', justifyContent: 'flex-start'}}>
-      <div style={{position: 'absolute', top: 1180, left: 64, width: 896, display: 'flex', justifyContent: 'center', opacity: Math.min(1, s * 2), transform: `translateY(${(1 - s) * 40}px) scale(${pulso})`}}>
-        <div style={{...titulo, display: 'flex', alignItems: 'center', gap: 18, fontSize: 58, padding: '26px 44px', borderRadius: 999, background: C.amarillo, color: C.negro, boxShadow: '0 16px 50px rgba(0,0,0,0.5)'}}>
-          <svg viewBox="0 0 60 60" width={56} height={56}><path d="M 30 50 L 30 12 M 14 27 L 30 11 L 46 27" fill="none" stroke={C.negro} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /></svg>
+      <div style={{position: 'absolute', top: 166, left: 64, width: 896, display: 'flex', justifyContent: 'center', opacity: Math.min(1, s * 2), transform: `translateY(${(1 - s) * 40}px) scale(${pulso})`}}>
+        <div style={{...titulo, display: 'flex', alignItems: 'center', gap: 18, fontSize: 46, padding: '16px 34px', borderRadius: 999, background: C.amarillo, color: C.negro, boxShadow: '0 16px 50px rgba(0,0,0,0.5)'}}>
+          <svg viewBox="0 0 60 60" width={44} height={44}><path d="M 30 50 L 30 12 M 14 27 L 30 11 L 46 27" fill="none" stroke={C.negro} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /></svg>
           {texto}
         </div>
       </div>

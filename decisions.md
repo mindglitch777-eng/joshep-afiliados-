@@ -21,3 +21,7 @@ Compresión a 2 pasadas, objetivo 13,4 MB | ≤14 MB manteniendo 1080x1920 60 fp
 Calendario: estilo rota punch→push→capas→mano desde el día 6 | sin repetir estilo; capas 1 de cada 4 | plans/calendario.csv | —
 CTA alternativo cuando el del tema repite el día anterior | regla: no repetir CTA seguido | calendario.py | CTA menos específico del tema
 Reintento solo si el plan puede corregir la falla | no gastar renders en fallas que el plan no cambia | lote.yml | —
+Flash de arranque también en "mano" | regla: flash en el cuadro 0 de todos los clips | prueba: 20, 09 y 06 (mano) fallaron «cuadro 0: no» | —
+Video sube hasta 24% (antes 20%) para que el mentón quede ≥24 px sobre el subtítulo | en el 20 Joseph se inclina y con 20% quedaba a 2 px (28 cuadros) | validar local con el plan del runner: 52 px | más relleno oscuro abajo en esos momentos
+Botón del CTA en la franja de arriba (y 166–250) | en el centro tapaba el texto de la animación de Joseph | hojas de contacto de la prueba | el botón de Joseph sigue abajo (queda bajo la UI de TikTok)
+Ola 1 sale junto con la repetición de la prueba | las 2 fallas eran de plantilla (no de formato) y validar ya las da por resueltas en los 3 planes | flash y mentón medidos con validar | si algo más falla, se reintenta por clip
