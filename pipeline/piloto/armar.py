@@ -85,7 +85,7 @@ def main(clip):
     for i in range(len(tramos)):
         a, b, m = tramos[i]
         na = a if i == 0 else snap(a)
-        nb = b if i == len(tramos) - 1 else snap(b)
+        nb = snap(b)  # también el final: si sigue hablando, el corte va a la pausa más cercana
         ajustes.append({"tramo": i, "a": [a, na], "b": [b, nb]})
         tramos[i] = (na, nb, m)
     (build / "fuente.wav").unlink()
@@ -161,8 +161,16 @@ def main(clip):
         for k in ("tiempos",):
             if k in q:
                 q[k] = [t_palabra(x) for x in q[k]]
+        hcfg0 = cfg("hook")["duracion"]
+        fin_g = min(max(hcfg0["base"] + len(ed["gancho"]["A"]) / hcfg0["caracteres_por_segundo"], hcfg0["min"]), hcfg0["max"]) + 0.15
+        if q["desde"] < fin_g:  # nada de gráficos durante el gancho (la tarjeta sube el video y el gancho queda sobre la cabeza)
+            q["hasta"] = round(q["hasta"] + fin_g - q["desde"], 3) if isinstance(p["hasta"], (int, float)) else q["hasta"]
+            q["desde"] = round(fin_g, 3)
         if q["hasta"] <= q["desde"] + 1.0:  # anclas fuera de orden: duración mínima
             q["hasta"] = round(q["desde"] + 3.0, 3)
+        if q["tipo"] in ("comparacion", "pasos", "ecuacion", "numero") and q["hasta"] - q["desde"] > 6.0:  # tarjetas ≤ 6 s
+            q["hasta"] = round(q["desde"] + 6.0, 3)
+        q["hasta"] = round(min(q["hasta"], acum - 0.15), 3)  # nunca dentro del CTA
         if q["tipo"] == "escena" and q["hasta"] - q["desde"] > 4.0:  # escena ≤ 4 s: termina igual, empieza más tarde
             q["desde"] = round(q["hasta"] - 4.0, 3)
         for k in ("marcaAlto", "marcaBajo", "marcaMedio", "numeroEn", "cierreEn"):

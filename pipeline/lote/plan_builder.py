@@ -198,8 +198,8 @@ def main(clip, intento=0):
             hasta = {"palabra": ps[ok[-1][1]]["i"], "fin": True, "mas": 0.6} if len(ok) > 1 else 3.2
             piezas.append({"tipo": "comparacion", "estilo": "versus", "desde": W(ok[0]), "hasta": 2.8 if corto else hasta, "mal": items[0], "bien": items[1]})
         elif fmt == "lista":
-            pre = all(x.startswith("¿") for x in items)
-            piezas.append({"tipo": "pasos", "estilo": "preguntas" if pre else "check", "titulo": row["titulo"] or None, "pasos": items,
+            pre = all(x.startswith("¿") for x in items) and len(items) <= 3
+            piezas.append({"tipo": "pasos", "estilo": "preguntas" if pre else "check", "titulo": (row["titulo"] or None) if len(items) <= 3 else None, "pasos": items,
                            "desde": {**W(ok[0]), "mas": -0.5}, "hasta": {"palabra": ps[ok[-1][1]]["i"], "fin": True, "mas": 1.6 if not corto else 0.8},
                            "tiempos": [W(r) for r in ok]})
         elif fmt == "numero":
@@ -229,7 +229,9 @@ def main(clip, intento=0):
     uso = {r["clip"]: r for r in csv.DictReader(open(RAIZ / "plans/uso_assets.csv", encoding="utf-8"))}.get(clip, {})
     ocupado = [(0.0, ps[idx[0]]["desde"] + 3.5), (ps[idx[-1]]["hasta"] - 5.0, ps[idx[-1]]["hasta"] + 9)]
     if ok:
-        ocupado.append((ps[ok[0][0]]["desde"] - 0.5, ps[ok[-1][1]]["hasta"] + 2.5))
+        # el gráfico real: no antes del fin del gancho (~3 s) y ≤ 6,5 s de largo (armar.py lo recorta igual)
+        g0 = max(ps[ok[0][0]]["desde"] - 0.5, ps[idx[0]]["desde"] + 2.8)
+        ocupado.append((g0, max(g0 + 3.0, min(ps[ok[-1][1]]["hasta"] + 2.5, g0 + 6.5))))
     if uso.get("inserto") and uso.get("frase_inserto"):
         r = buscar(ps, uso["frase_inserto"])
         if r and r[0] in vivas and all(not (a - 3 < ps[r[0]]["desde"] < b + 3) for a, b in ocupado[2:]):
@@ -238,8 +240,18 @@ def main(clip, intento=0):
             log.append(f"inserto {uso['inserto']} en «{uso['frase_inserto']}»")
     if uso.get("foto"):
         cands = [f[0] for f in frases(ps, idx)]
+        def clip_t(x):
+            acu = 0.0
+            for a0, b0 in tr:
+                if x < a0:
+                    return acu
+                if x <= b0:
+                    return acu + x - a0
+                acu += b0 - a0
+            return acu
+        ocupado = [(clip_t(a), clip_t(b)) for a, b in ocupado]
         def lejos(i):
-            t = ps[i]["desde"]
+            t = clip_t(ps[i]["desde"])
             return min(min(abs(t - a), abs(t + 1.3 - a), abs(t - b), abs(t + 1.3 - b)) if not (a - 3 < t < b + 3 or a - 3 < t + 1.3 < b + 3) else -1 for a, b in ocupado)
         mejor = max(cands, key=lejos, default=None)
         if mejor is not None and lejos(mejor) >= 0:

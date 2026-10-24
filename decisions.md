@@ -36,3 +36,10 @@ Escena del jarrón desde el primer golpe hasta 0,5 s después de romperse | el 0
 Caché de la transcripción y la cara por clip | ahorra ~4 min por clip en reintentos y re-renders | piloto: prep 3–5 min | —
 Los 28 en una sola corrida en paralelo (20 a la vez) | pedido del usuario: más rápido; la prueba de 3 se cancela | GitHub permite 20 jobs simultáneos en repo público | si hay un error común, falla en varios a la vez (los reintentos son por clip)
 Look de color por clip con ffmpeg (natural, cálido, frío, contraste, cine, dorado, mate), rotando por día | cada video distinto además del estilo de cámara | config/looks.json, probados con testsrc2 | el grano del look "cine" pide más bitrate (se dejó suave: alls=3)
+Corte final también al silencio más cercano (snap) | 7 clips fallaron «palabra cortada» justo en el final: Joseph seguía hablando 0,3 s después | qa.md de 04, 05, 08, 13, 21, 30, 31 | el corte puede quedar hasta 0,3 s antes de lo previsto
+Ningún gráfico antes del fin del gancho | en 05, 22 y 30 la tarjeta subía el video y el gancho quedaba sobre la cabeza (−209 px) | qa.md de 05, 22, 30 | el número de 22 y 30 entra ~2,7 s después de que lo dice
+Tarjetas ≤ 6 s y nunca dentro del CTA | VS de 14–22 s (21, 27) y ecuación pisando el cierre (08) | validacion.json | —
+Gancho hasta 64 px | «TU PUESTO IMPRESIONA 5 MINUTOS» no entraba en 2 líneas a 72 | 27: 3 líneas | gancho más chico que el subtítulo
+Lista de 4 ítems: estilo compacto sin título | la de 4 preguntas medía 612 px y tapaba la cara (10: −21 px, 319 cuadros) | validacion.json de 10 | —
+Distancia foto–gráfico medida en tiempo del clip | en tiempo de la fuente los cortes la achicaban (28: 0,9 s; 34: 0,1 s) | validacion.json | —
+Se siguió después de pasar 600 min de Actions | el usuario pidió todo en paralelo sin frenar; repo público = sin costo | minutos.py: corrida de 28 = 1017 min (reintentos ×3) | —

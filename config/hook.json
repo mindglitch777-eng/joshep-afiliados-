@@ -15,7 +15,7 @@
     "max_lineas": 2,
     "ancho": 880,
     "tam_max": 100,
-    "tam_min": 72,
+    "tam_min": 64,
     "relacion_min_subtitulo": 1.15
   },
   "ubicacion": {
