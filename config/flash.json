@@ -1,0 +1,21 @@
+{
+  "activo": true,
+  "brillo": 1.45,
+  "saturacion": 0.85,
+  "frames": 4,
+  "rampa": [
+    1.0,
+    0.7,
+    0.35,
+    0.0
+  ],
+  "punch": 1.06,
+  "secciones": {
+    "activo": false,
+    "max_por_clip": 2
+  },
+  "seguridad": {
+    "min_intervalo_s": 4,
+    "max_por_segundo": 3
+  }
+}

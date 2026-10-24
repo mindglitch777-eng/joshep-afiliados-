@@ -4,7 +4,10 @@
     "sfx_normal": -14,
     "impactos": -8,
     "musica": -24,
-    "ducking_sin_voz": 6
+    "ducking_sin_voz": 6,
+    "por_sonido": {
+      "flash": -16
+    }
   },
   "impactos": [
     "boom",
@@ -13,8 +16,7 @@
   ],
   "mapa": {
     "gancho": [
-      "boom",
-      "whoosh-a"
+      "boom"
     ],
     "plano": [
       "whoosh-a",
@@ -45,6 +47,9 @@
     ],
     "icono": [
       "burbuja"
+    ],
+    "flash": [
+      "flash"
     ]
   }
 }

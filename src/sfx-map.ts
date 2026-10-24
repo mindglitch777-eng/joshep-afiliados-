@@ -11,7 +11,8 @@ const N = cfg.niveles_db;
 const VOZ_RMS = N.voz_rms_referencia;
 const IMPACTOS = cfg.impactos as Sfx[];
 const db = (x: number) => Math.pow(10, x / 20);
-export const volumenSfx = (s: Sfx) => db(VOZ_RMS + (IMPACTOS.includes(s) ? N.impactos : N.sfx_normal) - medidas[s].rms);
+const POR_SONIDO = N.por_sonido as Partial<Record<Sfx, number>>;
+export const volumenSfx = (s: Sfx) => db(VOZ_RMS + (POR_SONIDO[s] ?? (IMPACTOS.includes(s) ? N.impactos : N.sfx_normal)) - medidas[s].rms);
 export const durSfx = (s: Sfx) => medidas[s].dur;
 // Música 24 dB bajo la voz; sin voz sube 6 dB (ducking).
 export const MUSICA = {conVoz: db(VOZ_RMS + N.musica - medidas['bg-loop'].rms), sinVoz: db(VOZ_RMS + N.musica + N.ducking_sin_voz - medidas['bg-loop'].rms)};

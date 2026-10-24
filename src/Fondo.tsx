@@ -1,27 +1,37 @@
 import {AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {camaraEn} from './camara';
+import {encuadreDe} from './estilos';
+import flashCfg from '../config/flash.json';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
 
 // Video de fondo (o placeholder): calcula su cámara con el frame actual (también en las muestras del motion blur).
-export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[]; bajada: number}> = ({plan, planos, pista, bajada}) => {
+export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[]; bajada: number; lin: {pulsos: number[]; flashes: number[]}}> = ({plan, planos, pista, bajada, lin}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const cam = camaraEn(plan, planos, pista, fps, frame, bajada);
+  const cam = camaraEn(plan, planos, pista, fps, frame, bajada, lin);
+  // flash de exposición sobre el video (no overlay): brillo 1.45 / saturación 0.85 con rampa 100→70→35→0%
+  const F = flashCfg;
+  const r = lin.flashes.reduce((m, t0) => {
+    const k = Math.floor(frame - t0 * fps);
+    return k >= 0 && k < F.frames ? Math.max(m, F.rampa[k]) : m;
+  }, 0);
+  const color = `contrast(1.08) saturate(${(1.1 * (1 - (1 - F.saturacion) * r)).toFixed(3)}) brightness(${(1 + (F.brillo - 1) * r).toFixed(3)})`;
+  const enc = encuadreDe(plan);
   return (
     <AbsoluteFill style={{background: '#111', overflow: 'hidden'}}>
       {/* relleno degradado si el video bajó para que entre el gancho */}
       {cam.subida > 0 && <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: cam.subida + 160, background: 'linear-gradient(rgba(0,0,0,0), #0B0B0F 70%)', zIndex: 1}} />}
       {cam.bajada > 0 && <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: cam.bajada + 120, background: 'linear-gradient(#0B0B0F, #2a2a33 60%, rgba(0,0,0,0))', zIndex: 1}} />}
       {/* corrección de color: contraste +8%, saturación +10% */}
-      {plan.video && plan.encuadre === 'desenfocado' && (
-        <AbsoluteFill style={{filter: 'blur(40px) brightness(0.55) saturate(1.2)', transform: 'scale(1.15)'}}>
+      {plan.video && (enc === 'desenfocado' || enc === 'capas') && (
+        <AbsoluteFill style={{filter: `blur(40px) brightness(${0.55 * (1 + (F.brillo - 1) * r)}) saturate(1.2)`, transform: 'scale(1.15)'}}>
           <OffthreadVideo src={staticFile(plan.video)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         </AbsoluteFill>
       )}
-      <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: 'contrast(1.08) saturate(1.1)'}}>
+      <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: color}}>
         {plan.video ? (
-          <OffthreadVideo src={staticFile(plan.video)} muted style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH}} />
+          <OffthreadVideo src={staticFile(plan.video)} muted style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH, borderRadius: enc === 'capas' ? 36 : 0, boxShadow: enc === 'capas' ? '0 24px 60px rgba(0,0,0,0.5)' : 'none'}} />
         ) : <Placeholder />}
       </AbsoluteFill>
     </AbsoluteFill>

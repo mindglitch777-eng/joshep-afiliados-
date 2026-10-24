@@ -22,6 +22,8 @@ E exito   '0.35*(sin(2*PI*1046.5*t)*exp(-8*t)+if(gte(t,0.06),sin(2*PI*1318.5*(t-
 E tick    '0.6*sin(2*PI*1500*t)*exp(-60*t)' 0.08
 E pop     '0.8*sin(2*PI*(900*t-2400*t*t))*exp(-25*t)' 0.18
 E burbuja '0.7*sin(2*PI*(400*t+5000*t*t))*exp(-30*t)' 0.12
+# flash de cámara: clic de obturador (2 golpes de ruido) + zap electrónico corto, pasa-bajos 8 kHz, ≤150 ms
+E flash   '0.7*(random(0)-0.5)*exp(-400*t)+if(gte(t,0.035),0.5*(random(0)-0.5)*exp(-300*(t-0.035)),0)+0.35*sin(2*PI*(3200*t-9000*t*t))*exp(-22*t)' 0.14 'lowpass=f=8000'
 # fades anti-click: 5 ms de entrada (no mata el ataque) y hasta 100 ms de salida
 for f in sfx/*.mp3; do
   d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
