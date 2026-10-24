@@ -3,7 +3,7 @@
 // Uso: npx tsx scripts/test-subs.ts plans/ejemplo.json samples/test-espaciado.md
 import {readFileSync, writeFileSync} from 'node:fs';
 import {paginaConFuente} from './medir-fuente.mjs';
-import {armarFrases, esDebil, SUB, textoSub} from '../src/subs-layout';
+import {armarFrases, esDebil, PAD, SUB, textoSub} from '../src/subs-layout';
 import {estiloPalabra} from '../src/piezas/Subtitulos';
 
 const [planPath, out] = process.argv.slice(2);
@@ -19,7 +19,7 @@ for (const fr of frases) {
   const medidas: {anchos: number[]; lineas: number[]}[] = [];
   for (let act = 0; act < fr.cajas.length; act++) {
     const spans = fr.cajas.map((c, i) => {
-      const st = {...estiloPalabra(c), fontFamily: 'M', color: i === act ? '#000' : '#fff', transform: `scale(${c.w.clave && i > act ? 0.8 : 1})`};
+      const st = {...estiloPalabra(c), fontFamily: 'M', color: i === act ? '#000' : '#fff', transform: 'none'};
       return `<span style="${css(st as Record<string, unknown>)}">${textoSub(c.w)}</span>`;
     }).join('');
     const r = await p.evaluate((html) => {
@@ -34,7 +34,8 @@ for (const fr of frases) {
     // líneas: agrupa por y; ancho de línea = derecha de la última − izquierda de la primera
     const ys = [...new Set(r.map((s) => s.y))];
     const lineas = ys.map((y) => { const l = r.filter((s) => s.y === y); return l[l.length - 1].x + l[l.length - 1].w - l[0].x; });
-    for (let i = 1; i < r.length; i++) if (r[i].y === r[i - 1].y && r[i].vx < r[i - 1].vx + r[i - 1].vw) solapes++;
+    // la caja de resaltado (texto + padding) de una palabra nunca toca el texto de la vecina
+    for (let i = 1; i < r.length; i++) if (r[i].y === r[i - 1].y && r[i].vx - (r[i - 1].vx + r[i - 1].vw) < 2 * PAD.x) solapes++;
     r.forEach((s, i) => (peorTabla = Math.max(peorTabla, Math.abs(s.w - fr.cajas[i].ancho))));
     medidas.push({anchos: r.map((s) => s.w), lineas});
   }
@@ -62,7 +63,7 @@ const md = [
   `- Variación máx. de ancho de palabra: **${peorPalabra.toFixed(2)} px** ${peorPalabra <= 1 ? '✅' : '❌'}`,
   `- Variación máx. de ancho de línea: **${peorLinea.toFixed(2)} px** ${peorLinea <= 1 ? '✅' : '❌'}`,
   `- Diferencia máx. layout calculado vs navegador: **${peorTabla.toFixed(2)} px** ${peorTabla <= 1 ? '✅' : '❌'}`,
-  `- Palabras que se pisan: **${solapes}** ${solapes ? '❌' : '✅'}`,
+  `- Pares de palabras donde la caja pisaría a la vecina: **${solapes}** ${solapes ? '❌' : '✅'}`,
   `- Líneas que terminan en artículo/preposición/conjunción: **${debiles.length}** ${debiles.length ? '❌ ' + debiles.join(' · ') : '✅'}`,
   '',
   '| frase | posiciones | ancho de línea(s) px | Δ palabra | Δ línea |',

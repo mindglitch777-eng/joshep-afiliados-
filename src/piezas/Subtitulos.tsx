@@ -1,11 +1,10 @@
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {useMemo} from 'react';
 import {Palabra} from '../plan';
-import {armarFrases, Caja, Frase, SUB, textoSub} from '../subs-layout';
+import {armarFrases, Caja, Frase, PAD, SUB, textoSub} from '../subs-layout';
 import {C, FUENTE} from '../theme';
 
 const COLOR = {neg: C.rojo, pos: C.verde};
-const PAD = {x: 16, y: 6};
 
 // estilo de texto compartido con el test de espaciado
 export const estiloPalabra = (c: Caja): React.CSSProperties => ({
@@ -39,11 +38,13 @@ const VistaFrase: React.FC<{fr: Frase; frame: number; fps: number}> = ({fr, fram
       {caja}
       {fr.cajas.map((c, i) => {
         const activa = i === act && llego > 0.97; // negro recién cuando la caja llegó: nunca letras cortadas
-        // palabra clave: reserva el ancho a 1.25x y crece de 0.8 a 1 (transform) cuando se dice
-        const crece = c.w.clave ? 0.8 + 0.2 * spring({frame: frame - (c.w.desde * fps - 2), fps, config: {damping: 14, stiffness: 170}, durationInFrames: 10}) : 1;
+        // palabra clave: tamaño final desde el inicio; al decirse hace un pop que no pasa del padding reservado
+        const amp = c.w.clave ? Math.min(0.06, (2 * (PAD.x - 4)) / c.ancho) : 0;
+        const kPop = spring({frame: frame - (c.w.desde * fps - 2), fps, config: {damping: 200}, durationInFrames: 8});
+        const crece = frame >= c.w.desde * fps - 2 ? 1 + amp * (1 - kPop) : 1;
         const color = activa ? C.negro : c.w.tono ? COLOR[c.w.tono] : C.blanco;
         return (
-          <span key={i} style={{...estiloPalabra(c), color, transform: `scale(${Math.min(crece, 1.04)})`,
+          <span key={i} style={{...estiloPalabra(c), color, transform: `scale(${crece})`,
             WebkitTextStroke: activa ? undefined : '7px rgba(0,0,0,0.85)', paintOrder: 'stroke fill',
             textShadow: activa ? 'none' : '0 4px 10px rgba(0,0,0,0.45), 0 12px 32px rgba(0,0,0,0.35)'}}>
             {textoSub(c.w)}
