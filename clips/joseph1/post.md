@@ -1,7 +1,7 @@
 # Post
 
 ## Títulos
-1. Volverte más atractivo no se trata de fingir 👀
+1. No se trata de fingir 👀
 2. Lo que nadie te dice sobre seguridad
 3. Si querés generar seguridad, mirá esto hasta el final
 
