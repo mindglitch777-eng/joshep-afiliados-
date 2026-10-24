@@ -1,5 +1,6 @@
 import {interpolate} from 'remotion';
 import brand from '../config/brand.json';
+import hookCfg from '../config/hook.json';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
 import {EASE_ZOOM} from './theme';
@@ -9,6 +10,14 @@ const CARA_FIJA: MuestraCara = {t: 0, x: 0.5, y: 0.35, w: 0.37, h: 0.26};
 const ZOOM_ENFASIS = brand.enfasis.zoom;
 const SUBE = 21, BAJA = 13, ANTICIPO = 4; // frames
 export const PUNCH = 9; // frames de cada cambio de plano
+
+const NUM = ['x', 'y', 'w', 'h', 'frente', 'ojos', 'boca', 'menton', 'ear', 'mirada'] as const;
+const mezclarCara = (a: MuestraCara, b: MuestraCara, k: number, t: number): MuestraCara => {
+  const o: MuestraCara = {...a, t};
+  for (const n of NUM) if (a[n] !== undefined && b[n] !== undefined) o[n] = a[n]! + (b[n]! - a[n]!) * k;
+  return o;
+};
+const suavizar = (prev: MuestraCara, raw: MuestraCara, t: number) => mezclarCara(prev, raw, 0.15, t);
 
 // face_track: interpola entre muestras, suaviza con EMA (alpha 0.15) y mantiene la última posición válida.
 export const pistaCara = (plan: Plan, fps: number, frames: number): MuestraCara[] => {
@@ -24,10 +33,10 @@ export const pistaCara = (plan: Plan, fps: number, frames: number): MuestraCara[
       else if (j < 0) raw = m[m.length - 1];
       else {
         const a = m[j - 1], b = m[j], k = (t - a.t) / (b.t - a.t);
-        raw = {t, x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, w: a.w + (b.w - a.w) * k, h: a.h + (b.h - a.h) * k};
+        raw = mezclarCara(a, b, k, t);
       }
     }
-    const s = i === 0 ? raw : {t, x: prev.x + 0.15 * (raw.x - prev.x), y: prev.y + 0.15 * (raw.y - prev.y), w: prev.w + 0.15 * (raw.w - prev.w), h: prev.h + 0.15 * (raw.h - prev.h)};
+    const s = i === 0 ? raw : suavizar(prev, raw, t);
     out.push(s);
     prev = s;
   }
@@ -40,7 +49,12 @@ const encuadre = (pl: Plano, p: number) => {
   return pl.tipo === 'push' ? {s: 1 + 0.1 * e, dx: 0} : {s: 1.06, dx: pl.dir * (-0.03 + 0.06 * e) * W};
 };
 
-export type Camara = {s: number; tx: number; ty: number; enPunch: boolean; dispW: number; dispH: number; cara: {x: number; y: number; w: number; h: number}};
+export type Rasgos = {frente: number; ojos: number; boca: number; menton: number};
+export type Camara = {s: number; tx: number; ty: number; enPunch: boolean; dispW: number; dispH: number; bajada: number; subida: number; cara: {x: number; y: number; w: number; h: number} & Rasgos};
+
+const HC = hookCfg;
+// Borde superior del peor subtítulo (2 líneas con palabra clave): el mentón tiene que quedar ≥ 24 px arriba.
+export const TOPE_SUBS = HC.subtitulos.borde_inferior - 2 * brand.subtitulos.tam * brand.subtitulos.clave * 1.2;
 
 // Tamaño en pantalla del video a escala 1: cover (llena 9:16) o contain (modo desenfocado).
 export const tamVideo = (plan: Plan) => {
@@ -50,12 +64,17 @@ export const tamVideo = (plan: Plan) => {
 };
 
 // frame puede ser fraccionario (muestras del motion blur): nada se redondea.
-export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number, frame: number): Camara => {
+export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number, frame: number, bajadaGancho = 0): Camara => {
   const t = frame / fps;
   const i = Math.max(0, planos.findIndex((p) => t >= p.ini && t < p.fin));
   const pl = planos[i] ?? {ini: 0, fin: plan.duracion, tipo: 'push', dir: 1};
   const prog = (x: Plano, tt: number) => (tt - x.ini) / Math.max(x.fin - x.ini, 0.1);
   let {s, dx} = encuadre(pl, prog(pl, t));
+  // interrupción de patrón: en el primer plano, punch-in 1.0→1.10 con ease-out en 0.25 s y se sostiene
+  if (i === 0) {
+    s = 1 + (HC.interrupcion.punch_hasta - 1) * EASE_ZOOM(Math.min(t / HC.interrupcion.punch_segundos, 1));
+    dx = 0;
+  }
   // punch: 9 frames de transición con bezier desde el final del plano anterior + golpe de escala de 3%
   const local = frame - pl.ini * fps;
   const enPunch = i > 0 && local < PUNCH;
@@ -84,11 +103,26 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   const c = pista[fi] ?? CARA_FIJA;
   const {dispW, dispH} = tamVideo(plan);
   const px = (W - dispW) / 2 + c.x * dispW, py = (H - dispH) / 2 + c.y * dispH;
+  const aY = (v: number) => (H - dispH) / 2 + v * dispH; // y normalizada → px a escala 1
+  const ojos = aY(c.ojos ?? c.y - c.h * 0.12), menton = aY(c.menton ?? c.y + c.h / 2);
+  // manda el subtítulo: el zoom no puede bajar el mentón a menos de 24 px del subtítulo (ojos anclados al 28%)
+  const ojosY = H * HC.camara.ojos_y;
+  const sMax = (TOPE_SUBS - HC.subtitulos.aire_menton - ojosY) / Math.max(menton - ojos, 1);
+  s = Math.max(1, Math.min(s, sMax));
   // límite: el video escalado siempre cubre el cuadro (en modo desenfocado no se recentra)
   const lim = (v: number, m: number) => Math.max(-Math.max(m, 0), Math.min(Math.max(m, 0), v));
   const seguir = plan.encuadre !== 'desenfocado' ? 1 : 0;
   const tx = lim(seguir * (W * 0.5 - (W / 2 + s * (px - W / 2))) + dx, (s * dispW - W) / 2);
-  const ty = lim(seguir * (H * 0.38 - (H / 2 + s * (py - H / 2))), (s * dispH - H) / 2);
-  const cx = W / 2 + s * (px - W / 2) + tx, cy = H / 2 + s * (py - H / 2) + ty;
-  return {s, tx, ty, enPunch, dispW, dispH, cara: {x: cx, y: cy, w: c.w * dispW * s, h: c.h * dispH * s}};
+  // bajada del video durante el gancho si el texto no entra sobre los ojos (vuelve en 9 frames al terminar)
+  const finG = (plan.piezas.find((p) => p.tipo === 'gancho')?.hasta ?? 0) * fps;
+  const bajada = bajadaGancho * interpolate(frame, [finG, finG + PUNCH], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
+  let ty = lim(seguir * (ojosY - (H / 2 + s * (ojos - H / 2))), (s * dispH - H) / 2) + bajada;
+  // si ni con zoom 1 el mentón queda a 24 px del subtítulo, el video sube (hasta 8%, abajo va relleno degradado)
+  const mentonPx = H / 2 + s * (menton - H / 2) + ty, tope = TOPE_SUBS - HC.subtitulos.aire_menton;
+  const subida = seguir ? Math.min(Math.max(0, mentonPx - tope), HC.camara.subir_video_max * H) : 0;
+  ty -= subida;
+  const sy = (v: number) => H / 2 + s * (v - H / 2) + ty;
+  const cx = W / 2 + s * (px - W / 2) + tx, cy = sy(py);
+  return {s, tx, ty, enPunch, dispW, dispH, bajada, subida, cara: {x: cx, y: cy, w: c.w * dispW * s, h: c.h * dispH * s,
+    frente: sy(aY(c.frente ?? c.y - c.h / 2)), ojos: sy(ojos), boca: sy(aY(c.boca ?? c.y + c.h * 0.25)), menton: sy(menton)}};
 };
