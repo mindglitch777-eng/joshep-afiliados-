@@ -14,7 +14,16 @@ from comun import cfg, norm  # noqa: E402
 
 XF = 0.03  # crossfade de audio en cada corte (s)
 VOZ = "afftdn=nf=-30,acompressor=threshold=-20dB:ratio=2.5:attack=15:release=200:makeup=1.5,loudnorm=I=-16:TP=-2:LRA=11"
-PREV = {"de", "a", "con", "para", "sos", "si", "que", "entre", "sin", "por"}
+PREV = set(cfg("glosario")["voz_vos_despues_de"])
+CENSURA = {norm(w) for w in cfg("censura")["palabras"]}
+
+def censurar(t):
+    # primera letra + asteriscos (conserva la puntuación); el audio no se toca
+    m = re.match(r"^([¿¡]?)(\w+)(.*)$", t)
+    if not m or norm(m.group(2)) not in CENSURA:
+        return t
+    w = m.group(2)
+    return m.group(1) + w[0] + "*" * (len(w) - 1) + m.group(3)
 
 def sh(*a):
     r = subprocess.run([str(x) for x in a], capture_output=True, text=True)
@@ -34,12 +43,15 @@ def glosario(ps, correcciones):
               and not (i > 1 and norm(ps[i - 2]["texto"]) in {"tono", "timbre", "volumen", "nota", "hilo"})
               and not (i + 1 < len(ps) and norm(ps[i + 1]["texto"]) in {"grave", "aguda", "alta", "baja", "firme"})):
             p["texto"] = re.sub(r"[Vv]oz", lambda m: "Vos" if m.group(0)[0] == "V" else "vos", t0)
+        p["texto"] = censurar(p["texto"])
         if p["texto"] != t0:
             cambios.append({"i": i, "antes": t0, "despues": p["texto"], "t": p["desde"]})
     return cambios
 
 def main(clip):
-    ed = json.loads((RAIZ / "piloto" / clip / "edicion.json").read_text(encoding="utf-8"))
+    # piloto: piloto/<clip>/edicion.json (a mano) · lote: plans/<clip>.json (plan_builder.py)
+    fe = RAIZ / "piloto" / clip / "edicion.json"
+    ed = json.loads((fe if fe.exists() else RAIZ / "plans" / f"{clip}.json").read_text(encoding="utf-8"))
     prep = RAIZ / "piloto" / "out" / clip
     build = RAIZ / "piloto" / "build" / clip
     pub = RAIZ / "public" / "raw" / clip
@@ -105,10 +117,11 @@ def main(clip):
     subs, idx = [], {}
     for p in ps:
         d, h = remap(p["desde"]), remap(min(p["hasta"], p["desde"] + 1.5))
-        if d is None:
+        if d is None or not p["texto"].strip():
             continue
         if h is None:
             h = d + max(0.08, p["hasta"] - p["desde"])
+        h = min(h, acum)  # el último subtítulo se completa antes del CTA
         w = {"texto": p["texto"], "desde": round(d, 3), "hasta": round(h, 3)}
         if p["i"] in ed.get("claves", []):
             w["clave"] = True
@@ -157,7 +170,8 @@ def main(clip):
     cta = ed["cta"]
     shutil.copy(RAIZ / "piloto" / "activos" / "cta" / cta["archivo"], pub / cta["archivo"])
     dur_cta = round((cta["fin"] - cta["inicio"]) / cta.get("velocidad", 1), 3)
-    piezas.append({"tipo": "cta", "desde": dur, "hasta": round(dur + dur_cta, 3), "archivo": f"raw/{clip}/{cta['archivo']}", "inicio": cta["inicio"], "velocidad": cta.get("velocidad", 1)})
+    piezas.append({"tipo": "cta", "desde": dur, "hasta": round(dur + dur_cta, 3), "archivo": f"raw/{clip}/{cta['archivo']}", "inicio": cta["inicio"], "velocidad": cta.get("velocidad", 1),
+                   **({"boton": cta["boton"]} if cta.get("boton") else {})})
     g = ed["gancho"]
     hcfg = cfg("hook")["duracion"]
     dur_g = round(min(max(hcfg["base"] + len(g["A"]) / hcfg["caracteres_por_segundo"], hcfg["min"]), hcfg["max"]), 2)
@@ -172,7 +186,7 @@ def main(clip):
         plan["recorte"] = {"carpeta": f"raw/{clip}/recorte", "hasta": dur_g}
     (build / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1), encoding="utf-8")
     # registro de cortes (para el QA "sin palabra cortada") y de correcciones
-    dudosas = [{"i": p["i"], "texto": p["texto"], "conf": p["conf"], "t": p["desde"]} for p in ps if p["conf"] < 0.5 and remap(p["desde"]) is not None]
+    dudosas = [{"i": p["i"], "texto": p["texto"], "conf": p["conf"], "t": p["desde"]} for p in ps if p["conf"] < 0.6 and remap(p["desde"]) is not None]
     (build / "cortes.json").write_text(json.dumps({"tramos": [[a, b, m] for a, b, m in tramos], "ajustes_snap": ajustes, "crossfade_s": XF, "palabras_fuente": ps, "correcciones": cambios, "dudosas": dudosas,
                                                    "duracion_contenido": dur, "cta_s": dur_cta}, ensure_ascii=False, indent=1), encoding="utf-8")
     post = ed["post"]

@@ -1,0 +1,16 @@
+{
+  "_nota": "Correcciones de subtítulos (el audio no se toca). voz→vos solo como pronombre; frases: variantes mal oídas por whisper.",
+  "voz_vos_despues_de": ["de", "a", "con", "para", "sos", "si", "que", "entre", "sin", "por"],
+  "frases": [
+    {"de": "diga en el perfil", "a": "link en el perfil"},
+    {"de": "leña el perfil", "a": "link en el perfil"},
+    {"de": "linger perfecto", "a": "link en el perfil"},
+    {"de": "linger en el perfil", "a": "link en el perfil"},
+    {"de": "link en el profil", "a": "link en el perfil"},
+    {"de": "link en la perfil", "a": "link en el perfil"},
+    {"de": "ligue en el perfil", "a": "link en el perfil"},
+    {"de": "linga en el perfil", "a": "link en el perfil"},
+    {"de": "clínclen en el perfil", "a": "link en el perfil"},
+    {"de": "liguen el perfil", "a": "link en el perfil"}
+  ]
+}

@@ -43,6 +43,15 @@ export const linea = (plan: Plan, fps: number) => {
       if (p.numero && p.numeroEn !== undefined) ev.push({t: p.numeroEn, tipo: 'número', desc: `${p.numero} ${p.unidad ?? ''}`, sfx: SFX_MAP.numero});
     }
     if (p.tipo === 'numero') ev.push({t: p.desde, tipo: 'número', desc: `${p.valor} ${p.unidad ?? ''}`, sfx: SFX_MAP.numero});
+    if (p.tipo === 'escena') {
+      ev.push({t: p.desde, tipo: 'escena', desc: p.escena, sfx: SFX_MAP.grafico});
+      (p.tiempos ?? []).forEach((x, i, xs) => ev.push({t: x, tipo: 'escena: paso', desc: `${p.escena} ${i + 1}`,
+        sfx: p.escena === 'jarron' ? (i === xs.length - 1 ? SFX_MAP.escenaFinal : SFX_MAP.escenaGolpe) : i === xs.length - 1 ? SFX_MAP.tarjetaBien : SFX_MAP.item}));
+    }
+    if (p.tipo === 'ecuacion') {
+      const terminos = p.bloques.filter((b) => !['+', '=', '≠'].includes(b));
+      (p.tiempos ?? [p.desde]).forEach((x, i) => ev.push({t: x, tipo: 'ecuación', desc: terminos[i] ?? '', sfx: i === terminos.length - 1 ? SFX_MAP.clave : SFX_MAP.item}));
+    }
     if (p.tipo === 'inserto' || p.tipo === 'imagen') ev.push({t: p.desde, tipo: p.tipo, desc: p.archivo.split('/').pop() ?? '', sfx: SFX_MAP.inserto});
     if (p.tipo === 'cta') ev.push({t: p.desde, tipo: 'CTA', desc: p.archivo.split('/').pop() ?? '', sfx: SFX_MAP.cta});
     if (p.tipo === 'enfasis') ev.push({t: p.desde - fr(4), tipo: 'énfasis', desc: p.palabra, sfx: SFX_MAP.enfasis});

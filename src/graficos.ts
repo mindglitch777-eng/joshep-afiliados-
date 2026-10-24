@@ -1,5 +1,9 @@
 import {Pieza} from './plan';
 
+// NÚMERO GRANDE: alto de cifra ≈ 0.70 em → 460 px de fuente = 322 px de cifra (meta ≥ 300 px).
+export const FS_NUMERO = 460;
+export const altoEcuacion = (bloques: string[]) => (bloques.length > 3 ? 316 : 172);
+
 // Altura (px a escala 1) de cada gráfico que va debajo de la cara; 0 = pantalla completa o sin tarjeta.
 export const PANTALLA_COMPLETA = new Set(['inserto', 'imagen', 'cta']);
 export const altoPieza = (p: Pieza): number => {
@@ -12,7 +16,9 @@ export const altoPieza = (p: Pieza): number => {
       return 64 + tit + n * 84 + cierre;
     }
     case 'curva': return 470;
-    case 'numero': return 300;
+    case 'numero': return 56 + FS_NUMERO * 0.8;
+    case 'escena': return 436;
+    case 'ecuacion': return altoEcuacion(p.bloques);
     default: return 0;
   }
 };

@@ -6,13 +6,14 @@ import {linea, MAX_SIN_EVENTO} from '../src/linea';
 import {Plan} from '../src/plan';
 import {armarFrases, fraseOculta, textoSub} from '../src/subs-layout';
 import {camaraEn, pistaCara} from '../src/camara';
-import {layoutDelPlan, LH_GANCHO} from '../src/gancho-layout';
+import {cabezaArribaDe, layoutDelPlan, LH_GANCHO} from '../src/gancho-layout';
 import {area, inter, Rect, rectBloque, rectSticker, tocan, zonasCara, altoComparacion, altoLista, BORDE_INF, X_MAX} from '../src/geometria';
 import hookCfg from '../config/hook.json';
 import flashCfg from '../config/flash.json';
 import {packDe} from '../src/estilos';
 import {altoPieza, esTarjeta, PANTALLA_COMPLETA} from '../src/graficos';
-import {SEGURA} from '../src/theme';
+import {SALIDA_FR, SEGURA} from '../src/theme';
+import {FS_NUMERO} from '../src/graficos';
 
 const [planPath, out] = process.argv.slice(2);
 const plan: Plan = JSON.parse(readFileSync(planPath, 'utf8'));
@@ -52,9 +53,11 @@ const g = plan.piezas.find((p) => p.tipo === 'gancho');
 const frases = armarFrases(plan.subtitulos);
 const iconos = eventos.filter((e) => e.tipo === 'ícono');
 const cnt = {gancho: [0, 0, 0], subs: [0, 0], iconos: [0, 0, 0], tarjetas: [0, 0]};
+let aireCabeza = Infinity, aireCabezaMal = 0;
 let mentonMin = Infinity, mentonMal = 0, distMin = Infinity, distMal = 0, simMax = 0;
 const cajasPieza = new Map<unknown, Rect>(); // [cuadros activos, solapes...]
 const A = hookCfg.asentamiento;
+const PAD = 0; // las cajas del gancho ya incluyen el alto de línea
 for (let fr = 0; fr < N; fr++) {
   const t = fr / fps;
   const cam = camaraEn(plan, planos, pista, fps, fr, lay?.bajada ?? 0, lin);
@@ -65,6 +68,12 @@ for (let fr = 0; fr < N; fr++) {
     cnt.gancho[0]++;
     if (rs.some((r) => tocan(r, z.ojos))) cnt.gancho[1]++;
     if (rs.some((r) => tocan(r, z.boca))) cnt.gancho[2]++;
+    // delante de Joseph: borde inferior del gancho ≥ 16 px sobre el punto más alto de la cabeza
+    if (!lay.detras) {
+      const aire = cabezaArribaDe(cam.cara) - Math.max(...rs.map((r) => r.y1)) + PAD;
+      aireCabeza = Math.min(aireCabeza, aire);
+      if (aire < hookCfg.ubicacion.aire_cabeza_qa) aireCabezaMal++;
+    }
   }
   const fz = frases.find((x) => fr >= x.ini * fps - 2 && fr < x.fin * fps + 3);
   if (fz && !fraseOculta(plan, fps, t, fz)) {
@@ -126,7 +135,22 @@ const gancho = lay && g && g.tipo === 'gancho' ? {texto: g.texto, variante: g.va
 if (gancho && gancho.relacion_vs_subtitulo < hookCfg.texto.relacion_min_subtitulo) avisos.push(`Gancho ${gancho.tam_px} px = ${gancho.relacion_vs_subtitulo}x del subtítulo (meta ≥ ${hookCfg.texto.relacion_min_subtitulo}x)`);
 if (!cuadro0) avisos.push('Cuadro 0: el gancho no entra completo');
 
-const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, graficos, menton_vs_subtitulo: mentonSub, gancho_detras: !!lay?.detras, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
+// número grande: alto de la cifra en pantalla (≈ 0.70 em × escala de la tarjeta) ≥ 300 px
+const numeros = plan.piezas.filter((p) => p.tipo === 'numero').map((p) => {
+  const k = cajasPieza.get(p)?.k ?? 1;
+  return +(0.7 * FS_NUMERO * k).toFixed(0);
+});
+// CTA: botón "Link en mi perfil" visible (entra en 6 cuadros; la salida común funde los últimos SALIDA_FR)
+const cta = plan.piezas.find((p) => p.tipo === 'cta');
+const botonS = cta ? +((cta.hasta - cta.desde) - (6 + SALIDA_FR) / fps).toFixed(2) : 0;
+// último subtítulo: termina antes del CTA y su frase se ve (no la tapa un gráfico)
+const ultima = plan.subtitulos[plan.subtitulos.length - 1];
+const frUlt = frases.find((x) => x.palabras.includes(ultima));
+const finContenido = cta ? cta.desde : plan.duracion;
+const ultimoSub = ultima && frUlt ? {texto: frUlt.palabras.map(textoSub).join(' '), hasta: ultima.hasta, fin_contenido: finContenido,
+  ok: ultima.hasta <= finContenido + 0.01 && !fraseOculta(plan, fps, Math.min(ultima.desde + 0.05, ultima.hasta), frUlt)} : {texto: '', hasta: 0, fin_contenido: finContenido, ok: false};
+const brilloFlashMin = +(1 + (flashCfg.brillo - 1) * Math.min(...flashCfg.rampa)).toFixed(2);
+const res = {duracion: plan.duracion, eventos: eventos.length, sonidos: sonidos.length, huecos_mayores_1_5s: huecos, textos_fuera_zona_segura: fuera, solape_cara: solape, graficos, menton_vs_subtitulo: mentonSub, gancho_detras: !!lay?.detras, gancho_vs_cabeza: {aire_min_px: Number.isFinite(aireCabeza) ? +aireCabeza.toFixed(0) : null, cuadros_con_menos_de_16px: aireCabezaMal}, numero_cifra_px: numeros, boton_cta_s: botonS, ultimo_subtitulo: ultimoSub, flash_brillo_min: brilloFlashMin, flash_frames: flashCfg.frames, metas_solape_ok: meta, flash, style_pack: packDe(plan).nombre, cuadro0_gancho_completo: cuadro0, primer_sonido_s: primerSonido, gancho,
   avisos: [...new Set(avisos)], linea_de_tiempo: eventos.map((e) => ({t: +e.t.toFixed(2), tipo: e.tipo, detalle: e.desc, sonido: e.sfx}))};
 writeFileSync(out, JSON.stringify(res, null, 1));
 console.log(`eventos ${eventos.length}, huecos > 1.5 s: ${huecos.length}, avisos: ${res.avisos.length}`);

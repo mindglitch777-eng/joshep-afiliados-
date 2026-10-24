@@ -21,7 +21,9 @@
   "ubicacion": {
     "y_top_min": 170,
     "margen_ojos": 40,
-    "bajar_video_max": 0.06
+    "bajar_video_max": 0.12,
+    "margen_cabeza": 30,
+    "aire_cabeza_qa": 16
   },
   "asentamiento": {
     "escala_desde": 1.12,

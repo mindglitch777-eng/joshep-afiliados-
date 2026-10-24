@@ -7,10 +7,12 @@ export type Pieza =
   // gráficos contextuales nativos
   | (Base & {tipo: 'curva'; alto: string; bajo: string; marcaAlto: number; marcaBajo: number; medio?: string; marcaMedio?: number; numero?: string; unidad?: string; numeroEn?: number})
   | (Base & {tipo: 'numero'; valor: string; unidad?: string; etiqueta?: string})
+  | (Base & {tipo: 'escena'; escena: 'jarron' | 'taza' | 'grupo'; tiempos?: number[]})
+  | (Base & {tipo: 'ecuacion'; bloques: string[]; tiempos?: number[]})
   // material de Joseph a pantalla completa (la voz sigue de fondo)
   | (Base & {tipo: 'inserto'; archivo: string; inicio?: number; velocidad?: number})
   | (Base & {tipo: 'imagen'; archivo: string})
-  | (Base & {tipo: 'cta'; archivo: string; inicio?: number; velocidad?: number})
+  | (Base & {tipo: 'cta'; archivo: string; inicio?: number; velocidad?: number; boton?: string})
   | (Base & {tipo: 'enfasis'; palabra: string});
 
 // clave: crece y suena el ding de marca · tono: color semántico · icono: sticker (ver piezas/Iconos.tsx)

@@ -6,17 +6,21 @@ import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
 
 // Video de fondo (o placeholder): calcula su cámara con el frame actual (también en las muestras del motion blur).
+// rampa del flash en este cuadro (0 = sin flash) y filtro de color correspondiente (video y persona recortada iguales)
+export const rampaFlash = (flashes: number[], frame: number, fps: number) => flashes.reduce((m, t0) => {
+  const k = Math.floor(frame - t0 * fps);
+  return k >= 0 && k < flashCfg.frames ? Math.max(m, flashCfg.rampa[k]) : m;
+}, 0);
+export const filtroFlash = (r: number) => `contrast(1.08) saturate(${(1.1 * (1 - (1 - flashCfg.saturacion) * r)).toFixed(3)}) brightness(${(1 + (flashCfg.brillo - 1) * r).toFixed(3)})`;
+
 export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[]; bajada: number; lin: {pulsos: number[]; flashes: number[]}}> = ({plan, planos, pista, bajada, lin}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const cam = camaraEn(plan, planos, pista, fps, frame, bajada, lin);
   // flash de exposición sobre el video (no overlay): brillo 1.45 / saturación 0.85 con rampa 100→70→35→0%
   const F = flashCfg;
-  const r = lin.flashes.reduce((m, t0) => {
-    const k = Math.floor(frame - t0 * fps);
-    return k >= 0 && k < F.frames ? Math.max(m, F.rampa[k]) : m;
-  }, 0);
-  const color = `contrast(1.08) saturate(${(1.1 * (1 - (1 - F.saturacion) * r)).toFixed(3)}) brightness(${(1 + (F.brillo - 1) * r).toFixed(3)})`;
+  const r = rampaFlash(lin.flashes, frame, fps);
+  const color = filtroFlash(r);
   const enc = encuadreDe(plan);
   return (
     <AbsoluteFill style={{background: '#111', overflow: 'hidden'}}>
@@ -67,7 +71,7 @@ export const RecortePersona: React.FC<{plan: Plan; planos: Plano[]; pista: Muest
   const i = Math.min(R.n - 1, Math.floor((frame / fps) * (R.fps ?? 30)));
   return (
     <AbsoluteFill style={{overflow: 'hidden'}}>
-      <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: 'contrast(1.08) saturate(1.1)'}}>
+      <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: filtroFlash(rampaFlash(lin.flashes, frame, fps))}}>
         <Img src={staticFile(`${R.carpeta}/${String(i).padStart(4, '0')}.png`)} style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH}} />
       </AbsoluteFill>
     </AbsoluteFill>

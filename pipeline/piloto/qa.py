@@ -37,10 +37,17 @@ def main(clip, video, minutos):
     cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > umbral and not en_pausa(t)]
     s, g, m = val["solape_cara"], val["graficos"], val["menton_vs_subtitulo"]
     cont = co["duracion_contenido"]
+    mb = Path(video).stat().st_size / 1e6
+    gv, ul, ctaP = val.get("gancho_vs_cabeza", {}), val.get("ultimo_subtitulo", {}), next((p for p in plan["piezas"] if p["tipo"] == "cta"), {})
+    gtxt = next((p["texto"] for p in plan["piezas"] if p["tipo"] == "gancho"), "")
     reglas = [
         ("Resolución 1080x1920", f"{st['width']}x{st['height']}", st["width"] == 1080 and st["height"] == 1920),
         ("60 fps", f"{fps:.2f}", abs(fps - 60) < 0.01),
-        ("Duración del contenido 30–45 s (+ CTA ≤ 3,5 s)", f"{cont:.1f} s + {co['cta_s']:.1f} s = {dur:.1f} s", 30 <= cont <= 45 and co["cta_s"] <= 3.51),
+        ("Duración final 30–50 s (meta ≤ 45)", f"{cont:.1f} s + CTA {co['cta_s']:.1f} s = {dur:.1f} s", 30 <= dur <= 50.05),
+        ("Peso ≤ 14 MB", f"{mb:.1f} MB", mb <= 14.0),
+        ("Flash en el cuadro 0 (brillo ≥ +20% durante 4 cuadros)", f"cuadro 0: {'sí' if val['flash']['cuadro0'] else 'no'} · brillo mín. +{(val.get('flash_brillo_min', 1) - 1) * 100:.0f}% en {val.get('flash_frames')} cuadros", val["flash"]["cuadro0"] and val.get("flash_brillo_min", 1) >= 1.2 - 1e-6 and val.get("flash_frames", 0) >= 4),
+        ("Gancho ≤ 32 caracteres", f"{len(gtxt)} «{gtxt}»", len(gtxt) <= 32),
+        ("Gancho ≥ 16 px sobre la cabeza (o detrás de Joseph)", "detrás de Joseph" if val.get("gancho_detras") else f"aire mín. {gv.get('aire_min_px')} px · {gv.get('cuadros_con_menos_de_16px')} cuadros < 16", bool(val.get("gancho_detras")) or gv.get("cuadros_con_menos_de_16px", 1) == 0),
         ("Loudness -14 LUFS (±1)", f"{lufs} LUFS", abs(lufs + 14) <= 1),
         ("Pico ≤ -1,5 dBTP (sin saturar)", f"{tp} dBTP", tp <= -1.45),
         ("Gancho completo en el cuadro 0", "sí" if val["cuadro0_gancho_completo"] else "no", val["cuadro0_gancho_completo"]),
@@ -50,6 +57,9 @@ def main(clip, video, minutos):
         ("Subtítulos con base ≤ y=1440 y x ≤ 960", f"{len(val['textos_fuera_zona_segura'])} fuera", not val["textos_fuera_zona_segura"]),
         ("≤ 1 gráfico a la vez", f"máx. {g['simultaneos_max']}", g["simultaneos_max"] <= 1),
         ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en pausas o silencio (≤ {umbral:.0f} dBFS; voz {voz:.0f}, sala {piso:.0f})", not cortadas),
+        ("Último subtítulo completo antes del CTA", f"«{ul.get('texto', '')}» termina {ul.get('hasta', 0):.2f} s · contenido hasta {ul.get('fin_contenido', 0):.2f} s", bool(ul.get("ok"))),
+        ("Botón «Link en mi perfil» ≥ 2 s · CTA ≤ 1,4x", f"{val.get('boton_cta_s', 0):.1f} s · {ctaP.get('velocidad', 1)}x", val.get("boton_cta_s", 0) >= 2 and ctaP.get("velocidad", 1) <= 1.4),
+        ("Número grande ≥ 300 px", ", ".join(f"{n} px" for n in val.get("numero_cifra_px", [])) or "sin número", all(n >= 300 for n in val.get("numero_cifra_px", []))),
         ("Caja amarilla sincronizada con la voz", "tiempos de whisper remapeados; adelanto fijo de 2 cuadros (33 ms) para que la caja llegue con la sílaba", True),
         ("Ritmo: ningún tramo > 1,5 s sin evento", f"{len(val['huecos_mayores_1_5s'])} tramos", not val["huecos_mayores_1_5s"]),
     ]
@@ -57,11 +67,12 @@ def main(clip, video, minutos):
     md = [f"## Clip {clip} — {'✅ PASA' if ok else '❌ FALLA'}", "", "| Regla | Valor | |", "|---|---|---|", *[f"| {r} | {v} | {'✅' if p else '❌'} |" for r, v, p in reglas], "",
           f"- Estilo: **{plan.get('estilo')}** · gancho detrás de Joseph: {'sí' if val.get('gancho_detras') else 'no'} · gráficos a pantalla completa: {', '.join(g['pantalla_completa']) or '—'}",
           f"- Palabras corregidas: " + ("; ".join(f"«{c['antes']}»→«{c['despues']}» ({c['t']:.1f} s)" for c in co["correcciones"]) or "ninguna"),
-          f"- Palabras dudosas (confianza < 50%): " + ("; ".join(f"«{d['texto']}» {d['conf']:.0%} ({d['t']:.1f} s)" for d in co["dudosas"]) or "ninguna"),
+          f"- Palabras dudosas (confianza < 60%): " + ("; ".join(f"«{d['texto']}» {d['conf']:.0%} ({d['t']:.1f} s)" for d in co["dudosas"]) or "ninguna"),
           f"- Tiempo de este job: {minutos} min", ""]
     (b / "qa.md").write_text("\n".join(md), encoding="utf-8")
     (b / "qa.json").write_text(json.dumps({"clip": clip, "pasa": ok, "reglas": [{"regla": r, "valor": v, "pasa": p} for r, v, p in reglas], "validacion": val}, ensure_ascii=False, indent=1), encoding="utf-8")
-    print("\n".join(md[:len(reglas) + 4]))
+    # log corto: resultado y solo las reglas que fallan
+    print(md[0], *[f"  ❌ {r}: {v}" for r, v, ok in reglas if not ok], sep="\n")
 
 if __name__ == "__main__":
     main(*sys.argv[1:4])

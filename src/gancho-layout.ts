@@ -31,10 +31,12 @@ const lineas = (ws: string[], fs: number) => {
 };
 
 // ojosMin: la y más alta de los ojos en pantalla durante el gancho (peor caso). El texto termina ≥ 40 px arriba.
-export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number, cabezaTop?: number, cabezaMin?: number): LayoutGancho => {
+export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number, cabezaTop?: number, cabezaMin?: number, cabezaArriba?: number): LayoutGancho => {
   const ws = texto.toUpperCase().split(/\s+/).filter(Boolean);
   CLAVE = limpia((clave ?? '').toUpperCase());
-  const limite = ojosMin - U.margen_ojos;
+  // delante de Joseph: el texto termina arriba de la cabeza (punto más alto en todo el gancho) con margen; detrás: arriba de los ojos
+  const limiteDetras = ojosMin - U.margen_ojos;
+  const limite = cabezaTop === undefined && cabezaArriba !== undefined ? Math.min(limiteDetras, cabezaArriba - U.margen_cabeza) : limiteDetras;
   let fs = T.tam_max, ls = lineas(ws, fs);
   const alto = (n: number, f: number) => n * f * LH_GANCHO + 2 * PAD_GANCHO.y;
   while (fs > T.tam_min && (ls.length > T.max_lineas || U.y_top_min + alto(ls.length, fs) > limite)) {
@@ -52,7 +54,7 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
     // cabezaTop = altura típica (mediana) de la cabeza: tapa ~18% del bloque (la base de la 2ª línea);
     // en el peor momento (cabezaMin, cabeza más alta) nunca más de 35%, así la palabra clave se sigue leyendo
     const topDetras = Math.min(cabezaTop + 0.18 * h - h, (cabezaMin ?? cabezaTop) + 0.35 * h - h);
-    if (topDetras >= U.y_top_min && topDetras + h <= limite + bajada) {
+    if (topDetras >= U.y_top_min && topDetras + h <= limiteDetras + bajada) {
       top = topDetras;
       detras = true;
     }
@@ -70,6 +72,9 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
   return {fs, palabras, top, alto: h, bajada, entra: falta <= bajada && ls.length <= T.max_lineas, detras};
 };
 
+// Punto más alto de la cabeza/frente (la malla llega a la frente; el pelo suma ~18% de la cara: calibrado en el piloto con la segmentación).
+export const cabezaArribaDe = (c: {frente: number; menton: number}) => c.frente - 0.18 * (c.menton - c.frente);
+
 // Desde el plan: y más alta de los ojos durante el gancho (sin bajada) → layout.
 export const layoutDelPlan = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number): LayoutGancho | null => {
   const g = plan.piezas.find((p) => p.tipo === 'gancho');
@@ -84,5 +89,11 @@ export const layoutDelPlan = (plan: Plan, planos: Plano[], pista: MuestraCara[],
   }
   cabezas.sort((a, b) => a - b);
   const mediana = cabezas[Math.floor(cabezas.length / 2)];
-  return layoutGancho(g.texto, g.clave, ojosMin, plan.recorte ? mediana : undefined, cabezas[0]);
+  // punto más alto de la cabeza en todo el gancho (incluye el asentamiento y el punch-in)
+  let arriba = Infinity;
+  for (let fr = 0; fr <= g.hasta * fps; fr += 2) {
+    const c = camaraEn(plan, planos, pista, fps, fr).cara;
+    arriba = Math.min(arriba, cabezaArribaDe(c));
+  }
+  return layoutGancho(g.texto, g.clave, ojosMin, plan.recorte ? mediana : undefined, cabezas[0], arriba);
 };

@@ -58,13 +58,19 @@
       "whoosh-a"
     ],
     "numero": [
-      "pop"
+      "ding"
     ],
     "inserto": [
       "whoosh-b"
     ],
     "cta": [
       "whoosh-a"
+    ],
+    "escenaGolpe": [
+      "golpe"
+    ],
+    "escenaFinal": [
+      "subhit"
     ]
   }
 }

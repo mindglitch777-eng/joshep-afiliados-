@@ -1,0 +1,140 @@
+name: lote
+run-name: "Lote ${{ inputs.etiqueta }}"
+# Un job por clip: transcribe, arma la edición (plan_builder), renderiza, masteriza, comprime a ≤ 14 MB y controla (qa.py).
+# Si el QA falla por algo que el plan puede corregir, hasta 2 reintentos. Resultados cifrados en la rama cifrado-lote.
+on:
+  workflow_dispatch:
+    inputs:
+      activos:
+        description: "tipo:nombre=ID;... de los archivos de Drive (no queda guardado)"
+        required: true
+      clips:
+        description: "Clips a procesar (JSON)"
+        required: true
+        default: '["20","09","06"]'
+      etiqueta:
+        description: "Nombre de la corrida (prueba, ola1, ola2)"
+        required: false
+        default: prueba
+permissions:
+  contents: write
+concurrency: lote
+env:
+  WHISPER_VER: v1.7.5
+jobs:
+  base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Enmascarar IDs
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - name: Caché whisper medium
+        id: cw
+        uses: actions/cache@v4
+        with: {path: whisper.cpp, key: "whisper-${{ env.WHISPER_VER }}-medium-${{ runner.os }}"}
+      - name: Compilar whisper.cpp + modelo medium
+        if: steps.cw.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --depth 1 --branch "$WHISPER_VER" https://github.com/ggml-org/whisper.cpp
+          cmake -S whisper.cpp -B whisper.cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DWHISPER_BUILD_TESTS=OFF >/dev/null
+          cmake --build whisper.cpp/build -j "$(nproc)" --target whisper-cli >/dev/null
+          bash whisper.cpp/models/download-ggml-model.sh medium >/dev/null
+      - name: Caché de los CTA
+        uses: actions/cache@v4
+        with: {path: piloto/activos/cta, key: "lote-cta-v1"}
+      - name: Bajar los CTA
+        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python3 pipeline/piloto/activos.py cta
+  clip:
+    needs: base
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        clip: ${{ fromJSON(inputs.clips) }}
+    steps:
+      - name: Enmascarar IDs
+        id: prep
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+          echo "inicio=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip, cache-dependency-path: pipeline/requirements.txt}
+      - name: Dependencias
+        run: |
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)
+          pip install -q -r pipeline/requirements.txt pillow
+          npm ci --no-audit --no-fund --silent
+      - name: Caché whisper medium
+        uses: actions/cache/restore@v4
+        with: {path: whisper.cpp, key: "whisper-${{ env.WHISPER_VER }}-medium-${{ runner.os }}", fail-on-cache-miss: true}
+      - name: Caché de los CTA
+        uses: actions/cache/restore@v4
+        with: {path: piloto/activos/cta, key: "lote-cta-v1", fail-on-cache-miss: true}
+      - name: Caché del reel
+        uses: actions/cache@v4
+        with: {path: piloto/activos/reel, key: "piloto-reel-${{ matrix.clip }}"}
+      - name: Bajar el reel
+        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py reel "${{ matrix.clip }}.mov"
+      - name: Transcribir y analizar
+        run: python pipeline/piloto/prep.py "${{ matrix.clip }}"
+      - name: Editar, renderizar y controlar (hasta 2 reintentos)
+        run: |
+          C=${{ matrix.clip }}; B=piloto/build/$C
+          for i in 0 1 2; do
+            echo "── intento $i"
+            python pipeline/lote/plan_builder.py $C --intento $i
+            python pipeline/piloto/armar.py $C
+            if jq -e '.capas_gancho' plans/$C.json >/dev/null; then
+              T0=$(date +%s)
+              python pipeline/piloto/recorte.py $C $(jq -r '.recorte.hasta' $B/plan.json) >/dev/null
+              jq --slurpfile i public/raw/$C/recorte/info.json '.recorte.fps = $i[0].fps | .recorte.n = $i[0].n' $B/plan.json > /tmp/p.json && mv /tmp/p.json $B/plan.json
+              echo "recorte (capas): $(( $(date +%s) - T0 )) s" | tee $B/capas.txt
+            fi
+            npx tsx scripts/validar.ts $B/plan.json $B/validacion.json | head -4
+            npx remotion render src/index.ts Clip $B/render.mp4 --props=$B/plan.json --crf 18 --concurrency=100% --log=error
+            bash scripts/master.sh $B/render.mp4 $B/master.mp4 >/dev/null
+            bash scripts/comprimir.sh $B/master.mp4 $B/clip-$C.mp4
+            python pipeline/piloto/qa.py $C $B/clip-$C.mp4 $(( ($(date +%s) - ${{ steps.prep.outputs.inicio }}) / 60 ))
+            jq -e '.pasa' $B/qa.json >/dev/null && break
+            # solo se reintenta si lo que falló lo puede corregir el plan
+            jq -r '.reglas[] | select(.pasa | not) | .regla' $B/qa.json | grep -qE 'Duración|Gráficos|Gancho|palabra cortada|Último subtítulo|gráfico a la vez' || break
+          done
+          echo "$i" > $B/intentos.txt
+      - name: Hoja de contacto y entrega
+        if: always()
+        run: |
+          C=${{ matrix.clip }}; B=piloto/build/$C; mkdir -p entrega/$C
+          [ -f $B/clip-$C.mp4 ] && python pipeline/piloto/hoja.py $C $B/clip-$C.mp4 $B/hoja-$C.jpg
+          for f in clip-$C.mp4 hoja-$C.jpg plan.json post.md qa.md qa.json cortes.json validacion.json intentos.txt capas.txt; do [ -f $B/$f ] && cp $B/$f entrega/$C/; done
+          cp plans/$C.json entrega/$C/edicion.json 2>/dev/null || true
+          ls entrega/$C | tr '\n' ' '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: "clip-${{ matrix.clip }}", path: "entrega/${{ matrix.clip }}/", retention-days: 14}
+  juntar:
+    needs: [clip]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {sparse-checkout: "config/claves\npipeline/piloto/cifrar.sh"}
+      - uses: actions/download-artifact@v4
+        with: {path: dl, pattern: "clip-*"}
+      - name: Cifrar y subir a la rama cifrado-lote
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p enc
+          for d in dl/clip-*; do n=$(basename $d); bash pipeline/piloto/cifrar.sh "$d" "enc/$n" >/dev/null; done
+          cd enc && ls | wc -l && git init -q && git checkout -q -b cifrado-lote
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Lote ${{ inputs.etiqueta }}: resultados cifrados (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-lote

@@ -18,7 +18,7 @@ import {layoutDelPlan} from './gancho-layout';
 import {fraseOculta} from './subs-layout';
 import {rectSticker} from './geometria';
 import {Subtitulos} from './piezas/Subtitulos';
-import {Curva, ListaPro, Numero, PantallaImagen, PantallaVideo, Versus} from './piezas/Graficos';
+import {BotonCTA, Curva, Ecuacion, Escena, ListaPro, Numero, PantallaImagen, PantallaVideo, Versus} from './piezas/Graficos';
 import {altoPieza} from './graficos';
 import {packDe} from './estilos';
 
@@ -76,8 +76,11 @@ export const Clip: React.FC<Plan> = (planIn) => {
       case 'enfasis': return <Enfasis palabra={p.palabra} caraArriba={caraArriba} />;
       case 'curva': return <Curva alto={p.alto} bajo={p.bajo} marcaAlto={(p.marcaAlto - p.desde) * fps} marcaBajo={(p.marcaBajo - p.desde) * fps} medio={p.medio} marcaMedio={p.marcaMedio !== undefined ? (p.marcaMedio - p.desde) * fps : undefined} numero={p.numero} unidad={p.unidad}
         numeroEn={p.numeroEn !== undefined ? (p.numeroEn - p.desde) * fps : undefined} caras={carasPieza.get(p)!} />;
-      case 'numero': return <Numero valor={p.valor} unidad={p.unidad} etiqueta={p.etiqueta} caras={carasPieza.get(p)!} />;
-      case 'inserto': case 'cta': return <PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} />;
+      case 'numero': return <Numero valor={p.valor} unidad={p.unidad} etiqueta={p.etiqueta} alto={altoPieza(p)} caras={carasPieza.get(p)!} />;
+      case 'escena': return <Escena escena={p.escena} marcas={(p.tiempos ?? []).map((x) => (x - p.desde) * fps)} alto={altoPieza(p)} caras={carasPieza.get(p)!} />;
+      case 'ecuacion': return <Ecuacion bloques={p.bloques} inicios={(p.tiempos ?? []).map((x) => (x - p.desde) * fps)} alto={altoPieza(p)} caras={carasPieza.get(p)!} />;
+      case 'inserto': return <PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} />;
+      case 'cta': return <><PantallaVideo archivo={p.archivo} inicio={p.inicio} velocidad={p.velocidad} /><BotonCTA texto={p.boton} /></>;
       case 'imagen': return <PantallaImagen archivo={p.archivo} />;
     }
   };

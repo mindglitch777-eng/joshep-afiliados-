@@ -30,9 +30,9 @@
     "zoom": 1.18
   },
   "limites_caracteres": {
-    "gancho": 45,
+    "gancho": 32,
     "tarjeta": 24,
-    "item": 26,
+    "item": 28,
     "enfasis": 12,
     "titulo": 18
   }
