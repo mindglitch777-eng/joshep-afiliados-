@@ -12,6 +12,10 @@ on:
         description: "prep o render"
         required: true
         default: prep
+      clips:
+        description: "Clips a procesar (JSON)"
+        required: false
+        default: '["17","03","11","15","23"]'
 permissions:
   contents: write
 concurrency: piloto
@@ -109,7 +113,7 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        clip: ["17", "03", "11", "15", "23"]
+        clip: ${{ fromJSON(inputs.clips || '["17","03","11","15","23"]') }}
     steps:
       - name: Enmascarar IDs
         id: prep

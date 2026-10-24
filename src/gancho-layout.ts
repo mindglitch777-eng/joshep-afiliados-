@@ -49,8 +49,9 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
   // detrás de Joseph: la cabeza tapa solo el 40% inferior de las letras; si no hay lugar arriba de la cabeza, va delante (plan B)
   let detras = false;
   if (cabezaTop !== undefined) {
-    // cabezaTop = altura típica (mediana) de la cabeza: tapa ~40% de las letras; en el peor momento (cabezaMin) nunca más de 70%
-    const topDetras = Math.max(cabezaTop + 0.4 * h - h, (cabezaMin ?? cabezaTop) + 0.3 * h - h);
+    // cabezaTop = altura típica (mediana) de la cabeza: tapa ~18% del bloque (la base de la 2ª línea);
+    // en el peor momento (cabezaMin, cabeza más alta) nunca más de 35%, así la palabra clave se sigue leyendo
+    const topDetras = Math.min(cabezaTop + 0.18 * h - h, (cabezaMin ?? cabezaTop) + 0.35 * h - h);
     if (topDetras >= U.y_top_min && topDetras + h <= limite + bajada) {
       top = topDetras;
       detras = true;

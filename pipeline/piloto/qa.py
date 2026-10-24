@@ -27,10 +27,11 @@ def main(clip, video, minutos):
     (b / "qa.wav").unlink()
     db = lambda a, z: 20 * np.log10(np.sqrt(np.mean(x[max(0, int(a * 16000)):int(z * 16000)] ** 2)) + 1e-9)
     win = np.array([db(i / 10, i / 10 + 0.1) for i in range(int(len(x) / 1600))])
-    voz = float(np.percentile(win, 75))
+    voz, piso = float(np.percentile(win, 75)), float(np.percentile(win, 10))
+    umbral = max(voz - 20, piso + 6)  # silencio = 20 dB bajo la voz, o como mucho 6 dB sobre el ruido de la sala
     bordes = sorted({x0 for a, bb, _ in co["tramos"] for x0 in (float(a), float(bb))})
     niveles = [(t, db(t - 0.015, t + 0.015)) for t in bordes]
-    cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > voz - 20]
+    cortadas = [f"{t:.2f} s ({n:.0f} dBFS)" for t, n in niveles if n > umbral]
     s, g, m = val["solape_cara"], val["graficos"], val["menton_vs_subtitulo"]
     cont = co["duracion_contenido"]
     reglas = [
@@ -45,7 +46,7 @@ def main(clip, video, minutos):
         ("Subtítulos ≥ 24 px bajo el mentón", f"aire mín. {m['aire_min_px']} px · {m['cuadros_con_menos_de_24px']} cuadros < 24", m["ok"]),
         ("Subtítulos con base ≤ y=1440 y x ≤ 960", f"{len(val['textos_fuera_zona_segura'])} fuera", not val["textos_fuera_zona_segura"]),
         ("≤ 1 gráfico a la vez", f"máx. {g['simultaneos_max']}", g["simultaneos_max"] <= 1),
-        ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en silencio (≥ 20 dB bajo la voz, {voz:.0f} dBFS)", not cortadas),
+        ("Ninguna palabra cortada en el audio", (", ".join(cortadas) + " con voz") if cortadas else f"{len(bordes)} cortes en silencio (≤ {umbral:.0f} dBFS; voz {voz:.0f}, sala {piso:.0f})", not cortadas),
         ("Caja amarilla sincronizada con la voz", "tiempos de whisper remapeados; adelanto fijo de 2 cuadros (33 ms) para que la caja llegue con la sílaba", True),
         ("Ritmo: ningún tramo > 1,5 s sin evento", f"{len(val['huecos_mayores_1_5s'])} tramos", not val["huecos_mayores_1_5s"]),
     ]

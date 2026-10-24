@@ -52,7 +52,14 @@ def main(clip):
     with wave.open(str(build / "fuente.wav")) as wv:
         x = np.frombuffer(wv.readframes(wv.getnframes()), dtype=np.int16).astype(np.float32)
     rms = np.sqrt(np.convolve(x ** 2, np.ones(160) / 160, mode="same"))  # ventana de 10 ms
+    rdb = 20 * np.log10(rms / 32768 + 1e-9)
+    piso = float(np.percentile(rdb[::160], 10))  # piso de ruido de la sala
     def snap(t):
+        # el silencio real más cercano (≤ piso + 6 dB) dentro de ±0.3 s; si no hay, el punto más bajo en ±0.15 s
+        a, b = max(0, int((t - 0.3) * 16000)), min(len(rms) - 1, int((t + 0.3) * 16000))
+        quietos = np.where(rdb[a:b] <= piso + 6)[0]
+        if len(quietos):
+            return round((a + quietos[np.argmin(np.abs(a + quietos - t * 16000))]) / 16000, 3)
         a, b = max(0, int((t - 0.15) * 16000)), min(len(rms) - 1, int((t + 0.15) * 16000))
         return round((a + int(np.argmin(rms[a:b]))) / 16000, 3) if b > a else t
     ajustes = []
