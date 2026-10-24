@@ -158,7 +158,7 @@ def mezclar(base, over):
         if k == "palabras":
             for idx, cambios in v.items():
                 base["subtitulos"][int(idx)].update(cambios)
-        elif k == "gancho_variante":
+        elif k in ("gancho_variante", "style_pack"):
             continue
         elif k == "quitar_piezas":
             base["piezas"] = [p for i, p in enumerate(base["piezas"]) if i not in v and p["tipo"] not in v]
@@ -183,7 +183,8 @@ def main(nombre):
             "encuadre": P["encuadre"] if w > h else "cara", "duracion": cort["duracion"], "musica": {"archivo": P["musica"]},
             "cortes": cort["cortes"], "cara": leer(WORK / "cara.json"), "piezas": detectar(ps, cort["duracion"]), "subtitulos": subtitulos(ps)}
     # gancho: variante elegida (A por defecto; el override puede pedir "gancho_variante": "B")
-    vs, elegida = hook.main(nombre, plan["piezas"], over.get("gancho_variante"))
+    vs, elegida, pack = hook.main(nombre, plan["piezas"], over.get("gancho_variante"), over.get("style_pack"))
+    plan["estilo"] = pack
     H = cfg("hook")["duracion"]
     plan["ganchos"] = [{k: v[k] for k in ("formula", "texto", "clave")} for v in vs]
     v = next((x for x in vs if x["formula"] == elegida), vs[0])

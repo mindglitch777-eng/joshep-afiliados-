@@ -14,6 +14,10 @@ def main():
           f"- Voz plena a {ar['inicio_voz_base']:.2f} s del corte → se recortó {ar['recorte']:.3f} s: la primera palabra empieza a **{ar['primera_palabra']:.3f} s**.",
           "", "| # | t (s) | puntaje | notas | cumple ≤0.15 s |", "|---|---|---|---|---|"]
     L += [f"| ![c{c['n']}](candidatos/c{c['n']}.jpg) {c['n']} | {c['t']:.2f} | {c['puntaje']} | {', '.join(c['notas'])} | {'✅' if c['cumple_015'] else '—'} |" for c in ar["candidatos"]]
+    L += ["", f"## Style pack: **{qa.get('style_pack')}**", "- Rotación automática (no repite el del clip anterior); forzar con `\"style_pack\": \"capas\"` en el override. Previews: `pack-punch/push/capas/mano.mp4`."]
+    m, fl = qa["menton_vs_subtitulo"], qa["flash"]
+    L += [f"- Mentón (con barba) vs subtítulo: aire mínimo {m['aire_min_px']} px, cuadros con menos de 24 px: {m['cuadros_con_menos_de_24px']} {'✅' if m['ok'] else '⚠'}",
+          f"- Flash de exposición en {fl['tiempos_s']} s · seguridad {'✅' if fl['ok'] else '⚠'} · cuadro 0 {'✅' if fl['cuadro0'] else '—'}"]
     L += ["", "## Encuadre", f"- Video {plan['videoInfo']['ancho']}x{plan['videoInfo']['alto']} → modo **{plan['encuadre']}**, cara en {qa['cara']['cobertura']*100:.0f}% de las muestras."]
     L += [f"- ⚠ {a}" for a in qa["cara"]["avisos"]]
     L += ["", "## Plan", *[f"- {p['tipo']} {p['desde']}–{p['hasta']} s: " + json.dumps({k: v for k, v in p.items() if k not in ('tipo', 'desde', 'hasta', 'tiempos')}, ensure_ascii=False) for p in plan["piezas"]],

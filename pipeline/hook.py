@@ -70,26 +70,44 @@ def variantes(ps, piezas=None):
                     "texto": t.upper(), "clave": clave_de(t), "caracteres": len(t)})
     return out
 
-def registrar(nombre, vs, elegida):
+def registrar(nombre, vs, elegida, pack=""):
     ruta = RAIZ / "hooks-log.csv"
-    cols = ["clip", "formula", "texto", "elegida", "fecha_publicacion", "retencion_3s", "vistas"]
+    cols = ["clip", "formula", "texto", "elegida", "pack", "fecha_publicacion", "retencion_3s", "vistas"]
     filas = list(csv.DictReader(open(ruta, encoding="utf-8"))) if ruta.exists() else []
     previas = {(f["clip"], f["formula"]): f for f in filas}
     for v in vs:
         f = previas.get((nombre, v["formula"]), {c: "" for c in cols})
-        f.update({"clip": nombre, "formula": v["formula"], "texto": v["texto"], "elegida": "sí" if v["formula"] == elegida else ""})
+        f.update({"clip": nombre, "formula": v["formula"], "texto": v["texto"], "elegida": "sí" if v["formula"] == elegida else "", "pack": pack})
         previas[(nombre, v["formula"])] = f
     with open(ruta, "w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols)
+        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore", restval="")
         w.writeheader()
         w.writerows(previas.values())
 
-def main(nombre, piezas=None, elegida=None):
+def elegir_pack(nombre, forzado=None):
+    """Rotación de style packs: se mantiene el del clip si ya tenía; si no, el siguiente que no repita el del clip anterior."""
+    rot = cfg("styles/_rotacion")
+    if forzado:
+        return forzado
+    ruta = RAIZ / "hooks-log.csv"
+    filas = list(csv.DictReader(open(ruta, encoding="utf-8"))) if ruta.exists() else []
+    propio = next((f.get("pack") for f in filas if f["clip"] == nombre and f.get("pack")), None)
+    if propio:
+        return propio
+    otros = [f.get("pack") for f in filas if f["clip"] != nombre and f.get("pack")]
+    anterior = otros[-1] if otros else None
+    if not anterior:
+        return rot["por_defecto"]
+    orden = rot["orden"]
+    return orden[(orden.index(anterior) + 1) % len(orden)]
+
+def main(nombre, piezas=None, elegida=None, pack=None):
     vs = variantes(leer(WORK / "palabras_clip.json"), piezas)
     elegida = elegida or H["variantes"]["elegida"]
-    guardar(WORK / "hooks.json", {"elegida": elegida, "variantes": vs})
-    registrar(nombre, vs, elegida)
-    return vs, elegida
+    pack = elegir_pack(nombre, pack)
+    guardar(WORK / "hooks.json", {"elegida": elegida, "variantes": vs, "pack": pack})
+    registrar(nombre, vs, elegida, pack)
+    return vs, elegida, pack
 
 if __name__ == "__main__":
     for v in main(sys.argv[1])[0]:

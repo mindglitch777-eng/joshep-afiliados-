@@ -22,6 +22,11 @@ for V in $(jq -r '.ganchos[].formula' work/plan.json); do
   jq --arg v "$V" '.ganchoVariante = $v' work/plan.json > work/plan-$V.json
   npx remotion render src/index.ts Clip salida/preview-$V.mp4 --props=work/plan-$V.json --frames=0-$((PS * FPS - 1)) --scale=$(python -c "print($PW/1080)") --crf 24 $R
 done
+# previews de 5 s, una por style pack (config/styles/*.json)
+for P in $(jq -r '.orden[]' config/styles/_rotacion.json); do
+  jq --arg p "$P" '.estilo = $p' work/plan.json > work/plan-pack-$P.json
+  npx remotion render src/index.ts Clip salida/pack-$P.mp4 --props=work/plan-pack-$P.json --frames=0-$((5 * FPS - 1)) --scale=$(python -c "print($PW/1080)") --crf 24 $R
+done
 python pipeline/qa.py salida/video.mp4 salida/qa.json "$INICIO"
 python pipeline/post.py salida/post.md
 cp work/plan.json salida/plan.json

@@ -14,7 +14,7 @@ else
 fi
 if [ "$MUESTRA" = "true" ]; then
   mkdir -p "clips/$NOMBRE" samples
-  cp -r salida/informe.md salida/qa.json salida/post.md salida/hoja.png salida/plan.json salida/cover.png salida/candidatos salida/preview-*.mp4 "clips/$NOMBRE/"
+  cp -r salida/informe.md salida/qa.json salida/post.md salida/hoja.png salida/plan.json salida/cover.png salida/candidatos salida/preview-*.mp4 salida/pack-*.mp4 "clips/$NOMBRE/"
   # muestra para el celular (ancho en config/hook.json → salida.muestra_ancho: 1080 final / 720 preview)
   W=$(jq -r .salida.muestra_ancho config/hook.json)
   ffmpeg -y -loglevel error -i salida/video.mp4 -vf "scale=$W:-2" -c:v libx264 -crf 24 -preset slow -c:a copy "samples/$NOMBRE$ETIQUETA.mp4"
