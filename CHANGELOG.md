@@ -1,5 +1,29 @@
 # Changelog
 
+## Misión 2B — gancho poderoso + subtítulos abajo (`samples/joseph1-v2.mp4`, `clips/joseph1/`)
+
+Parámetros nuevos: `config/hook.json`. Lo demás (ritmo, SFX, lista, comparación, -14 LUFS, 60 fps) se conserva.
+
+| Punto | Antes (joseph1) | Después (joseph1-v2) |
+|---|---|---|
+| 1 Salida | muestra a 720x1280 (se achicaba a propósito) | 1080x1920 · `salida.muestra_ancho` (1080 final / 720 preview) |
+| 2 HookIntro | palabra por palabra, 44 car., 3 líneas, sobre la cara | completo en el cuadro 0, asentamiento 1.12→1.0 en 6 frames; y 276–512, borde ≥ 40 px sobre los ojos (Face Mesh); 100 px, 2 líneas, 880 px; clave en caja amarilla; punch-in 1.0→1.10 en 0,25 s + boom + whoosh + destello 2 frames al 12% |
+| 3 Texto | "Volverte más ATRACTIVO no se trata de fingir" | A **NO SE TRATA DE FINGIR** (21) · B ¿QUÉ TE HACE MÁS ATRACTIVO? (27) · C DEJÁ DE FINGIR UN PERSONAJE (27); `hooks-log.csv` |
+| 4 Arranque | ~0,5 s de voz baja | voz plena detectada a 0,26 s → recorte de 0,21 s: primera palabra a **0,05 s**; 6 candidatos en el informe + `cover.png` |
+| 5 Subtítulos | centrados en y≈1230 | borde inferior en y=1440, x ≤ 952; ojos al 28%; el zoom cede y el video sube hasta 10% para dejar el mentón ≥ 24 px arriba |
+| 6 Stickers | sobre ojos/lentes | fuera de la caja de la cara (+40 px) o no se muestran |
+| 7 Espaciado | "MÁS   ATRACTIVO" | gap fijo que reserva el padding de la caja; claves en su tamaño final; test sobre el clip real: Δ 0,00 px, 0 pisadas |
+| 8 QA | — | solape cuadro por cuadro: gancho/ojos **0%**, gancho/boca **0%**, subtítulos/boca-mentón **0%**, íconos/cara **0%**, tarjetas/ojos-boca **0%**; cuadro 0 con gancho completo ✅; sin silencio inicial; primer sonido a 0 s |
+
+Tarjetas y lista: el lugar se elige para toda la pieza entre debajo del mentón, frente, entre boca y 1440, o anclado a 1440 (hasta 75% de escala), y la cámara abre a zoom 1.0 mientras están. Ancho 880 px para no pasar x=960.
+Minutos de Actions: render-clip **12,1 min**.
+
+**Lo que no se cumplió exacto:**
+- El gancho es 1,09x el subtítulo, no 1,15x: con subtítulos de 92 px el máximo de 100 px no alcanza (bajar subtítulos a 86 px o subir `tam_max` a 106).
+- 44% del tiempo de íconos no se mostraron: en este primer plano no hay 40 px libres al costado de la cabeza.
+- El cuadro 0 elegido tiene la mano cerca del mentón: los cuadros sin mano están a 0,47 s, y usarlos cortaría la primera palabra.
+- Las listas quedan al 76–84% de tamaño (ítems de ~40–44 px) para no tapar la cara.
+
 ## Misión 2 — primer clip real + uso sin Claude (`samples/joseph1.mp4`, `clips/joseph1/`)
 
 **Flujo:** Actions → `make-clip` (link + nombre) → descarga (link enmascarado) → whisper.cpp small en español con vocabulario del nicho → análisis con puntaje y motivos → corte de silencios + voz → seguimiento de cara → plan por reglas + `plan.override.json` → validador → render → master → QA → artifact de 3 días, Supabase privado (si hay secrets) y, opcional, muestra en la rama. `render-clip` re-renderiza desde la caché sin transcribir de nuevo.
