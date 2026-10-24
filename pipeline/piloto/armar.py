@@ -173,7 +173,7 @@ def main(clip):
             q["hasta"] = round(q["desde"] + 6.0, 3)
         q["hasta"] = round(min(q["hasta"], acum - 0.15), 3)  # nunca dentro del CTA
         if q["tipo"] not in ("cta",):  # la última frase se ve completa: ningún gráfico la tapa
-            ult = max((remap(w["desde"]) or 0) for w in ps[-40:] if w["texto"].strip() and remap(w["desde"]) is not None)
+            ult = max((remap(w["desde"]) for w in ps if w["texto"].strip() and remap(w["desde"]) is not None), default=acum)
             q["hasta"] = round(min(q["hasta"], max(q["desde"] + 1.0, ult - 0.3)), 3)
         if q["tipo"] == "escena" and q["hasta"] - q["desde"] > 4.0:  # escena ≤ 4 s: termina igual, empieza más tarde
             q["desde"] = round(q["hasta"] - 4.0, 3)
