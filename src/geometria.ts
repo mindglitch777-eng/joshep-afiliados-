@@ -48,11 +48,12 @@ export const rectBloque = (caras: Camara['cara'][], alto: number): RectBloque =>
   const zs = caras.map(zonasCara), kMin = hookCfg.tarjetas.escala_min;
   const ojosTop = Math.min(...zs.map((z) => z.ojos.y0)), mentonMax = Math.max(...caras.map((c) => c.menton));
   const caja = (y0: number, k: number): RectBloque => ({x0: CENTRO_X - (ANCHO_TARJETA * k) / 2, x1: CENTRO_X + (ANCHO_TARJETA * k) / 2, y0, y1: y0 + alto * k, k});
-  const abajo = BORDE_INF - (mentonMax + 40), arriba = ojosTop - 40 - 170;
+  // 40 px de regla + 16 px de margen (la cara se mide cada 3 cuadros)
+  const abajo = BORDE_INF - (mentonMax + 56), arriba = ojosTop - 56 - 170;
   const ops: RectBloque[] = [caja(BORDE_INF - alto, 1)];
   const kAb = Math.min(1, abajo / alto), kAr = Math.min(1, arriba / alto);
-  if (kAb >= kMin) ops.push(caja(mentonMax + 40, kAb));
-  if (kAr >= kMin) ops.push(caja(ojosTop - 40 - alto * kAr, kAr));
+  if (kAb >= kMin) ops.push(caja(mentonMax + 56, kAb));
+  if (kAr >= kMin) ops.push(caja(ojosTop - 56 - alto * kAr, kAr));
   // entre la boca y 1440 (sobre mentón/barba, nunca sobre la boca)
   const bocaMax = Math.max(...zs.map((z) => z.boca.y1)) + 16, kBo = Math.min(1, (BORDE_INF - bocaMax) / alto);
   if (kBo >= kMin) ops.push(caja(BORDE_INF - alto * kBo, kBo));

@@ -62,7 +62,7 @@
   },
   "camara": {
     "ojos_y": 0.28,
-    "subir_video_max": 0.15,
+    "subir_video_max": 0.2,
     "barba_extra": 0.12,
     "micro_zoom": 1.06
   },

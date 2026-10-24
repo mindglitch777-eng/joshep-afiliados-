@@ -83,9 +83,11 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   if (i === 0) {
     const F = flashCfg, conFlash = F.activo && pack.flash.arranque, fF = F.frames, hasta = HC.interrupcion.punch_hasta;
     const T0 = HC.interrupcion.punch_segundos;
+    // con gancho detrás de Joseph (recorte) la cámara se queda en el punch del flash: si sigue empujando, la cabeza tapa el texto
+    const tope = plan.recorte ? F.punch : hasta;
     s = conFlash && frame < fF ? 1 + (F.punch - 1) * EASE_ZOOM(frame / fF)
-      : conFlash ? F.punch + (hasta - F.punch) * EASE_ZOOM(Math.min((t - fF / fps) / (T0 - fF / fps), 1))
-      : 1 + (hasta - 1) * EASE_ZOOM(Math.min(t / T0, 1));
+      : conFlash ? F.punch + (tope - F.punch) * EASE_ZOOM(Math.min((t - fF / fps) / (T0 - fF / fps), 1))
+      : 1 + (tope - 1) * EASE_ZOOM(Math.min(t / T0, 1));
     dx = 0;
   }
   // punch: 9 frames de transición con bezier desde el final del plano anterior + golpe de escala de 3%
@@ -153,13 +155,15 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
   const M = pack.camara.mano;
   if (M.amp_px > 0) s = Math.max(s, 1 + (2 * (M.amp_px + 1)) / W);
   const tx = lim(seguir * (W * 0.5 - (W / 2 + s * (px - W / 2))) + dx, (s * dispW - W) / 2);
-  // bajada del video durante el gancho si el texto no entra sobre los ojos (vuelve en 9 frames al terminar)
   const finG = (plan.piezas.find((p) => p.tipo === 'gancho')?.hasta ?? 0) * fps;
+  // bajada del video durante el gancho si el texto no entra sobre los ojos (vuelve en 9 frames al terminar)
   const bajada = bajadaGancho * interpolate(frame, [finG, finG + PUNCH], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
   let ty = lim(seguir * (ojosY - (H / 2 + s * (ojos - H / 2))) + dy, (s * dispH - H) / 2) + bajada;
   // si ni con zoom 1 el mentón queda a 24 px del subtítulo, el video sube (hasta 8%, abajo va relleno degradado)
   const mentonPx = H / 2 + s * (menton - H / 2) + ty, tope = TOPE_SUBS - HC.subtitulos.aire_menton;
-  const subida = seguir || encuadreDe(plan) === 'capas' ? Math.min(Math.max(0, mentonPx - tope), HC.camara.subir_video_max * H) : 0;
+  // durante el gancho no hay subtítulos: no hace falta subir el video (entra en 12 cuadros al terminar)
+  const kSub = interpolate(frame, [finG, finG + 12], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
+  const subida = kSub * (seguir || encuadreDe(plan) === 'capas' ? Math.min(Math.max(0, mentonPx - tope), HC.camara.subir_video_max * H) : 0);
   ty -= subida;
   // modo panel: con una tarjeta en pantalla el video sube (spring de 12 cuadros) para dejarle lugar debajo del mentón
   // sin tapar la cara (≥ 40 px) y con base ≤ 1440; tope 22% y ojos siempre ≥ 200 px
@@ -170,7 +174,7 @@ export const camaraEn = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps:
     const k = interpolate(frame, [a, a + 12, b, b + 12], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE_ZOOM});
     if (k <= 0) continue;
     const ojosPx = H / 2 + s * (ojos - H / 2) + ty;
-    const falta = mentonPx - subida + 40 + altoPieza(p) - HC.subtitulos.borde_inferior;
+    const falta = mentonPx - subida + 56 + altoPieza(p) - HC.subtitulos.borde_inferior;
     panel = Math.max(panel, k * Math.max(0, Math.min(falta, 0.22 * H, ojosPx - 200)));
   }
   ty -= panel;

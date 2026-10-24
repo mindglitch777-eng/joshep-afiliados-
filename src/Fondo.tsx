@@ -1,4 +1,4 @@
-import {AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Img, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {camaraEn} from './camara';
 import {encuadreDe} from './estilos';
 import flashCfg from '../config/flash.json';
@@ -20,9 +20,6 @@ export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[];
   const enc = encuadreDe(plan);
   return (
     <AbsoluteFill style={{background: '#111', overflow: 'hidden'}}>
-      {/* relleno degradado si el video bajó para que entre el gancho */}
-      {cam.subida > 0 && <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: cam.subida + 160, background: 'linear-gradient(rgba(0,0,0,0), #0B0B0F 70%)', zIndex: 1}} />}
-      {cam.bajada > 0 && <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: cam.bajada + 120, background: 'linear-gradient(#0B0B0F, #2a2a33 60%, rgba(0,0,0,0))', zIndex: 1}} />}
       {/* corrección de color: contraste +8%, saturación +10% */}
       {plan.video && (enc === 'desenfocado' || enc === 'capas') && (
         <AbsoluteFill style={{filter: `blur(40px) brightness(${0.55 * (1 + (F.brillo - 1) * r)}) saturate(1.2)`, transform: 'scale(1.15)'}}>
@@ -34,6 +31,9 @@ export const Fondo: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[];
           <OffthreadVideo src={staticFile(plan.video)} muted style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH, borderRadius: enc === 'capas' ? 36 : 0, boxShadow: enc === 'capas' ? '0 24px 60px rgba(0,0,0,0.5)' : 'none'}} />
         ) : <Placeholder />}
       </AbsoluteFill>
+      {/* rellenos degradados cuando el video sube (subtítulos/tarjetas) o baja (gancho): después del video, sin zIndex */}
+      {cam.subida > 0 && <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: cam.subida + 220, background: 'linear-gradient(rgba(11,11,15,0) 0px, rgba(11,11,15,0.85) 160px, #0B0B0F 220px)'}} />}
+      {cam.bajada > 0 && <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: cam.bajada + 120, background: 'linear-gradient(#0B0B0F, #2a2a33 60%, rgba(0,0,0,0))'}} />}
     </AbsoluteFill>
   );
 };
@@ -53,6 +53,23 @@ const Placeholder: React.FC = () => {
     <AbsoluteFill style={{background: `linear-gradient(${frame / 4}deg, #1d2b64, #f8cdda)`}}>
       <div style={{position: 'absolute', left: 340, top: 422, width: 400, height: 500, borderRadius: '50%', background: '#e0ac69', boxShadow: 'inset 0 -30px 60px rgba(0,0,0,.3)'}} />
       <div style={{position: 'absolute', left: 190, top: 900, width: 700, height: 1100, borderRadius: '45% 45% 0 0', background: '#222'}} />
+    </AbsoluteFill>
+  );
+};
+
+// Persona recortada (segmentación) encima del gancho: misma cámara que el video, así calza exacto.
+export const RecortePersona: React.FC<{plan: Plan; planos: Plano[]; pista: MuestraCara[]; bajada: number; lin: {pulsos: number[]; flashes: number[]}}> = ({plan, planos, pista, bajada, lin}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const R = plan.recorte;
+  if (!R || !R.n || frame >= R.hasta * fps) return null;
+  const cam = camaraEn(plan, planos, pista, fps, frame, bajada, lin);
+  const i = Math.min(R.n - 1, Math.floor((frame / fps) * (R.fps ?? 30)));
+  return (
+    <AbsoluteFill style={{overflow: 'hidden'}}>
+      <AbsoluteFill style={{transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`, filter: 'contrast(1.08) saturate(1.1)'}}>
+        <Img src={staticFile(`${R.carpeta}/${String(i).padStart(4, '0')}.png`)} style={{position: 'absolute', left: (1080 - cam.dispW) / 2, top: (1920 - cam.dispH) / 2, width: cam.dispW, height: cam.dispH}} />
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

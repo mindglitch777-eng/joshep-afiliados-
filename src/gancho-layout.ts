@@ -3,6 +3,7 @@ import hookCfg from '../config/hook.json';
 import {camaraEn} from './camara';
 import {Plano} from './linea';
 import {MuestraCara, Plan} from './plan';
+import {zonasCara} from './geometria';
 
 // Layout del gancho con anchos reales de Montserrat 900 (kerning apagado), igual que los subtítulos.
 const A = anchos as Record<string, number>;
@@ -14,7 +15,7 @@ const limpia = (w: string) => w.replace(/[¿?¡!.,]/g, '');
 const ancho = (w: string, fs: number) => [...w].reduce((s, c) => s + ((A[c] ?? A.M) + LS_GANCHO) * fs, 0);
 
 export type PalabraGancho = {t: string; x: number; y: number; ancho: number; clave: boolean};
-export type LayoutGancho = {fs: number; palabras: PalabraGancho[]; top: number; alto: number; bajada: number; entra: boolean};
+export type LayoutGancho = {fs: number; palabras: PalabraGancho[]; top: number; alto: number; bajada: number; entra: boolean; detras: boolean};
 
 // gap normal 0.3em; al lado de la palabra clave se suma el padding de su caja
 let CLAVE = '';
@@ -31,7 +32,7 @@ const lineas = (ws: string[], fs: number) => {
 };
 
 // ojosMin: la y más alta de los ojos en pantalla durante el gancho (peor caso). El texto termina ≥ 40 px arriba.
-export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number): LayoutGancho => {
+export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: number, cabezaTop?: number): LayoutGancho => {
   const ws = texto.toUpperCase().split(/\s+/).filter(Boolean);
   CLAVE = limpia((clave ?? '').toUpperCase());
   const limite = ojosMin - U.margen_ojos;
@@ -45,7 +46,16 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
   // si ni a 72 px entra, se baja el video hasta 6% (con relleno degradado arriba)
   const falta = Math.max(0, U.y_top_min + h - limite);
   const bajada = Math.min(falta, U.bajar_video_max * 1920);
-  const top = Math.max(U.y_top_min, limite + bajada - h);
+  let top = Math.max(U.y_top_min, limite + bajada - h);
+  // detrás de Joseph: la cabeza tapa solo el 40% inferior de las letras; si no hay lugar arriba de la cabeza, va delante (plan B)
+  let detras = false;
+  if (cabezaTop !== undefined) {
+    const topDetras = cabezaTop + 0.4 * h - h;
+    if (topDetras >= U.y_top_min && topDetras + h <= limite + bajada) {
+      top = topDetras;
+      detras = true;
+    }
+  }
   const palabras: PalabraGancho[] = [];
   ls.forEach((l, i) => {
     let x = CENTRO_X - anchoL(l, fs) / 2;
@@ -56,14 +66,18 @@ export const layoutGancho = (texto: string, clave: string | undefined, ojosMin: 
       x += a;
     });
   });
-  return {fs, palabras, top, alto: h, bajada, entra: falta <= bajada && ls.length <= T.max_lineas};
+  return {fs, palabras, top, alto: h, bajada, entra: falta <= bajada && ls.length <= T.max_lineas, detras};
 };
 
 // Desde el plan: y más alta de los ojos durante el gancho (sin bajada) → layout.
 export const layoutDelPlan = (plan: Plan, planos: Plano[], pista: MuestraCara[], fps: number): LayoutGancho | null => {
   const g = plan.piezas.find((p) => p.tipo === 'gancho');
   if (!g || g.tipo !== 'gancho') return null;
-  let ojosMin = Infinity;
-  for (let fr = 0; fr <= g.hasta * fps; fr += 2) ojosMin = Math.min(ojosMin, camaraEn(plan, planos, pista, fps, fr).cara.ojos);
-  return layoutGancho(g.texto, g.clave, ojosMin);
+  let ojosMin = Infinity, cabeza = Infinity;
+  for (let fr = 0; fr <= g.hasta * fps; fr += 2) {
+    const c = camaraEn(plan, planos, pista, fps, fr).cara;
+    ojosMin = Math.min(ojosMin, c.ojos);
+    cabeza = Math.min(cabeza, zonasCara(c).cara.y0);
+  }
+  return layoutGancho(g.texto, g.clave, ojosMin, plan.recorte ? cabeza : undefined);
 };
