@@ -13,7 +13,7 @@ on:
         required: true
         default: '["20","09","06"]'
       fase:
-        description: "render o materiales"
+        description: "render, materiales o fotos"
         required: false
         default: render
       etiqueta:
@@ -54,8 +54,50 @@ jobs:
           git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
           git add . && git commit -qm "Materiales cifrados (temporal)"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-materiales
+  fotos:
+    # cuadros de Joseph (sin gráficos) de cada reel + tapa del libro, para los carruseles; salen cifrados
+    if: inputs.fase == 'fotos'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Enmascarar IDs
+        run: |
+          A=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - name: ffmpeg
+        run: command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)
+      - name: Caché de los CTA
+        uses: actions/cache/restore@v4
+        with: {path: piloto/activos/cta, key: "lote-cta-v1"}
+      - name: Bajar reels y sacar cuadros
+        run: |
+          export ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          mkdir -p fotos
+          for c in $(echo '${{ inputs.clips }}' | jq -r '.[]'); do
+            python3 pipeline/piloto/activos.py reel "$c.mov" >/dev/null
+            f=piloto/activos/reel/$c.mov
+            D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
+            for k in 1 2 3 4 5; do
+              t=$(python3 -c "print(round($D*($k*0.16), 2))")
+              ffmpeg -loglevel error -y -ss "$t" -i "$f" -frames:v 1 -vf "scale=1080:1920" -q:v 3 "fotos/r${c}_$k.jpg"
+            done
+            rm -f "$f"
+          done
+          for v in 14-quien-te-gusta 17-guia-para-empezar 33-empeza-hoy; do
+            ffmpeg -loglevel error -y -ss 3.0 -i piloto/activos/cta/$v.mp4 -frames:v 1 -q:v 2 "fotos/libro_$v.jpg"
+          done
+          ls fotos | wc -l
+      - name: Cifrar y subir a la rama cifrado-fotos
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          bash pipeline/piloto/cifrar.sh fotos fotos-joseph
+          mkdir enc && mv fotos-joseph.*.enc enc/ && cd enc && git init -q && git checkout -q -b cifrado-fotos
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Fotos cifradas (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-fotos
   base:
-    if: inputs.fase != 'materiales'
+    if: inputs.fase == 'render'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -165,7 +207,7 @@ jobs:
         with: {name: "clip-${{ matrix.clip }}", path: "entrega/${{ matrix.clip }}/", retention-days: 14}
   juntar:
     needs: [clip]
-    if: always() && inputs.fase != 'materiales'
+    if: always() && inputs.fase == 'render'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
