@@ -157,8 +157,26 @@ jobs:
       - name: Caché del reel
         uses: actions/cache@v4
         with: {path: piloto/activos/reel, key: "piloto-reel-${{ matrix.clip }}"}
-      - name: Bajar el reel
-        run: ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH") python pipeline/piloto/activos.py reel "${{ matrix.clip }}.mov"
+      - name: Video largo de origen
+        id: largo
+        if: startsWith(matrix.clip, 'L')
+        run: C=${{ matrix.clip }}; echo "n=${C%%_*}" >> "$GITHUB_OUTPUT"
+      - name: Caché del video largo (clips Lnn_kk)
+        if: startsWith(matrix.clip, 'L')
+        uses: actions/cache@v4
+        with: {path: "largos/videos/${{ steps.largo.outputs.n }}.mp4", key: "largo-${{ steps.largo.outputs.n }}"}
+      - name: Bajar el reel (o cortarlo del video largo)
+        run: |
+          C=${{ matrix.clip }}; export ACTIVOS=$(jq -r '.inputs.activos' "$GITHUB_EVENT_PATH")
+          if [[ $C == L* ]]; then
+            N=${C%%_*}; mkdir -p largos/videos
+            [ -s largos/videos/$N.mp4 ] || (python pipeline/piloto/activos.py largo "$N.mp4" && mv piloto/activos/largo/$N.mp4 largos/videos/)
+            jq -n --arg n "$N" '[{n: $n, nombre: ($n + ".mp4"), id: ""}]' > largos/inventario.json
+            read T0 T1 < <(python3 -c "import csv;r={x['k']:x for x in csv.DictReader(open('plans/largos_cortes.csv'))}['$C'];print(r['desde'],r['hasta'])")
+            [ -s piloto/activos/reel/$C.mov ] || python pipeline/largos/largos.py extraer $N $C $T0 $T1
+          else
+            python pipeline/piloto/activos.py reel "$C.mov"
+          fi
       - name: Caché de la transcripción y la cara
         id: cprep
         uses: actions/cache@v4
