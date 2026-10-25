@@ -1,0 +1,101 @@
+name: largos
+run-name: "Largos ${{ inputs.fase }}"
+# Videos largos → candidatos a clip viral (solo lectura de Drive; resultados cifrados en la rama cifrado-largos).
+# inventario: lista la carpeta (secreto = ID de la carpeta, enmascarado) · analizar: un job por video (whisper medium + puntaje).
+on:
+  workflow_dispatch:
+    inputs:
+      fase:
+        description: "inventario o analizar"
+        required: true
+        default: inventario
+      secreto:
+        description: "inventario: ID de la carpeta · analizar: largo:<n>=ID;... (no queda guardado)"
+        required: true
+      videos:
+        description: "analizar: lista JSON de n (L01, L02…)"
+        required: false
+        default: '["L01"]'
+permissions:
+  contents: write
+concurrency: largos
+env:
+  WHISPER_VER: v1.7.5
+jobs:
+  inventario:
+    if: inputs.fase == 'inventario'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Enmascarar
+        run: |
+          A=$(jq -r '.inputs.secreto' "$GITHUB_EVENT_PATH"); echo "::add-mask::$A"
+      - uses: actions/checkout@v4
+      - name: Listar la carpeta y medir los videos (sin bajarlos enteros)
+        run: |
+          CARPETA=$(jq -r '.inputs.secreto' "$GITHUB_EVENT_PATH") python3 pipeline/largos/largos.py inventario
+      - name: Cifrar y subir
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          bash pipeline/piloto/cifrar.sh largos inventario
+          mkdir enc && mv inventario.*.enc enc/ && cd enc && git init -q && git checkout -q -b cifrado-largos
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Largos: inventario cifrado (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-largos
+  analizar:
+    if: inputs.fase == 'analizar'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        n: ${{ fromJSON(inputs.videos) }}
+    steps:
+      - name: Enmascarar
+        run: |
+          A=$(jq -r '.inputs.secreto' "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$A"; for p in ${A//;/ }; do echo "::add-mask::${p##*=}"; done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip, cache-dependency-path: pipeline/requirements.txt}
+      - name: Dependencias
+        run: |
+          command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)
+          pip install -q -r pipeline/requirements.txt
+      - name: Caché whisper medium
+        uses: actions/cache/restore@v4
+        with: {path: whisper.cpp, key: "whisper-${{ env.WHISPER_VER }}-medium-${{ runner.os }}", fail-on-cache-miss: true}
+      - name: Inventario (sin IDs)
+        run: |
+          git fetch -q origin cifrado-largos 2>/dev/null || true
+          jq -n --arg n "${{ matrix.n }}" '[{n: $n, nombre: ($n + ".mp4"), id: ""}]' > /tmp/inv.json
+          mkdir -p largos && cp /tmp/inv.json largos/inventario.json
+      - name: Caché del video
+        uses: actions/cache@v4
+        with: {path: "largos/videos/${{ matrix.n }}.mp4", key: "largo-${{ matrix.n }}"}
+      - name: Bajar el video
+        run: |
+          mkdir -p largos/videos
+          [ -s largos/videos/${{ matrix.n }}.mp4 ] || (ACTIVOS=$(jq -r '.inputs.secreto' "$GITHUB_EVENT_PATH") python3 pipeline/piloto/activos.py largo "${{ matrix.n }}.mp4" && mv piloto/activos/largo/${{ matrix.n }}.mp4 largos/videos/)
+          ls -la largos/videos | tail -1
+      - name: Transcribir y puntuar
+        run: python3 pipeline/largos/largos.py analizar ${{ matrix.n }}
+      - name: Cifrar
+        run: bash pipeline/piloto/cifrar.sh largos/out/${{ matrix.n }} an-${{ matrix.n }}
+      - uses: actions/upload-artifact@v4
+        with: {name: "an-${{ matrix.n }}", path: "an-${{ matrix.n }}.*.enc", retention-days: 3}
+  juntar:
+    needs: [analizar]
+    if: always() && inputs.fase == 'analizar'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {path: enc, merge-multiple: true}
+      - name: Subir cifrado
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p enc && cd enc && ls | wc -l && git init -q && git checkout -q -b cifrado-largos
+          git config user.name "github-actions[bot]"; git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Largos: análisis cifrado (temporal)"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" cifrado-largos
