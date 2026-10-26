@@ -1,36 +1,18 @@
-dia,reel,carrusel,story_cta
-1,17 · Te quedaste 40 min de más,—,story-01
-2,03 · Más plata no te hace atractivo,—,story-02
-3,11 · Tu cuerpo ya le contó la verdad,—,story-03
-4,"15 · La escena, no tus datos",—,story-04
-5,"23 · Si todas te sirven, no elegís",—,story-05
-6,25 · Sin citas y no sabés por qué,"03 · Llueve, el café está cerrado y ella te mira: «¿y ahora?»",story-06
-7,12 · No sos divertido: estás rogando,—,story-07
-8,01 · Ninguna frase te vuelve seguro,02 · Llevás 20 minutos preguntando y ella no sabe si coqueteás,story-08
-9,14 · Si la entrevistás no la atraés,—,story-09
-10,26 · Tu rutina no cambió nada,06 · Se tocó el pelo… ¿le gustás?,story-10
-11,19 · Ella ya imagina estar con vos,—,story-01
-12,31 · Tus amigos frenan tu vida social,07 · Hablaste 20 minutos de tu trabajo en la primera cita,story-02
-13,04 · Liderar no es mandar,—,story-03
-14,34 · No necesitás salir cada noche,08 · Te enojaste con el mozo y ella lo vio todo,story-04
-15,21 · Te apurás y perdés todo,—,story-05
-16,20 · Más confianza que mil videos,"14 · Cuando te gusta mucho, te olvidás de elegirla",story-06
-17,18 · Esperar que cambie te estanca,—,story-07
-18,10 · No toda mujer es la indicada,04 · Una semana hablando por chat y nunca la invitaste,story-08
-19,16 · No seas su servicio gratuito,—,story-09
-20,05 · Sé un hombre resolutivo,11 · Decidís todo el día… pero con ella pedís permiso,story-10
-21,02 · Ser bueno no te hace el elegido,—,story-01
-22,13 · Tocarse el pelo no es interés,"15 · Antes de que termine la cita, ella ya sabe cómo sería estar con vos",story-02
-23,27 · Tu puesto impresiona 5 minutos,—,story-03
-24,08 · Su confianza no es atracción,12 · ¿querés hacerla reír cada 10 segundos? estás rogando,story-04
-25,24 · La amabilidad selectiva arruina,—,story-05
-26,28 · Liderar empieza en tus amigos,10 · Tus amigos ya no salen y tu vida social se frenó,story-06
-27,22 · Ella no sabe si coqueteás,—,story-07
-28,06 · Gustarle no es que confíe en vos,13 · 3 conversaciones valen más que mil videos de youtube,story-08
-29,07 · Te olvidás de seleccionarla,—,story-09
-30,30 · Una semana de chat y no avanzás,"09 · Si todas te sirven, no estás eligiendo",story-10
-31,29 · Con ella empezás a pedir permiso,—,story-01
-32,09 · Un ramo de flores no lo arregla,01 · La cita iba perfecto… hasta que te apuraste,story-02
-33,33 · El problema no es tu amabilidad,—,story-03
-34,—,05 · Le resolvés todos los problemas… y te ve como su servicio gratis,story-04
-35,—,—,story-05
+dia,video_1,video_2,carrusel,story
+1,dia01-clip17.mp4 · Te quedaste 40 min de más,dia02-clip03.mp4 · Más plata no te hace atractivo,05 · Le resolvés todos los problemas… y te ve como su servicio gratis,story-01
+2,dia03-clip11.mp4 · Tu cuerpo ya le contó la verdad,"dia04-clip15.mp4 · La escena, no tus datos","03 · Llueve, el café está cerrado y ella te mira: «¿y ahora?»",story-02
+3,"dia05-clip23.mp4 · Si todas te sirven, no elegís",dia06-clip25.mp4 · Sin citas y no sabés por qué,"09 · Si todas te sirven, no estás eligiendo",story-03
+4,dia07-clip12.mp4 · No sos divertido: estás rogando,dia08-clip01.mp4 · Ninguna frase te vuelve seguro,06 · Se tocó el pelo… ¿le gustás?,story-04
+5,dia09-clip14.mp4 · Si la entrevistás no la atraés,dia10-clip26.mp4 · Tu rutina no cambió nada,07 · Hablaste 20 minutos de tu trabajo en la primera cita,story-05
+6,dia11-clip19.mp4 · Ella ya imagina estar con vos,dia12-clip31.mp4 · Tus amigos frenan tu vida social,08 · Te enojaste con el mozo y ella lo vio todo,story-06
+7,dia13-clip04.mp4 · Liderar no es mandar,dia14-clip34.mp4 · No necesitás salir cada noche,02 · Llevás 20 minutos preguntando y ella no sabe si coqueteás,story-07
+8,dia15-clip21.mp4 · Te apurás y perdés todo,dia16-clip20.mp4 · Más confianza que mil videos,04 · Una semana hablando por chat y nunca la invitaste,story-08
+9,dia17-clip18.mp4 · Esperar que cambie te estanca,dia18-clip10.mp4 · No toda mujer es la indicada,"14 · Cuando te gusta mucho, te olvidás de elegirla",story-09
+10,dia19-clip16.mp4 · No seas su servicio gratuito,dia20-clip05.mp4 · Sé un hombre resolutivo,11 · Decidís todo el día… pero con ella pedís permiso,story-10
+11,dia21-clip02.mp4 · Ser bueno no te hace el elegido,dia22-clip13.mp4 · Tocarse el pelo no es interés,12 · ¿querés hacerla reír cada 10 segundos? estás rogando,story-01
+12,dia23-clip27.mp4 · Tu puesto impresiona 5 minutos,dia24-clip08.mp4 · Su confianza no es atracción,"15 · Antes de que termine la cita, ella ya sabe cómo sería estar con vos",story-02
+13,dia25-clip24.mp4 · La amabilidad selectiva arruina,dia26-clip28.mp4 · Liderar empieza en tus amigos,10 · Tus amigos ya no salen y tu vida social se frenó,story-03
+14,dia27-clip22.mp4 · Ella no sabe si coqueteás,dia28-clip06.mp4 · Gustarle no es que confíe en vos,01 · La cita iba perfecto… hasta que te apuraste,story-04
+15,dia29-clip07.mp4 · Te olvidás de seleccionarla,dia30-clip30.mp4 · Una semana de chat y no avanzás,13 · 3 conversaciones valen más que mil videos de youtube,story-05
+16,dia31-clip29.mp4 · Con ella empezás a pedir permiso,dia32-clip09.mp4 · Un ramo de flores no lo arregla,,story-06
+17,dia33-clip33.mp4 · El problema no es tu amabilidad,,,story-07
